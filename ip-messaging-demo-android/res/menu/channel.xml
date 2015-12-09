@@ -1,0 +1,65 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.twilio.example.ChannelActivity" >
+
+    <item android:id="@+id/file"
+          android:title="@string/Options" >
+    <!-- "file" submenu -->
+    <menu>
+    <item
+        android:id="@+id/action_create_public"
+        android:icon="@drawable/ic_action_content_add"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/Create_public_channel"/>
+    <item
+        android:id="@+id/action_create_private"
+        android:icon="@drawable/ic_action_content_add"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/Create_private_channel"/>
+    
+    <item
+        android:id="@+id/action_create_private_withoptions"
+        android:icon="@drawable/ic_action_content_add"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/Create_private_channel_withOption"/>
+    
+    <item
+        android:id="@+id/action_create_public_withoptions"
+        android:icon="@drawable/ic_action_content_add"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/Create_public_channel_withOption"/>
+ 
+    <item
+        android:id="@+id/action_search_by_unique_name"
+        android:icon="@drawable/ic_action_content_add"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/Search_channel_by_unique_name"/>
+    <item
+        android:id="@+id/action_logout"
+        android:icon="@drawable/ic_action_settings"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/logout"/>
+    <item
+        android:id="@+id/action_shutdown"
+        android:icon="@drawable/ic_action_settings"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/shutdownlib"/>
+
+    <item
+        android:id="@+id/action_unregistercm"
+        android:orderInCategory="100"
+        android:icon="@drawable/ic_menu_stop"
+        android:showAsAction="never"
+        android:title="@string/unregister_gcm"
+        />
+    
+    </menu>
+    </item>
+</menu>

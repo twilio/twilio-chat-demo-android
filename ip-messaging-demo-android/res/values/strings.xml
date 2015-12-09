@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Android IP Messaging Demo</string>
+    <string name="client_name">Client Name</string>
+    <string name="login">Log In</string>
+    <string name="logout">Logout Client</string>
+    <string name="shutdownlib">Shutdown SDK</string>
+    <string name="invite_participant">Invite Participant</string>
+    <string name="incoming_call_message">You got a Channel Invite. Join it?</string>
+    <string name="join">Join</string>
+    <string name="decline">Decline</string>
+    <string name="incoming_call">Incoming Call</string>
+    <string name="conversation">Conversation</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_channel">ChannelActivity</string>
+    <string name="title_activity_message">MessageActivity</string>
+    <string name="title_update_friendly_name">Enter a friendly name</string>
+    <string name="title_update_topic">Enter a topic</string>
+     <string name="title_update_message">Update message</string>
+    <string name="title_add_channel_name">Channel Friendly Name</string>
+    <string name="title_invite_member">Invite member</string>
+    <string name="title_add_member">Add member</string>
+     <string name="title_search_channel_unique_name">Search Channel by Unique Name</string>
+    <string name="title_remove_member">Remove member</string>
+    <string name="type_message">Type message</string>
+    <string name="OK">OK</string>
+     <string name="Options">Options</string>
+    <string name="Create_public_channel">Create public channel</string>
+    <string name="Create_private_channel">Create private channel</string>
+    <string name="RegId">Reg Id:</string>
+    <string name="gcm">GCM</string>
+    <string name="unregister_gcm">Unregister GCM Token</string>
+    <string name="Create_public_channel_withOption">Create Pub Ch with Options</string>
+    <string name="Create_private_channel_withOption">Create Pri Ch with Options</string>
+     <string name="Search_channel_by_unique_name">Search channel by unique name</string>
+    <string name="about">About</string>
+
+</resources>
