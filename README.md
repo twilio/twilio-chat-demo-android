@@ -1,4 +1,4 @@
- IP Messaging Demo Application Overview
+# IP Messaging Demo Application Overview
 
 ## Getting Started
 
@@ -8,12 +8,34 @@ What you'll minimally need to get started:
 
 - A clone of this repository
 - [A way to create an IP Messaging Service Instance and generate client tokens](https://www.twilio.com/docs/api/ip-messaging/guides/identity)
-- The .jar and the .so file from the [IP Messaging client for Android distribution](https://media.twiliocdn.com/sdk/rtc/android/ip-messaging/v0.4/twilio-rtc-ip-messaging.tar.bz2)
-- The .jar and the .so file from the [Twilio Common Android distribution](http://media.twiliocdn.com/sdk/rtc/android/common/v0.1/twilio-rtc-common.tar.bz2)
-- Google Play Services library : [Follow the instructions here] (https://developers.google.com/android/guides/setup)
+- Gradle installation
+- Google Play Services library : [Follow the instructions here](https://developers.google.com/android/guides/setup)
 
+## Building
 
-Change the value of AUTH_PHP_SCRIPT in LoginActivity.java to point to a valid Access-Token server.
+0. Set up gradle wrapper to use correct gradle version.
 
+Run
+```
+./gradlew wrapper
+```
 
+1. Set the value of `ACCESS_TOKEN_SERVICE_URL` in ip-messaging-demo-android/gradle.properties file to point to a valid Access-Token server.
 
+Create that file if it doesn't exist with the following contents:
+
+```
+ACCESS_TOKEN_SERVICE_URL=http://companyfoo.com/get-token/
+```
+
+NOTE: no need for quotes around the URL, they will be added automatically.
+
+You can also pass this parameter to gradle during build without need to create a properties file, as follows:
+
+```
+gradle -PACCESS_TOKEN_SERVICE_URL=http://companyfoo.com/get-token/ build
+```
+
+2. Run `gradle build` to fetch Twilio SDK files and build application.
+
+3. You can import this project into Android Studio if you so desire by selecting `Import Project (Eclipse ADT, Gradle, etc)` from the menu and then build using Studio's Build menu.
