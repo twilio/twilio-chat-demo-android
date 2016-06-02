@@ -1,5 +1,4 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-
     package="com.twilio.ipmessaging.demo"
     android:versionCode="26"
     android:versionName="1.4" >
@@ -58,14 +57,8 @@
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
         </service>
-        
-        <service
-            android:name="com.twilio.ipmessaging.TwilioIPMessagingClientService"
-            android:exported="false" />
-        
+                
         <meta-data android:name="com.google.android.gms.version"
     		android:value="@integer/google_play_services_version" />
-
     </application>
-
 </manifest>
