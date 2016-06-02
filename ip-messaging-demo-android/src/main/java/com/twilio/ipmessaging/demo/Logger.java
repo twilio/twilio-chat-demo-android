@@ -16,7 +16,8 @@ public final class Logger
     public static Logger getLogger(Class<?> cls)
     {
         if (!loggers.containsKey(cls)) {
-            synchronized (loggers) {
+            synchronized (loggers)
+            {
                 if (!loggers.containsKey(cls)) {
                     loggers.put(cls, new Logger(cls.getSimpleName()));
                 }
@@ -29,25 +30,21 @@ public final class Logger
     {
         Logger.globalLevel = level;
     }
-
     public static int getLogLevel()
     {
         return Logger.globalLevel;
     }
-
     private final String name;
-    private int level = INHERIT;
+    private int          level = INHERIT;
 
     private Logger(final String name)
     {
         this.name = name;
     }
-
     public void setLevel(int level)
     {
         this.level = level;
     }
-
     public boolean isVerboseEnabled()
     {
         return level <= Log.VERBOSE || (level == INHERIT && globalLevel <= Log.VERBOSE);

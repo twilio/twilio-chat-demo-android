@@ -13,58 +13,61 @@ import uk.co.ribot.easyadapter.annotations.LayoutId;
 import uk.co.ribot.easyadapter.annotations.ViewId;
 
 @LayoutId(R.layout.message_item_layout)
-public class MessageViewHolder extends ItemViewHolder<Message> {
+public class MessageViewHolder extends ItemViewHolder<Message>
+{
+    @ViewId(R.id.body)
+    TextView body;
 
-	@ViewId(R.id.body)
-	TextView body;
-	
-	@ViewId(R.id.txtInfo)
-	TextView txtInfo;
-	
-	@ViewId(R.id.singleMessageContainer)
-	LinearLayout singleMessageContainer;
+    @ViewId(R.id.txtInfo)
+    TextView txtInfo;
 
-	View view;
+    @ViewId(R.id.singleMessageContainer)
+    LinearLayout singleMessageContainer;
 
-	public MessageViewHolder(View view) {
-		super(view);
-		this.view = view;
-	}
+    View view;
 
-	@Override
-	public void onSetListeners() {
-		view.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				OnMessageClickListener listener = getListener(OnMessageClickListener.class);
-				if (listener != null) {
-					listener.onMessageClicked(getItem());
-				}
-			}
-		});
-	}
-	@Override
-	public void onSetValues(Message message, PositionInfo pos) {
-		StringBuffer textInfo = new StringBuffer();
-		if(message != null) {
-			String dateString = message.getTimeStamp();
-			if(dateString != null) {
-				textInfo.append(message.getAuthor()).append(":").append(dateString);
-			} else {
-				textInfo.append(message.getAuthor());
-			}
-			txtInfo.setText(textInfo.toString());
-			body.setText(message.getMessageBody());
-			
-			boolean left = (message.getAuthor().compareTo(LoginActivity.local_author) ==0)? true:false;
-			body.setBackgroundResource(left ? R.drawable.bubble_a : R.drawable.bubble_b);
-			singleMessageContainer.setGravity(left ? Gravity.LEFT : Gravity.RIGHT);
-		}
-		
-	}
-	
-	public interface OnMessageClickListener {
-		void onMessageClicked(Message message);
-	}
+    public MessageViewHolder(View view)
+    {
+        super(view);
+        this.view = view;
+    }
 
+    @Override
+    public void onSetListeners()
+    {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+                OnMessageClickListener listener = getListener(OnMessageClickListener.class);
+                if (listener != null) {
+                    listener.onMessageClicked(getItem());
+                }
+            }
+        });
+    }
+    @Override
+    public void onSetValues(Message message, PositionInfo pos)
+    {
+        StringBuffer textInfo = new StringBuffer();
+        if (message != null) {
+            String dateString = message.getTimeStamp();
+            if (dateString != null) {
+                textInfo.append(message.getAuthor()).append(":").append(dateString);
+            } else {
+                textInfo.append(message.getAuthor());
+            }
+            txtInfo.setText(textInfo.toString());
+            body.setText(message.getMessageBody());
+
+            boolean left =
+                (message.getAuthor().compareTo(LoginActivity.local_author) == 0) ? true : false;
+            body.setBackgroundResource(left ? R.drawable.bubble_a : R.drawable.bubble_b);
+            singleMessageContainer.setGravity(left ? Gravity.LEFT : Gravity.RIGHT);
+        }
+    }
+
+    public interface OnMessageClickListener {
+        void onMessageClicked(Message message);
+    }
 }
