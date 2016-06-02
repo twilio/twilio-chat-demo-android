@@ -10,6 +10,7 @@ import com.twilio.ipmessaging.TwilioIPMessagingSDK;
 
 import com.twilio.ipmessaging.demo.BasicIPMessagingClient.LoginListener;
 import com.twilio.ipmessaging.demo.R;
+import com.twilio.ipmessaging.demo.BuildConfig;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -31,7 +32,6 @@ import android.widget.Toast;
 public class LoginActivity extends Activity implements LoginListener
 {
     private static final Logger logger = Logger.getLogger(LoginActivity.class);
-    private static final String AUTH_PHP_SCRIPT = "http://companyfoo.com/token";
 
     private static final String    DEFAULT_CLIENT_NAME = "TestUser";
     private ProgressDialog         progressDialog;
@@ -69,7 +69,7 @@ public class LoginActivity extends Activity implements LoginListener
                                         + "-android-" + getApplication().getPackageName();
 
                 StringBuilder url = new StringBuilder();
-                url.append(AUTH_PHP_SCRIPT);
+                url.append(BuildConfig.ACCESS_TOKEN_SERVICE_URL);
                 url.append("&identity=");
                 url.append(URLEncoder.encode(idChosen));
                 url.append("&endpointId=" + URLEncoder.encode(endpointIdFull));
