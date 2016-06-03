@@ -13,14 +13,16 @@ What you'll minimally need to get started:
 
 ## Building
 
-0. Set up gradle wrapper to use correct gradle version.
+### Set up gradle wrapper to use correct gradle version.
 
 Run
 ```
 ./gradlew wrapper
 ```
 
-1. Set the value of `ACCESS_TOKEN_SERVICE_URL` in ip-messaging-demo-android/gradle.properties file to point to a valid Access-Token server.
+### Set the value of `ACCESS_TOKEN_SERVICE_URL`
+
+Set the value of `ACCESS_TOKEN_SERVICE_URL` in ip-messaging-demo-android/gradle.properties file to point to a valid Access-Token server.
 
 Create that file if it doesn't exist with the following contents:
 
@@ -36,6 +38,10 @@ You can also pass this parameter to gradle during build without need to create a
 gradle -PACCESS_TOKEN_SERVICE_URL=http://companyfoo.com/get-token/ build
 ```
 
-2. Run `gradle build` to fetch Twilio SDK files and build application.
+### Build
 
-3. You can import this project into Android Studio if you so desire by selecting `Import Project (Eclipse ADT, Gradle, etc)` from the menu and then build using Studio's Build menu.
+Run `gradle build` to fetch Twilio SDK files and build application.
+
+### Android Studio
+
+You can import this project into Android Studio if you so desire by selecting `Import Project (Eclipse ADT, Gradle, etc)` from the menu and then build using Studio's Build menu.
