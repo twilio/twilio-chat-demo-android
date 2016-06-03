@@ -18,6 +18,7 @@ import com.twilio.ipmessaging.Member;
 import com.twilio.ipmessaging.Members;
 import com.twilio.ipmessaging.Message;
 import com.twilio.ipmessaging.Messages;
+import com.twilio.ipmessaging.ErrorInfo;
 import com.twilio.ipmessaging.impl.Logger;
 import com.twilio.ipmessaging.demo.R;
 
@@ -130,6 +131,19 @@ public class MessageActivity extends Activity implements ChannelListener
             }
         }
 
+        channel.synchronize(new Constants.CallbackListener<Channel>() {
+            @Override
+            public void onError(ErrorInfo errorInfo)
+            {
+                logger.e("Channel sync failed");
+            }
+            @Override
+            public void onSuccess(Channel result)
+            {
+                logger.d("Channel sync success for " + result.getFriendlyName());
+            }
+        });
+
         setupListView(channel);
         messageListView = (ListView)findViewById(R.id.message_list_view);
         if (messageListView != null) {
@@ -182,9 +196,9 @@ public class MessageActivity extends Activity implements ChannelListener
                         logger.d("member retrieved");
                         StringBuffer name = new StringBuffer();
                         for (int i = 0; i < members.length; i++) {
-                            name.append(members[i].getIdentity());
+                            name.append(members[i].getUserInfo().getIdentity());
                             if (i + 1 < members.length) {
-                                name.append(" ,");
+                                name.append(", ");
                             }
                         }
                         Toast toast =
@@ -202,7 +216,7 @@ public class MessageActivity extends Activity implements ChannelListener
                         leaveListener = new StatusListener() {
 
                             @Override
-                            public void onError()
+                            public void onError(ErrorInfo errorInfo)
                             {
                                 logger.e("Error leaving channel");
                             }
@@ -223,7 +237,7 @@ public class MessageActivity extends Activity implements ChannelListener
                         destroyListener = new StatusListener() {
 
                             @Override
-                            public void onError()
+                            public void onError(ErrorInfo errorInfo)
                             {
                                 logger.e("Error destroying channel");
                             }
@@ -274,7 +288,7 @@ public class MessageActivity extends Activity implements ChannelListener
                                        nameUpdateListener = new StatusListener() {
 
                                            @Override
-                                           public void onError()
+                                           public void onError(ErrorInfo errorInfo)
                                            {
                                                logger.e("Error changing name");
                                            }
@@ -329,7 +343,7 @@ public class MessageActivity extends Activity implements ChannelListener
                             }
 
                             @Override
-                            public void onError()
+                            public void onError(ErrorInfo errorInfo)
                             {
                                 logger.e("Setting attributes failed.");
                             }
@@ -371,7 +385,7 @@ public class MessageActivity extends Activity implements ChannelListener
                         membersObject.inviteByIdentity(memberName, new StatusListener() {
 
                             @Override
-                            public void onError()
+                            public void onError(ErrorInfo errorInfo)
                             {
                                 logger.e("Error inviteByIdentity.");
                             }
@@ -417,7 +431,7 @@ public class MessageActivity extends Activity implements ChannelListener
                         membersObject.addByIdentity(memberName, new StatusListener() {
 
                             @Override
-                            public void onError()
+                            public void onError(ErrorInfo errorInfo)
                             {
                                 logger.e("Error addByIdentity");
                             }
@@ -461,7 +475,7 @@ public class MessageActivity extends Activity implements ChannelListener
                     membersObject.removeMember(member, new StatusListener() {
 
                         @Override
-                        public void onError()
+                        public void onError(ErrorInfo errorInfo)
                         {
                             logger.e("Error at removeMember operation");
                         }
@@ -506,7 +520,7 @@ public class MessageActivity extends Activity implements ChannelListener
                         message.updateMessageBody(updatedMsg, new StatusListener() {
 
                             @Override
-                            public void onError()
+                            public void onError(ErrorInfo errorInfo)
                             {
                                 logger.e("Error at updating message");
                             }
@@ -640,7 +654,7 @@ public class MessageActivity extends Activity implements ChannelListener
                                         messagesObject.removeMessage(message, new StatusListener() {
 
                                             @Override
-                                            public void onError()
+                                            public void onError(ErrorInfo errorInfo)
                                             {
                                                 logger.e("Error removing message.");
                                             }
@@ -684,7 +698,7 @@ public class MessageActivity extends Activity implements ChannelListener
             messagesObject.sendMessage(message, new StatusListener() {
 
                 @Override
-                public void onError()
+                public void onError(ErrorInfo errorInfo)
                 {
                     logger.e("Error sending message.");
                 }
@@ -738,7 +752,7 @@ public class MessageActivity extends Activity implements ChannelListener
     public void onMemberJoin(Member member)
     {
         if (member != null) {
-            showToast(member.getIdentity() + " joined");
+            showToast(member.getUserInfo().getIdentity() + " joined");
         }
     }
 
@@ -746,7 +760,7 @@ public class MessageActivity extends Activity implements ChannelListener
     public void onMemberChange(Member member)
     {
         if (member != null) {
-            showToast(member.getIdentity() + " changed");
+            showToast(member.getUserInfo().getIdentity() + " changed");
         }
     }
 
@@ -754,7 +768,7 @@ public class MessageActivity extends Activity implements ChannelListener
     public void onMemberDelete(Member member)
     {
         if (member != null) {
-            showToast(member.getIdentity() + " deleted");
+            showToast(member.getUserInfo().getIdentity() + " deleted");
         }
     }
 
@@ -783,7 +797,7 @@ public class MessageActivity extends Activity implements ChannelListener
     {
         if (member != null) {
             TextView typingIndc = (TextView)findViewById(R.id.typingIndicator);
-            String   text = member.getIdentity() + " started typing .....";
+            String   text = member.getUserInfo().getIdentity() + " started typing .....";
             typingIndc.setText(text);
             typingIndc.setTextColor(Color.RED);
             logger.d(text);
@@ -796,7 +810,7 @@ public class MessageActivity extends Activity implements ChannelListener
         if (member != null) {
             TextView typingIndc = (TextView)findViewById(R.id.typingIndicator);
             typingIndc.setText(null);
-            logger.d(member.getIdentity() + " ended typing");
+            logger.d(member.getUserInfo().getIdentity() + " ended typing");
         }
     }
 
@@ -822,10 +836,11 @@ public class MessageActivity extends Activity implements ChannelListener
                     channel.setUniqueName(uniqueName, new StatusListener() {
 
                         @Override
-                        public void onError()
+                        public void onError(ErrorInfo errorInfo)
                         {
                             logger.e("Error changing uniqueName");
                         }
+
                         @Override
                         public void onSuccess()
                         {
@@ -839,8 +854,8 @@ public class MessageActivity extends Activity implements ChannelListener
     }
 
     @Override
-    public void onChannelHistoryLoaded(Channel channel)
+    public void onSynchronizationChange(Channel channel)
     {
-        logger.d("Received onChannelSynchronization callback " + channel.getFriendlyName());
+        logger.d("Received onSynchronizationChange callback " + channel.getFriendlyName());
     }
 }

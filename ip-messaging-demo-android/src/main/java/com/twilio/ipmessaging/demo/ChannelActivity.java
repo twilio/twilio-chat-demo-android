@@ -21,6 +21,9 @@ import com.twilio.ipmessaging.IPMessagingClientListener;
 import com.twilio.ipmessaging.Member;
 import com.twilio.ipmessaging.Message;
 import com.twilio.ipmessaging.TwilioIPMessagingSDK;
+import com.twilio.ipmessaging.TwilioIPMessagingClient;
+import com.twilio.ipmessaging.ErrorInfo;
+import com.twilio.ipmessaging.UserInfo;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -109,7 +112,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
                     }
 
                     @Override
-                    public void onError()
+                    public void onError(ErrorInfo errorInfo)
                     {
                         logger.e("Error creating a channel");
                     }
@@ -143,7 +146,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
                     gcmToken, new StatusListener() {
 
                         @Override
-                        public void onError()
+                        public void onError(ErrorInfo errorInfo)
                         {
                             logger.w("GCM unregistration not successful");
                             runOnUiThread(new Runnable() {
@@ -240,7 +243,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
                             }
 
                             @Override
-                            public void onError()
+                            public void onError(ErrorInfo errorInfo)
                             {
                             }
                         });
@@ -335,7 +338,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
                                     joinListener = new StatusListener() {
 
                                         @Override
-                                        public void onError()
+                                        public void onError(ErrorInfo errorInfo)
                                         {
                                             logger.e("failed to join channel");
                                         }
@@ -373,7 +376,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
                 if (channelsObject != null) {
                     channelsObject.loadChannelsWithListener(new StatusListener() {
                         @Override
-                        public void onError()
+                        public void onError(ErrorInfo errorInfo)
                         {
                             logger.d("Failed to loadChannelsWithListener");
                         }
@@ -423,7 +426,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
                                         channel.join(new StatusListener() {
 
                                             @Override
-                                            public void onError()
+                                            public void onError(ErrorInfo errorInfo)
                                             {
                                                 logger.d("Failed to join channel");
                                             }
@@ -454,7 +457,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
                                         declineInvitationListener = new StatusListener() {
 
                                             @Override
-                                            public void onError()
+                                            public void onError(ErrorInfo errorInfo)
                                             {
                                                 logger.d("Failed to decline channel invite");
                                             }
@@ -513,7 +516,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
     public void onTypingStarted(Member member)
     {
         if (member != null) {
-            logger.d(member.getIdentity() + " started typing");
+            logger.d(member.getUserInfo().getIdentity() + " started typing");
         }
     }
 
@@ -521,14 +524,32 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
     public void onTypingEnded(Member member)
     {
         if (member != null) {
-            logger.d(member.getIdentity() + " ended typing");
+            logger.d(member.getUserInfo().getIdentity() + " ended typing");
         }
     }
 
     @Override
-    public void onChannelHistoryLoaded(Channel channel)
+    public void onSynchronizationChange(Channel channel)
     {
-        logger.e("Received onChannelHistoryLoaded callback " + channel.getFriendlyName());
+        logger.e("Received onSynchronizationChange callback " + channel.getFriendlyName());
+    }
+
+    @Override
+    public void onChannelSynchronizationChange(Channel channel)
+    {
+        logger.e("Received onChannelSynchronizationChange callback " + channel.getFriendlyName());
+    }
+
+    @Override
+    public void onClientSynchronization(TwilioIPMessagingClient.SynchronizationStatus status)
+    {
+        logger.e("Received onClientSynchronization callback " + status.toString());
+    }
+
+    @Override
+    public void onUserInfoChange(UserInfo userInfo)
+    {
+        logger.e("Received onUserInfoChange callback");
     }
 
     @Override
@@ -557,15 +578,10 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
     }
 
     @Override
-    public void onError(int errorCode, String errorText)
+    public void onError(ErrorInfo errorInfo)
     {
-        logger.d("Received onError callback " + errorCode + " " + errorText);
-    }
-
-    @Override
-    public void onAttributesChange(String attributes)
-    {
-        logger.d("Received onAttributesChange callback ");
+        logger.d("Received onError callback " + errorInfo.getErrorCode() + " "
+                 + errorInfo.getErrorText());
     }
 
     @Override
@@ -576,6 +592,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
         }
     }
 
+    @Override
     public void onMessageChange(Message message)
     {
         if (message != null) {
@@ -595,7 +612,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
     public void onMemberJoin(Member member)
     {
         if (member != null) {
-            logger.d(member.getIdentity() + " joined");
+            logger.d(member.getUserInfo().getIdentity() + " joined");
         }
     }
 
@@ -603,7 +620,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
     public void onMemberChange(Member member)
     {
         if (member != null) {
-            logger.d(member.getIdentity() + " changed");
+            logger.d(member.getUserInfo().getIdentity() + " changed");
         }
     }
 
@@ -611,7 +628,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
     public void onMemberDelete(Member member)
     {
         if (member != null) {
-            logger.d(member.getIdentity() + " deleted");
+            logger.d(member.getUserInfo().getIdentity() + " deleted");
         }
     }
 

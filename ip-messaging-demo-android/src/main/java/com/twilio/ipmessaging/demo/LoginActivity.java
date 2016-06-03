@@ -5,8 +5,10 @@ import java.net.URLEncoder;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
+
 import com.twilio.ipmessaging.Constants.StatusListener;
 import com.twilio.ipmessaging.TwilioIPMessagingSDK;
+import com.twilio.ipmessaging.ErrorInfo;
 
 import com.twilio.ipmessaging.demo.BasicIPMessagingClient.LoginListener;
 import com.twilio.ipmessaging.demo.R;
@@ -211,7 +213,7 @@ public class LoginActivity extends Activity implements LoginListener
                 etRegId.setText(token);
                 chatClient.getIpMessagingClient().registerGCMToken(token, new StatusListener() {
                     @Override
-                    public void onError()
+                    public void onError(ErrorInfo errorInfo)
                     {
                         logger.w("GCM registration not successful");
                     }

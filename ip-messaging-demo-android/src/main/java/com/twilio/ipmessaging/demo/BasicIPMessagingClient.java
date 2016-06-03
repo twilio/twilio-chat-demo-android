@@ -208,15 +208,27 @@ public class BasicIPMessagingClient extends CallbackListener<TwilioIPMessagingCl
     }
 
     @Override
-    public void onChannelHistoryLoaded(Channel channel)
+    public void onClientSynchronization(TwilioIPMessagingClient.SynchronizationStatus status)
     {
-        logger.d("Received onChannelHistoryLoaded callback " + channel.getFriendlyName());
+        logger.e("Received onClientSynchronization callback with status " + status.toString());
     }
 
     @Override
-    public void onAccessManagerTokenExpire(TwilioAccessManager arg0)
+    public void onUserInfoChange(UserInfo userInfo)
     {
-        logger.d("Received AccessManager:onAccessManagerTokenExpire.");
+        logger.e("Received onUserInfoChange callback");
+    }
+
+    @Override
+    public void onChannelSynchronizationChange(Channel channel)
+    {
+        logger.e("Received onChannelSynchronizationChange callback " + channel.getFriendlyName());
+    }
+
+    @Override
+    public void onTokenExpired(TwilioAccessManager arg0)
+    {
+        logger.d("Received AccessManager:onTokenExpired.");
     }
 
     @Override
