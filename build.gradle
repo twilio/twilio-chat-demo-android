@@ -10,9 +10,6 @@ buildscript {
 
 allprojects {
     repositories {
-        maven {
-            url 'https://twilio.bintray.com/releases'
-        }
         jcenter()
     }
 }
