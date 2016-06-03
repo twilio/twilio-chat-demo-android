@@ -6,12 +6,16 @@ import java.util.List;
 import com.twilio.common.TwilioAccessManager;
 import com.twilio.common.TwilioAccessManagerFactory;
 import com.twilio.common.TwilioAccessManagerListener;
+
 import com.twilio.ipmessaging.Channel;
-import com.twilio.ipmessaging.Constants.InitListener;
 import com.twilio.ipmessaging.Constants.StatusListener;
+import com.twilio.ipmessaging.Constants.CallbackListener;
 import com.twilio.ipmessaging.IPMessagingClientListener;
 import com.twilio.ipmessaging.TwilioIPMessagingClient;
 import com.twilio.ipmessaging.TwilioIPMessagingSDK;
+import com.twilio.ipmessaging.ErrorInfo;
+import com.twilio.ipmessaging.UserInfo;
+
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -20,7 +24,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-public class BasicIPMessagingClient
+public class BasicIPMessagingClient extends CallbackListener<TwilioIPMessagingClient>
     implements IPMessagingClientListener, TwilioAccessManagerListener
 {
     private static final Logger logger = Logger.getLogger(BasicIPMessagingClient.class);
@@ -78,28 +82,14 @@ public class BasicIPMessagingClient
         this.urlString = url;
         this.loginListenerHandler = setupListenerHandler();
         TwilioIPMessagingSDK.setLogLevel(android.util.Log.DEBUG);
-        if (!TwilioIPMessagingSDK.isInitialized()) {
-            TwilioIPMessagingSDK.initializeSDK(context, new InitListener() {
-                @Override
-                public void onInitialized()
-                {
-                    createClientWithAccessManager(listener);
-                }
-                @Override
-                public void onError(Exception error)
-                {
-                    logger.e("Error initializing the SDK :" + error.getMessage());
-                }
-            });
-        } else {
-            this.createClientWithAccessManager(listener);
-        }
+        createClientWithAccessManager(listener);
     }
 
     public BasicIPMessagingClient()
     {
         super();
     }
+
     public List<Channel> getChannelList()
     {
         List<Channel> list = Arrays.asList(this.channels);
@@ -147,21 +137,22 @@ public class BasicIPMessagingClient
     }
 
     @Override
-    public void onError(int errorCode, String errorText)
+    public void onSuccess(TwilioIPMessagingClient result)
     {
-        logger.d("Received onError event.");
+        logger.d("Received completely initialized TwilioIPMessagingClient");
     }
 
     @Override
-    public void onAttributesChange(String attributes)
+    public void onError(ErrorInfo errorInfo)
     {
-        logger.d("Received onAttributesChange event.");
+        logger.d("Received onError event.");
     }
 
     public TwilioIPMessagingClient getIpMessagingClient()
     {
         return ipMessagingClient;
     }
+
     private void createClientWithAccessManager(final LoginListener listener)
     {
         accessManager = TwilioAccessManagerFactory.createAccessManager(
@@ -186,8 +177,16 @@ public class BasicIPMessagingClient
                 }
             });
 
-        ipMessagingClient = TwilioIPMessagingSDK.createIPMessagingClientWithAccessManager(
-            BasicIPMessagingClient.this.acessMgr, BasicIPMessagingClient.this);
+        TwilioIPMessagingClient.Properties props =
+            new TwilioIPMessagingClient.Properties.Builder()
+                .setSynchronizationStrategy(
+                    TwilioIPMessagingClient.SynchronizationStrategy.CHANNELS_LIST)
+                .setInitialMessageCount(50)
+                .createProperties();
+
+        ipMessagingClient =
+            TwilioIPMessagingSDK.createClient(accessManager, props, BasicIPMessagingClient.this);
+
         if (ipMessagingClient != null) {
             ipMessagingClient.setListener(BasicIPMessagingClient.this);
             Intent        intent = new Intent(context, ChannelActivity.class);
@@ -204,7 +203,7 @@ public class BasicIPMessagingClient
                 }
             });
         } else {
-            listener.onLoginError("ipMessagingClientWithAccessManager is null");
+            listener.onLoginError("ipMessagingClient is null");
         }
     }
 
