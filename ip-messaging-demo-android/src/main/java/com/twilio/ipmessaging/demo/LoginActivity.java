@@ -39,7 +39,7 @@ public class LoginActivity extends Activity implements LoginListener
     private Button                 logout;
     private CheckBox               gcmCxbx;
     private Button                 stopGCM;
-    private String                 capabilityToken = null;
+    private String                 accessToken = null;
     private EditText               clientNameTextBox;
     private BasicIPMessagingClient chatClient;
     private String                 endpoint_id = "";
@@ -76,7 +76,7 @@ public class LoginActivity extends Activity implements LoginListener
                 url.append(clientNameTextBox.getText().toString());
                 url.append("&endpoint_id=" + LoginActivity.this.endpoint_id);
                 logger.e("url string : " + url.toString());
-                new GetCapabilityTokenAsyncTask().execute(url.toString());
+                new GetAccessTokenAsyncTask().execute(url.toString());
             }
         });
 
@@ -121,7 +121,10 @@ public class LoginActivity extends Activity implements LoginListener
         aboutDialog.show();
     }
 
-    private class GetCapabilityTokenAsyncTask extends AsyncTask<String, Void, String>
+    /**
+     * Modify this method if you need to provide more information to your Access Token Service.
+     */
+    private class GetAccessTokenAsyncTask extends AsyncTask<String, Void, String>
     {
         private String urlString;
 
@@ -129,7 +132,7 @@ public class LoginActivity extends Activity implements LoginListener
         protected void onPostExecute(String result)
         {
             super.onPostExecute(result);
-            LoginActivity.this.chatClient.doLogin(capabilityToken, LoginActivity.this, urlString);
+            LoginActivity.this.chatClient.doLogin(accessToken, LoginActivity.this, urlString);
         }
 
         @Override
@@ -145,12 +148,12 @@ public class LoginActivity extends Activity implements LoginListener
         {
             try {
                 urlString = params[0];
-                capabilityToken = HttpHelper.httpGet(params[0]);
-                chatClient.setCapabilityToken(capabilityToken);
+                accessToken = HttpHelper.httpGet(params[0]);
+                chatClient.setAccessToken(accessToken);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return capabilityToken;
+            return accessToken;
         }
     }
 

@@ -44,10 +44,10 @@ public abstract class HttpHelper
 
         if (responseCode == HttpURLConnection.HTTP_OK) {
             InputStream is = conn.getInputStream();
-            String      capabilityToken = stringFromInputStream(is);
+            String      accessToken = stringFromInputStream(is);
             is.close();
             conn.disconnect();
-            return capabilityToken;
+            return accessToken;
         } else {
             conn.disconnect();
             throw new Exception("Got error code " + responseCode + " from server");
