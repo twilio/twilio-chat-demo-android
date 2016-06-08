@@ -13,6 +13,10 @@ What you'll minimally need to get started:
 
 ## Building
 
+### Make sure correct Google packages are installed
+
+In Android SDK Manager make sure you have installed  `Google Support Repository` and `Google Repository` under Extras.
+
 ### Set up gradle wrapper to use correct gradle version.
 
 Run
