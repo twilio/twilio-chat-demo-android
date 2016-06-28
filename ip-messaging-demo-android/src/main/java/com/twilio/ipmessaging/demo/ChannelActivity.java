@@ -138,6 +138,9 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
                 break;
             }
             case R.id.action_search_by_unique_name: showSearchChannelDialog(); break;
+            case R.id.action_user_info:
+                startActivity(new Intent(getApplicationContext(), UserInfoActivity.class));
+                break;
             case R.id.action_logout:
                 basicClient.getIpMessagingClient().shutdown();
                 finish();
