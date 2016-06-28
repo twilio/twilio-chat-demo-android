@@ -335,11 +335,14 @@ public class MessageActivity extends Activity implements ChannelListener
                                            .getText()
                                            .toString();
                         logger.d(topic);
-                        Map<String, String> attrMap = new HashMap<String, String>();
-                        attrMap.put("Topic", topic);
+                        JSONObject attrObj = new JSONObject();
+                        try {
+                            attrObj.put("Topic", topic);
+                        } catch (JSONException ignored) {
+                            // whatever
+                        }
 
-                        channel.setAttributes(attrMap, new StatusListener() {
-
+                        channel.setAttributes(attrObj, new StatusListener() {
                             @Override
                             public void onSuccess()
                             {
