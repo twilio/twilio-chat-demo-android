@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <string name="app_name">Android IP Messaging Demo</string>
     <string name="client_name">Client Name</string>
     <string name="login">Log In</string>
     <string name="logout">Logout Client</string>
@@ -36,5 +34,7 @@
     <string name="Create_private_channel_withOption">Create Pri Ch with Options</string>
      <string name="Search_channel_by_unique_name">Search channel by unique name</string>
     <string name="about">About</string>
+    <string name="user_info_activity">User info activity</string>
+    <string name="title_update_attributes">Update message attributes</string>
 
 </resources>

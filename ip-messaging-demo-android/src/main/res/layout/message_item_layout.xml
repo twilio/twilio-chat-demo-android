@@ -11,35 +11,62 @@
 
         <TextView
             android:id="@+id/txtInfo"
-            android:layout_width="wrap_content"
-            android:layout_height="30sp"
-            android:layout_gravity="right"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
             android:textColor="@android:color/darker_gray"
-            android:textSize="12sp" 
+            android:textSize="12sp"
+            android:layout_marginTop="5dp"
             />
 
-        <TextView
-            android:id="@+id/body1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="5dip"
-            android:background="@drawable/bubble_b"
-            android:paddingLeft="10dip"
-            android:textColor="@android:color/primary_text_light" 
-            android:visibility= "gone">
-        </TextView>
+       <RelativeLayout
+           android:layout_width="match_parent"
+           android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/body"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dip"
-            android:background="@drawable/bubble_b"
-            android:paddingLeft="10dip"
-            android:text="Hello bubbles!"
-            android:textColor="@android:color/primary_text_light" />
-        
+           <ImageView
+               android:id="@+id/avatar_message_left"
+               android:layout_width="64dp"
+               android:scaleType="centerCrop"
+               android:layout_height="64dp"
+               android:layout_alignParentLeft="true"
+               android:visibility="gone"
+               android:background="#d3d3d3"
+               android:layout_marginLeft="3dp"/>
+
+           <TextView
+               android:id="@+id/body"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:layout_margin="5dip"
+               android:background="@drawable/bubble_b"
+               android:paddingLeft="10dip"
+               android:text="Hello bubbles!"
+               android:textColor="@android:color/primary_text_light"
+               android:layout_toRightOf="@+id/avatar_message_left"
+               android:layout_toLeftOf="@+id/avatar_message_right"/>
+
+           <ImageView
+               android:id="@+id/avatar_message_right"
+               android:layout_width="64dp"
+               android:scaleType="centerCrop"
+               android:layout_height="64dp"
+               android:layout_gravity="right"
+               android:layout_alignParentRight="true"
+               android:visibility="gone"
+               android:background="#d3d3d3"
+               android:layout_marginRight="3dp"/>
+
+       </RelativeLayout>
+
+
+       <LinearLayout
+           android:id="@+id/consumptionHorizon"
+           android:layout_width="fill_parent"
+           android:layout_height="wrap_content"
+           android:layout_marginLeft="3dp"
+           android:layout_marginRight="3dp"
+           android:orientation="vertical">
+       </LinearLayout>
+
     </LinearLayout>
 
 </LinearLayout>

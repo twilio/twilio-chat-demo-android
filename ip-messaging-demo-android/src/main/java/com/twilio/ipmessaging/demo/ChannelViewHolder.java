@@ -21,6 +21,12 @@ public class ChannelViewHolder extends ItemViewHolder<Channel>
     @ViewId(R.id.channel_sid)
     TextView channelSid;
 
+    @ViewId(R.id.channel_updated_date)
+    TextView updatedDate;
+
+    @ViewId(R.id.channel_created_date)
+    TextView createdDate;
+
     View view;
 
     public ChannelViewHolder(View view)

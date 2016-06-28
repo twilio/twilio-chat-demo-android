@@ -14,6 +14,8 @@ import android.graphics.Color;
 import android.util.Base64;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -38,6 +40,15 @@ public class MessageViewHolder extends ItemViewHolder<MessageActivity.MessageIte
 
     @ViewId(R.id.singleMessageContainer)
     LinearLayout singleMessageContainer;
+
+    @ViewId(R.id.consumptionHorizon)
+    LinearLayout consumptionHorizon;
+
+    @ViewId(R.id.avatar_message_left)
+    ImageView imageViewLeft;
+
+    @ViewId(R.id.avatar_message_right)
+    ImageView imageViewRight;
 
     View view;
 
