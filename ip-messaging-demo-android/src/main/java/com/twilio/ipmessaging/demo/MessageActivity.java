@@ -83,6 +83,8 @@ public class MessageActivity extends Activity implements ChannelListener
 
     private static final int REMOVE = 0;
     private static final int EDIT = 1;
+    private static final int GET_ATTRIBUTES = 2;
+    private static final int SET_ATTRIBUTES = 3;
 
     private AlertDialog    editTextDialog;
     private AlertDialog    memberListDialog;
@@ -91,6 +93,8 @@ public class MessageActivity extends Activity implements ChannelListener
     private StatusListener leaveListener;
     private StatusListener destroyListener;
     private StatusListener nameUpdateListener;
+    private ArrayList<MessageItem> messageItemList;
+    private String identity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -518,7 +522,82 @@ public class MessageActivity extends Activity implements ChannelListener
                                 .getText()
                                 .toString();
                         message.updateMessageBody(updatedMsg, new StatusListener() {
+                            @Override
+                            public void onError(ErrorInfo errorInfo)
+                            {
+                                TwilioApplication.get().showError(errorInfo);
+                                TwilioApplication.get().logErrorInfo("Error updating message",
+                                                                     errorInfo);
+                            }
 
+                            @Override
+                            public void onSuccess()
+                            {
+                                logger.d("Success updating message");
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run()
+                                    {
+                                        final Channel thisChannel = MessageActivity.this.channel;
+                                        final Messages    messagesObject = channel.getMessages();
+                                        List<MessageItem> items = new ArrayList<MessageItem>();
+                                        Members           members = channel.getMembers();
+                                        if (messagesObject != null) {
+                                            Message[] messagesArray = messagesObject.getMessages();
+                                            if (messagesArray.length > 0) {
+                                                messages = new ArrayList<Message>(
+                                                    Arrays.asList(messagesArray));
+                                                Collections.sort(messages,
+                                                                 new CustomMessageComparator());
+                                            }
+                                            for (int i = 0; i < messagesArray.length; i++) {
+                                                items.add(new MessageItem(
+                                                    messages.get(i), members, identity));
+                                            }
+                                        }
+
+                                        adapter.getItems().clear();
+                                        adapter.getItems().addAll(items);
+                                        adapter.notifyDataSetChanged();
+                                    }
+                                });
+                            }
+                        });
+                    }
+                })
+            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id)
+                {
+                    dialog.cancel();
+                }
+            });
+        editTextDialog = builder.create();
+        editTextDialog.show();
+    }
+
+    private void showUpdateMessageAttributesDialog(final Message message)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
+        builder.setView(getLayoutInflater().inflate(R.layout.dialog_edit_message_attributes, null))
+            .setPositiveButton(
+                "Update",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id)
+                    {
+                        String updatedAttr =
+                            ((EditText)editTextDialog.findViewById(R.id.update_attributes))
+                                .getText()
+                                .toString();
+                        JSONObject jsonObj = null;
+                        try {
+                            jsonObj = new JSONObject(updatedAttr);
+                        } catch (JSONException e) {
+                            logger.e("Invalid JSON attributes entered, using old value");
+                            jsonObj = message.getAttributes();
+                        }
+
+                        message.setAttributes(jsonObj, new StatusListener() {
                             @Override
                             public void onError(ErrorInfo errorInfo)
                             {
@@ -534,7 +613,9 @@ public class MessageActivity extends Activity implements ChannelListener
                                     public void run()
                                     {
                                         final Channel thisChannel = MessageActivity.this.channel;
-                                        final Messages messagesObject = channel.getMessages();
+                                        final Messages    messagesObject = channel.getMessages();
+                                        List<MessageItem> items = new ArrayList<MessageItem>();
+                                        Members           members = channel.getMembers();
                                         if (messagesObject != null) {
                                             Message[] messagesArray = messagesObject.getMessages();
                                             if (messagesArray.length > 0) {
@@ -543,10 +624,14 @@ public class MessageActivity extends Activity implements ChannelListener
                                                 Collections.sort(messages,
                                                                  new CustomMessageComparator());
                                             }
+                                            for (int i = 0; i < messagesArray.length; i++) {
+                                                items.add(new MessageItem(
+                                                    messages.get(i), members, identity));
+                                            }
                                         }
 
                                         adapter.getItems().clear();
-                                        adapter.getItems().addAll(messages);
+                                        adapter.getItems().addAll(items);
                                         adapter.notifyDataSetChanged();
                                     }
                                 });
@@ -561,6 +646,11 @@ public class MessageActivity extends Activity implements ChannelListener
                 }
             });
         editTextDialog = builder.create();
+
+        editTextDialog.create(); // Force creation of sub-view hierarchy
+        ((EditText)editTextDialog.findViewById(R.id.update_attributes))
+            .setText(message.getAttributes().toString());
+
         editTextDialog.show();
     }
 
@@ -630,19 +720,43 @@ public class MessageActivity extends Activity implements ChannelListener
     {
         messageListView = (ListView)findViewById(R.id.message_list_view);
         final Messages messagesObject = channel.getMessages();
+        final Members membersObject = channel.getMembers();
+
+        messageListView.getViewTreeObserver().addOnScrollChangedListener(
+            new ViewTreeObserver.OnScrollChangedListener() {
+                @Override
+                public void onScrollChanged()
+                {
+                    if ((messageListView.getLastVisiblePosition() >= 0)
+                        && (messageListView.getLastVisiblePosition() < adapter.getCount())) {
+                        MessageItem item =
+                            adapter.getItem(messageListView.getLastVisiblePosition());
+                        if (item != null && messagesObject != null)
+                            messagesObject.advanceLastConsumedMessageIndex(
+                                item.getMessage().getMessageIndex());
+                    }
+                }
+            });
+
         if (messagesObject != null) {
             Message[] messagesArray = messagesObject.getMessages();
+            Members members = channel.getMembers();
             if (messagesArray.length > 0) {
                 messages = new ArrayList<Message>(Arrays.asList(messagesArray));
                 Collections.sort(messages, new CustomMessageComparator());
             }
-            adapter = new EasyAdapter<Message>(
+            MessageItem[] items = new MessageItem[messagesArray.length];
+            for (int i = 0; i < items.length; i++) {
+                items[i] = new MessageItem(messages.get(i), members, identity);
+            }
+            messageItemList = new ArrayList(Arrays.asList(items));
+            adapter = new EasyAdapter<MessageItem>(
                 this,
                 MessageViewHolder.class,
-                messages,
+                messageItemList,
                 new MessageViewHolder.OnMessageClickListener() {
                     @Override
-                    public void onMessageClicked(final Message message)
+                    public void onMessageClicked(final MessageItem message)
                     {
                         AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
                         builder.setTitle("Select an option")
@@ -668,14 +782,18 @@ public class MessageActivity extends Activity implements ChannelListener
                                                     @Override
                                                     public void run()
                                                     {
-                                                        messages.remove(message);
+                                                        messageItemList.remove(message);
                                                         adapter.notifyDataSetChanged();
                                                     }
                                                 });
                                             }
                                         });
                                     } else if (which == EDIT) {
-                                        showUpdateMessageDialog(message);
+                                        showUpdateMessageDialog(message.getMessage());
+                                    } else if (which == GET_ATTRIBUTES) {
+                                        showToast(message.getMessage().getAttributes().toString());
+                                    } else if (which == SET_ATTRIBUTES) {
+                                        showUpdateMessageAttributesDialog(message.getMessage());
                                     }
                                 }
                             });
@@ -693,10 +811,8 @@ public class MessageActivity extends Activity implements ChannelListener
         String input = inputText.getText().toString();
         if (!input.equals("")) {
             final Messages messagesObject = this.channel.getMessages();
-            final Message message = messagesObject.createMessage(input);
 
-            messagesObject.sendMessage(message, new StatusListener() {
-
+            messagesObject.sendMessage(input, new StatusListener() {
                 @Override
                 public void onError(ErrorInfo errorInfo)
                 {
@@ -857,5 +973,34 @@ public class MessageActivity extends Activity implements ChannelListener
     public void onSynchronizationChange(Channel channel)
     {
         logger.d("Received onSynchronizationChange callback " + channel.getFriendlyName());
+    }
+
+    public static class MessageItem
+    {
+        Message message;
+        Members members;
+        String  currentUser;
+
+        public MessageItem(Message message, Members members, String currentUser)
+        {
+            this.message = message;
+            this.members = members;
+            this.currentUser = currentUser;
+        }
+
+        public Message getMessage()
+        {
+            return message;
+        }
+
+        public Members getMembers()
+        {
+            return members;
+        }
+
+        public String getCurrentUser()
+        {
+            return currentUser;
+        }
     }
 }

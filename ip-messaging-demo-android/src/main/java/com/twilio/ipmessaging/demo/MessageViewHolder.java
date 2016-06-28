@@ -24,7 +24,7 @@ import uk.co.ribot.easyadapter.annotations.LayoutId;
 import uk.co.ribot.easyadapter.annotations.ViewId;
 
 @LayoutId(R.layout.message_item_layout)
-public class MessageViewHolder extends ItemViewHolder<Message>
+public class MessageViewHolder extends ItemViewHolder<MessageActivity.MessageItem>
 {
     private static int[] HORIZON_COLORS = {
         Color.RED, Color.BLUE, Color.CYAN, Color.GREEN, Color.MAGENTA
@@ -63,7 +63,7 @@ public class MessageViewHolder extends ItemViewHolder<Message>
     }
 
     @Override
-    public void onSetValues(Message message, PositionInfo pos)
+    public void onSetValues(MessageActivity.MessageItem message, PositionInfo pos)
     {
         StringBuffer textInfo = new StringBuffer();
         if (message != null) {
@@ -137,7 +137,7 @@ public class MessageViewHolder extends ItemViewHolder<Message>
     }
 
     public interface OnMessageClickListener {
-        void onMessageClicked(Message message);
+        void onMessageClicked(MessageActivity.MessageItem message);
     }
 
     public int getMemberRgb(String identity)
