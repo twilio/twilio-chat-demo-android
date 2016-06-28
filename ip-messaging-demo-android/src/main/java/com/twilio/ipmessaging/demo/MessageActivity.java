@@ -213,13 +213,7 @@ public class MessageActivity extends Activity implements ChannelListener
                                 name.append(", ");
                             }
                         }
-                        Toast toast =
-                            Toast.makeText(getApplicationContext(), name, Toast.LENGTH_LONG);
-                        toast.setGravity(Gravity.CENTER_HORIZONTAL, 0, 0);
-                        LinearLayout toastLayout = (LinearLayout)toast.getView();
-                        TextView     toastTV = (TextView)toastLayout.getChildAt(0);
-                        toastTV.setTextSize(30);
-                        toast.show();
+                        showToast(name.toString());
                     } else if (which == INVITE_MEMBER) {
                         showInviteMemberDialog();
                     } else if (which == ADD_MEMBER) {
@@ -908,9 +902,6 @@ public class MessageActivity extends Activity implements ChannelListener
     {
         Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
         toast.setGravity(Gravity.CENTER_HORIZONTAL, 0, 0);
-        LinearLayout toastLayout = (LinearLayout)toast.getView();
-        TextView     toastTV = (TextView)toastLayout.getChildAt(0);
-        toastTV.setTextSize(30);
         toast.show();
     }
 

@@ -512,9 +512,6 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
     {
         Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
         toast.setGravity(Gravity.CENTER_HORIZONTAL, 0, 0);
-        LinearLayout toastLayout = (LinearLayout)toast.getView();
-        TextView     toastTV = (TextView)toastLayout.getChildAt(0);
-        toastTV.setTextSize(30);
         toast.show();
     }
 
