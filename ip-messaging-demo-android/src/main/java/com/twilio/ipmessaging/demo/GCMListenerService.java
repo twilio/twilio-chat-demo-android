@@ -16,7 +16,6 @@ import android.util.Log;
 public class GCMListenerService extends GcmListenerService
 {
     public static final String     TAG = "GCMListenerService";
-    private BasicIPMessagingClient chatClient;
 
     @Override
     public void onMessageReceived(String from, Bundle data)
@@ -26,8 +25,8 @@ public class GCMListenerService extends GcmListenerService
         for (String key : data.keySet()) {
             pushNotification.put(key, data.getString(key));
         }
-        chatClient = TwilioApplication.get().getBasicClient();
-        chatClient.getIpMessagingClient().handleNotification(pushNotification);
+        TwilioApplication.get().getBasicClient().getIpMessagingClient().handleNotification(
+            pushNotification);
         notify(data);
     }
 
@@ -35,14 +34,15 @@ public class GCMListenerService extends GcmListenerService
     {
         Intent intent = new Intent(this, MessageActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        if (bundle.containsKey("channel_id")) {
-            intent.putExtra("C_SID", bundle.getString("channel_id"));
+        if (bundle.containsKey("channel_sid")) {
+            intent.putExtra("C_SID", bundle.getString("channel_sid"));
         }
 
         String message = "";
-        if (bundle.containsKey("channel_id")) {
+        if (bundle.containsKey("channel_sid")) {
             message = bundle.getString("text_message");
         }
+
         PendingIntent pendingIntent =
             PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
 

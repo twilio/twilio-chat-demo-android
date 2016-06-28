@@ -551,6 +551,45 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
     }
 
     @Override
+    public void onToastNotification(String channelId, String messageId)
+    {
+        logger.d("Received new push notification");
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run()
+            {
+                showToast("Received new push notification");
+            }
+        });
+    }
+
+    @Override
+    public void onToastSubscribed()
+    {
+        logger.d("Subscribed to push notifications");
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run()
+            {
+                showToast("Subscribed to push notifications");
+            }
+        });
+    }
+
+    @Override
+    public void onToastFailed(ErrorInfo errorInfo)
+    {
+        logger.d("Failed to subscribe to push notifications");
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run()
+            {
+                showToast("Failed to subscribe to push notifications");
+            }
+        });
+    }
+
+    @Override
     public void onChannelAdd(Channel channel)
     {
         logger.d("Received onChannelAdd callback " + channel.getFriendlyName());

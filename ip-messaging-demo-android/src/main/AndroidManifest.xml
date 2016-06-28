@@ -1,7 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.twilio.ipmessaging.demo"
-    android:versionCode="26"
-    android:versionName="1.4" >
+    android:versionCode="26">
      <uses-sdk
         android:minSdkVersion="19"
         android:targetSdkVersion="21" />
@@ -46,18 +45,32 @@
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
                 <category android:name="com.twilio.ipmessaging.demo" />
             </intent-filter>
         </receiver>
 
         <service
-            android:name="com.twilio.ipmessaging.demo.GCMListenerService"
+            android:name=".GCMListenerService"
             android:exported="false" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
         </service>
-                
+
+        <service
+            android:name=".DemoInstanceIDListenerService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.gms.iid.InstanceID" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".RegistrationIntentService"
+            android:exported="false">
+        </service>
+
         <meta-data android:name="com.google.android.gms.version"
     		android:value="@integer/google_play_services_version" />
     </application>
