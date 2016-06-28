@@ -913,7 +913,7 @@ public class MessageActivity extends Activity implements ChannelListener
     {
         if (member != null) {
             TextView typingIndc = (TextView)findViewById(R.id.typingIndicator);
-            String   text = member.getUserInfo().getIdentity() + " started typing .....";
+            String   text = member.getUserInfo().getIdentity() + " is typing .....";
             typingIndc.setText(text);
             typingIndc.setTextColor(Color.RED);
             logger.d(text);
