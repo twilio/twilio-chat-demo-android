@@ -11,7 +11,7 @@ public final class Logger
 
     private static final Map<Class<?>, Logger> loggers = new HashMap<Class<?>, Logger>();
 
-    private static int globalLevel = Log.ERROR;
+    private static int globalLevel = Log.DEBUG;
 
     public static Logger getLogger(Class<?> cls)
     {
