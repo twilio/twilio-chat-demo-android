@@ -52,10 +52,6 @@ model {
 }
 
 // Keep an eye on SDK deprecations
-allprojects {
-    gradle.projectsEvaluated {
-        tasks.withType(JavaCompile) {
-            options.compilerArgs << "-Xlint:deprecation" << "-Xdiags:verbose"
-        }
-    }
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:deprecation" << "-Xdiags:verbose"
 }
