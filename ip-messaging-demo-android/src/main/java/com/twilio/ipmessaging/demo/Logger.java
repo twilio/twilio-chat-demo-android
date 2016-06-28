@@ -30,10 +30,12 @@ public final class Logger
     {
         Logger.globalLevel = level;
     }
+
     public static int getLogLevel()
     {
         return Logger.globalLevel;
     }
+
     private final String name;
     private int          level = INHERIT;
 
@@ -41,10 +43,12 @@ public final class Logger
     {
         this.name = name;
     }
+
     public void setLevel(int level)
     {
         this.level = level;
     }
+
     public boolean isVerboseEnabled()
     {
         return level <= Log.VERBOSE || (level == INHERIT && globalLevel <= Log.VERBOSE);

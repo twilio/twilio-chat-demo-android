@@ -37,25 +37,32 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import uk.co.ribot.easyadapter.EasyAdapter;
 
 public class MessageActivity extends Activity implements ChannelListener
 {
-    private static final String[] MESSAGE_OPTIONS = { "Remove", "Edit" };
-    private static final Logger  logger = Logger.getLogger(MessageActivity.class);
-    private ListView             messageListView;
-    private EditText             inputText;
-    private EasyAdapter<Message> adapter;
-    private List<Message>        messages = new ArrayList<Message>();
-    private List<Member>         members = new ArrayList<Member>();
-    private Channel              channel;
-    private static final         String[] EDIT_OPTIONS = { "Change Friendly Name",
+    private static final Logger logger = Logger.getLogger(MessageActivity.class);
+    private static final        String[] MESSAGE_OPTIONS = {
+        "Remove", "Edit", "Get Attributes", "Edit Attributes"
+    };
+    private ListView                 messageListView;
+    private EditText                 inputText;
+    private EasyAdapter<MessageItem> adapter;
+    private List<Message>            messages = new ArrayList<Message>();
+    private List<Member>             members = new ArrayList<Member>();
+    private Channel                  channel;
+    private static final             String[] EDIT_OPTIONS = { "Change Friendly Name",
                                                    "Change Topic",
                                                    "List Members",
                                                    "Invite Member",
@@ -63,8 +70,8 @@ public class MessageActivity extends Activity implements ChannelListener
                                                    "Remove Member",
                                                    "Leave",
                                                    "Change ChannelType",
-                                                   "destroy",
-                                                   "get attribute",
+                                                   "Destroy",
+                                                   "Get Attributes",
                                                    "Change Unique Name",
                                                    "Get Unique Name" };
 
@@ -86,15 +93,15 @@ public class MessageActivity extends Activity implements ChannelListener
     private static final int GET_ATTRIBUTES = 2;
     private static final int SET_ATTRIBUTES = 3;
 
-    private AlertDialog    editTextDialog;
-    private AlertDialog    memberListDialog;
-    private AlertDialog    changeChannelTypeDialog;
-    private StatusListener messageListener;
-    private StatusListener leaveListener;
-    private StatusListener destroyListener;
-    private StatusListener nameUpdateListener;
+    private AlertDialog            editTextDialog;
+    private AlertDialog            memberListDialog;
+    private AlertDialog            changeChannelTypeDialog;
+    private StatusListener         messageListener;
+    private StatusListener         leaveListener;
+    private StatusListener         destroyListener;
+    private StatusListener         nameUpdateListener;
     private ArrayList<MessageItem> messageItemList;
-    private String identity;
+    private String                 identity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -121,7 +128,8 @@ public class MessageActivity extends Activity implements ChannelListener
         setContentView(R.layout.activity_message);
         if (getIntent() != null) {
             BasicIPMessagingClient basicClient = TwilioApplication.get().getBasicClient();
-            String                 channelSid = getIntent().getStringExtra("C_SID");
+            identity = basicClient.getIpMessagingClient().getMyUserInfo().getIdentity();
+            String   channelSid = getIntent().getStringExtra("C_SID");
             Channels channelsObject = basicClient.getIpMessagingClient().getChannels();
             if (channelsObject != null) {
                 channel = channelsObject.getChannel(channelSid);
@@ -141,6 +149,7 @@ public class MessageActivity extends Activity implements ChannelListener
             {
                 logger.e("Channel sync failed");
             }
+
             @Override
             public void onSuccess(Channel result)
             {
@@ -184,7 +193,6 @@ public class MessageActivity extends Activity implements ChannelListener
     private void showChannelSettingsDialog()
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
-        // final AlertDialog alertDialog = builder.show();
         builder.setTitle("Select an option")
             .setItems(EDIT_OPTIONS, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which)
@@ -197,7 +205,7 @@ public class MessageActivity extends Activity implements ChannelListener
                         Members membersObject = channel.getMembers();
                         Member[] members = membersObject.getMembers();
 
-                        logger.d("member retrieved");
+                        logger.d("members retrieved");
                         StringBuffer name = new StringBuffer();
                         for (int i = 0; i < members.length; i++) {
                             name.append(members[i].getUserInfo().getIdentity());
@@ -218,12 +226,12 @@ public class MessageActivity extends Activity implements ChannelListener
                         showAddMemberDialog();
                     } else if (which == LEAVE) {
                         leaveListener = new StatusListener() {
-
                             @Override
                             public void onError(ErrorInfo errorInfo)
                             {
                                 logger.e("Error leaving channel");
                             }
+
                             @Override
                             public void onSuccess()
                             {
@@ -239,7 +247,6 @@ public class MessageActivity extends Activity implements ChannelListener
                         showChangeChannelType();
                     } else if (which == CHANNEL_DESTROY) {
                         destroyListener = new StatusListener() {
-
                             @Override
                             public void onError(ErrorInfo errorInfo)
                             {
@@ -255,13 +262,11 @@ public class MessageActivity extends Activity implements ChannelListener
                         };
                         channel.destroy(destroyListener);
                     } else if (which == CHANNEL_ATTRIBUTE) {
-                        Map<String, String> attrs = channel.getAttributes();
-                        showToast(attrs.toString());
+                        showToast(channel.getAttributes().toString());
                     } else if (which == SET_CHANNEL_UNIQUE_NAME) {
                         showChangeUniqueNameDialog();
                     } else if (which == GET_CHANNEL_UNIQUE_NAME) {
-                        String uniquName = channel.getUniqueName();
-                        showToast(uniquName);
+                        showToast(channel.getUniqueName());
                     }
                 }
             });
@@ -272,40 +277,39 @@ public class MessageActivity extends Activity implements ChannelListener
     private void showChangeNameDialog()
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
-        // Get the layout inflater
-        LayoutInflater inflater = getLayoutInflater();
-
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
-        builder.setView(inflater.inflate(R.layout.dialog_edit_friendly_name, null))
-            .setPositiveButton("Update",
-                               new DialogInterface.OnClickListener() {
+        builder.setView(getLayoutInflater().inflate(R.layout.dialog_edit_friendly_name, null))
+            .setPositiveButton(
+                "Update",
+                new DialogInterface.OnClickListener() {
 
-                                   @Override
-                                   public void onClick(DialogInterface dialog, int id)
-                                   {
-                                       String friendlyName = ((EditText)editTextDialog.findViewById(
-                                                                  R.id.update_friendly_name))
-                                                                 .getText()
-                                                                 .toString();
-                                       logger.d(friendlyName);
-                                       nameUpdateListener = new StatusListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id)
+                    {
+                        String friendlyName =
+                            ((EditText)editTextDialog.findViewById(R.id.update_friendly_name))
+                                .getText()
+                                .toString();
+                        logger.d(friendlyName);
+                        nameUpdateListener = new StatusListener() {
+                            @Override
+                            public void onError(ErrorInfo errorInfo)
+                            {
+                                TwilioApplication.get().showError(errorInfo);
+                                TwilioApplication.get().logErrorInfo("Error changing name",
+                                                                     errorInfo);
+                            }
 
-                                           @Override
-                                           public void onError(ErrorInfo errorInfo)
-                                           {
-                                               logger.e("Error changing name");
-                                           }
-
-                                           @Override
-                                           public void onSuccess()
-                                           {
-                                               logger.d("successfully changed name");
-                                           }
-                                       };
-                                       channel.setFriendlyName(friendlyName, nameUpdateListener);
-                                   }
-                               })
+                            @Override
+                            public void onSuccess()
+                            {
+                                logger.d("successfully changed name");
+                            }
+                        };
+                        channel.setFriendlyName(friendlyName, nameUpdateListener);
+                    }
+                })
             .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id)
                 {
@@ -319,12 +323,9 @@ public class MessageActivity extends Activity implements ChannelListener
     private void showChangeTopicDialog()
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
-        // Get the layout inflater
-        LayoutInflater inflater = getLayoutInflater();
-
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
-        builder.setView(inflater.inflate(R.layout.dialog_edit_channel_topic, null))
+        builder.setView(getLayoutInflater().inflate(R.layout.dialog_edit_channel_topic, null))
             .setPositiveButton(
                 "Update",
                 new DialogInterface.OnClickListener() {
@@ -370,12 +371,9 @@ public class MessageActivity extends Activity implements ChannelListener
     private void showInviteMemberDialog()
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
-        // Get the layout inflater
-        LayoutInflater inflater = getLayoutInflater();
-
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
-        builder.setView(inflater.inflate(R.layout.dialog_invite_member, null))
+        builder.setView(getLayoutInflater().inflate(R.layout.dialog_invite_member, null))
             .setPositiveButton(
                 "Invite",
                 new DialogInterface.OnClickListener() {
@@ -390,12 +388,12 @@ public class MessageActivity extends Activity implements ChannelListener
 
                         Members membersObject = channel.getMembers();
                         membersObject.inviteByIdentity(memberName, new StatusListener() {
-
                             @Override
                             public void onError(ErrorInfo errorInfo)
                             {
                                 logger.e("Error inviteByIdentity.");
                             }
+
                             @Override
                             public void onSuccess()
                             {
@@ -417,12 +415,9 @@ public class MessageActivity extends Activity implements ChannelListener
     private void showAddMemberDialog()
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
-        // Get the layout inflater
-        LayoutInflater inflater = getLayoutInflater();
-
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
-        builder.setView(inflater.inflate(R.layout.dialog_add_member, null))
+        builder.setView(getLayoutInflater().inflate(R.layout.dialog_add_member, null))
             .setPositiveButton(
                 "Add",
                 new DialogInterface.OnClickListener() {
@@ -436,12 +431,12 @@ public class MessageActivity extends Activity implements ChannelListener
 
                         Members membersObject = channel.getMembers();
                         membersObject.addByIdentity(memberName, new StatusListener() {
-
                             @Override
                             public void onError(ErrorInfo errorInfo)
                             {
                                 logger.e("Error addByIdentity");
                             }
+
                             @Override
                             public void onSuccess()
                             {
@@ -469,10 +464,9 @@ public class MessageActivity extends Activity implements ChannelListener
         }
 
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(MessageActivity.this);
-        LayoutInflater      inflater = getLayoutInflater();
-        View                convertView = (View)inflater.inflate(R.layout.member_list, null);
+        View convertView = (View)getLayoutInflater().inflate(R.layout.member_list, null);
         alertDialog.setView(convertView);
-        alertDialog.setTitle("List");
+        alertDialog.setTitle("Remove members");
         ListView            lv = (ListView)convertView.findViewById(R.id.listView1);
         EasyAdapter<Member> adapterMember = new EasyAdapter<Member>(
             this, MemberViewHolder.class, members, new MemberViewHolder.OnMemberClickListener() {
@@ -480,7 +474,6 @@ public class MessageActivity extends Activity implements ChannelListener
                 public void onMemberClicked(Member member)
                 {
                     membersObject.removeMember(member, new StatusListener() {
-
                         @Override
                         public void onError(ErrorInfo errorInfo)
                         {
@@ -505,15 +498,11 @@ public class MessageActivity extends Activity implements ChannelListener
     private void showChangeChannelType()
     {
     }
+
     private void showUpdateMessageDialog(final Message message)
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
-        // Get the layout inflater
-        LayoutInflater inflater = getLayoutInflater();
-
-        // Inflate and set the layout for the dialog
-        // Pass null as the parent view because its going in the dialog layout
-        builder.setView(inflater.inflate(R.layout.dialog_edit_message, null))
+        builder.setView(getLayoutInflater().inflate(R.layout.dialog_edit_message, null))
             .setPositiveButton(
                 "Update",
                 new DialogInterface.OnClickListener() {
@@ -659,12 +648,9 @@ public class MessageActivity extends Activity implements ChannelListener
 
     private void setupInput()
     {
-        // Setup our input methods. Enter key on the keyboard or pushing the
-        // send
-        // button
+        // Setup our input methods. Enter key on the keyboard or pushing the send button
         EditText inputText = (EditText)findViewById(R.id.messageInput);
         inputText.addTextChangedListener(new TextWatcher() {
-
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after)
             {
@@ -681,8 +667,8 @@ public class MessageActivity extends Activity implements ChannelListener
                     channel.typing();
                 }
             }
-
         });
+
         inputText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent)
@@ -768,29 +754,29 @@ public class MessageActivity extends Activity implements ChannelListener
                                 {
                                     if (which == REMOVE) {
                                         dialog.cancel();
-                                        messagesObject.removeMessage(message, new StatusListener() {
+                                        messagesObject.removeMessage(
+                                            message.getMessage(), new StatusListener() {
+                                                @Override
+                                                public void onError(ErrorInfo errorInfo)
+                                                {
+                                                    logger.e("Error removing message.");
+                                                }
 
-                                            @Override
-                                            public void onError(ErrorInfo errorInfo)
-                                            {
-                                                logger.e("Error removing message.");
-                                            }
-
-                                            @Override
-                                            public void onSuccess()
-                                            {
-                                                logger.d(
-                                                    "Successful at removing message. It should be GONE!!");
-                                                runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run()
-                                                    {
-                                                        messageItemList.remove(message);
-                                                        adapter.notifyDataSetChanged();
-                                                    }
-                                                });
-                                            }
-                                        });
+                                                @Override
+                                                public void onSuccess()
+                                                {
+                                                    logger.d(
+                                                        "Successful at removing message. It should be GONE!!");
+                                                    runOnUiThread(new Runnable() {
+                                                        @Override
+                                                        public void run()
+                                                        {
+                                                            messageItemList.remove(message);
+                                                            adapter.notifyDataSetChanged();
+                                                        }
+                                                    });
+                                                }
+                                            });
                                     } else if (which == EDIT) {
                                         showUpdateMessageDialog(message.getMessage());
                                     } else if (which == GET_ATTRIBUTES) {
@@ -821,6 +807,7 @@ public class MessageActivity extends Activity implements ChannelListener
                 {
                     logger.e("Error sending message.");
                 }
+
                 @Override
                 public void onSuccess()
                 {
@@ -845,6 +832,7 @@ public class MessageActivity extends Activity implements ChannelListener
     {
         setupListView(this.channel);
     }
+
     @Override
     public void onMessageChange(Message message)
     {
@@ -936,14 +924,8 @@ public class MessageActivity extends Activity implements ChannelListener
     private void showChangeUniqueNameDialog()
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
-        // Get the layout inflater
-        LayoutInflater inflater = getLayoutInflater();
-
-        // Inflate and set the layout for the dialog
-        // Pass null as the parent view because its going in the dialog layout
-        builder.setView(inflater.inflate(R.layout.dialog_edit_unique_name, null))
+        builder.setView(getLayoutInflater().inflate(R.layout.dialog_edit_unique_name, null))
             .setPositiveButton("Update", new DialogInterface.OnClickListener() {
-
                 @Override
                 public void onClick(DialogInterface dialog, int id)
                 {
@@ -953,7 +935,6 @@ public class MessageActivity extends Activity implements ChannelListener
                             .toString();
                     logger.d(uniqueName);
                     channel.setUniqueName(uniqueName, new StatusListener() {
-
                         @Override
                         public void onError(ErrorInfo errorInfo)
                         {

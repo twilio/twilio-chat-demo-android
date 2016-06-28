@@ -1,10 +1,3 @@
-/*
- *  Copyright (c) 2011 by Twilio, Inc., all rights reserved.
- *
- *  Use of this software is subject to the terms and conditions of
- *  the Twilio Terms of Service located at http://www.twilio.com/legal/tos
- */
-
 package com.twilio.ipmessaging.demo;
 
 import java.io.IOException;
@@ -33,7 +26,8 @@ public abstract class HttpHelper
 
     public static String httpGet(String url) throws Exception
     {
-        URL               urlObj = new URL(url);
+        URL urlObj = new URL(url);
+
         HttpURLConnection conn = (HttpURLConnection)urlObj.openConnection();
 
         conn.setConnectTimeout(45000);

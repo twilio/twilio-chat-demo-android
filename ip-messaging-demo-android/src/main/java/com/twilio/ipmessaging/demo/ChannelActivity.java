@@ -47,9 +47,11 @@ import uk.co.ribot.easyadapter.EasyAdapter;
 @SuppressLint("InflateParams")
 public class ChannelActivity extends Activity implements ChannelListener, IPMessagingClientListener
 {
-    private static final String[] CHANNEL_OPTIONS = { "Join" };
     private static final Logger logger = Logger.getLogger(ChannelActivity.class);
-    private static final int    JOIN = 0;
+
+    private static final String[] CHANNEL_OPTIONS = { "Join" };
+
+    private static final int JOIN = 0;
 
     private ListView               listView;
     private BasicIPMessagingClient basicClient;
@@ -94,16 +96,20 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
                 showCreateChannelDialog(ChannelType.CHANNEL_TYPE_PRIVATE);
                 break;
             case R.id.action_create_public_withoptions: {
-                Random   rand = new Random();
-                int      value = rand.nextInt(50);
+                Random rand = new Random();
+                int    value = rand.nextInt(50);
+
                 Channels channelsLocal = basicClient.getIpMessagingClient().getChannels();
+
                 final Map<String, String> attrs = new HashMap<String, String>();
                 attrs.put("topic", "testing channel creation with options");
+
                 Map<String, Object> options = new HashMap<String, Object>();
                 options.put(Constants.CHANNEL_FRIENDLY_NAME, "Pub_TestChannelF_" + value);
                 options.put(Constants.CHANNEL_UNIQUE_NAME, "Pub_TestChannelU_" + value);
                 options.put(Constants.CHANNEL_TYPE, ChannelType.CHANNEL_TYPE_PUBLIC);
                 options.put("attributes", attrs);
+
                 channelsLocal.createChannel(options, new CreateChannelListener() {
                     @Override
                     public void onCreated(final Channel newChannel)
@@ -144,7 +150,6 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
                 String gcmToken = basicClient.getGCMToken();
                 basicClient.getIpMessagingClient().unregisterGCMToken(
                     gcmToken, new StatusListener() {
-
                         @Override
                         public void onError(ErrorInfo errorInfo)
                         {
@@ -208,13 +213,11 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
     private void showCreateChannelDialog(final ChannelType type)
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(ChannelActivity.this);
-        // Get the layout inflater
-        LayoutInflater inflater = getLayoutInflater();
-        String         title = "Enter " + type.toString() + " name";
+        String              title = "Enter " + type.toString() + " name";
 
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
-        builder.setView(inflater.inflate(R.layout.dialog_add_channel, null))
+        builder.setView(getLayoutInflater().inflate(R.layout.dialog_add_channel, null))
             .setTitle(title)
             .setPositiveButton(
                 "Create",
@@ -262,13 +265,11 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
     private void showSearchChannelDialog()
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(ChannelActivity.this);
-        // Get the layout inflater
-        LayoutInflater inflater = getLayoutInflater();
-        String         title = "Enter unique channel name";
+        String              title = "Enter unique channel name";
 
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
-        builder.setView(inflater.inflate(R.layout.dialog_search_channel, null))
+        builder.setView(getLayoutInflater().inflate(R.layout.dialog_search_channel, null))
             .setTitle(title)
             .setPositiveButton("Search", new DialogInterface.OnClickListener() {
                 @Override
@@ -336,7 +337,6 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
                                 if (which == JOIN) {
                                     dialog.cancel();
                                     joinListener = new StatusListener() {
-
                                         @Override
                                         public void onError(ErrorInfo errorInfo)
                                         {
@@ -370,7 +370,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
 
     private void getChannels(String channelId)
     {
-        if (this.channels != null) {
+        if (channels != null) {
             if (basicClient != null && basicClient.getIpMessagingClient() != null) {
                 channelsObject = basicClient.getIpMessagingClient().getChannels();
                 if (channelsObject != null) {
@@ -391,11 +391,10 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
                             if (channelsObject != null) {
                                 channelArray = channelsObject.getChannels();
                                 setupListenersForChannel(channelArray);
-                                if (ChannelActivity.this.channels != null && channelArray != null) {
-                                    ChannelActivity.this.channels.addAll(
+                                if (channels != null && channelArray != null) {
+                                    channels.addAll(
                                         new ArrayList<Channel>(Arrays.asList(channelArray)));
-                                    Collections.sort(ChannelActivity.this.channels,
-                                                     new CustomChannelComparator());
+                                    Collections.sort(channels, new CustomChannelComparator());
                                     adapter.notifyDataSetChanged();
                                 }
                             }
@@ -424,7 +423,6 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
                                     public void onClick(DialogInterface dialog, int which)
                                     {
                                         channel.join(new StatusListener() {
-
                                             @Override
                                             public void onError(ErrorInfo errorInfo)
                                             {
@@ -578,11 +576,21 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
     }
 
     @Override
+    public void onAttributesChange(Map<String, String> updatedAttributes)
+    {
+        if (updatedAttributes != null) {
+            logger.d("Channel.updatedAttributes event received");
+        }
+    }
+
+    @Override
     public void onError(ErrorInfo errorInfo)
     {
         logger.d("Received onError callback " + errorInfo.getErrorCode() + " "
                  + errorInfo.getErrorText());
     }
+
+    // Message-related callbacks
 
     @Override
     public void onMessageAdd(Message message)
@@ -606,7 +614,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
         logger.d("Member deleted");
     }
 
-    // Member Related Callbacks
+    // Member-related callbacks
 
     @Override
     public void onMemberJoin(Member member)
@@ -628,15 +636,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
     public void onMemberDelete(Member member)
     {
         if (member != null) {
-            logger.d(member.getUserInfo().getIdentity() + " deleted");
-        }
-    }
-
-    @Override
-    public void onAttributesChange(Map<String, String> updatedAttributes)
-    {
-        if (updatedAttributes != null) {
-            logger.d("updatedAttributes event received");
+            logger.d("Member " + member.getUserInfo().getIdentity() + " deleted");
         }
     }
 }
