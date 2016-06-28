@@ -49,6 +49,17 @@ public class ChannelViewHolder extends ItemViewHolder<Channel>
     {
         friendlyName.setText(channel.getFriendlyName());
         channelSid.setText(channel.getSid());
+
+        String updated = channel.getDateUpdatedAsDate() != null ?
+                             channel.getDateUpdatedAsDate().toString() :
+                             "<no updated date>";
+        updatedDate.setText(updated);
+
+        String created = channel.getDateCreatedAsDate() != null ?
+                             channel.getDateCreatedAsDate().toString() :
+                             "<no created date>";
+        createdDate.setText(created);
+
         boolean chStatus = (channel.getStatus() == ChannelStatus.JOINED);
         view.setBackgroundColor(chStatus ? Color.WHITE : Color.GRAY);
     }
