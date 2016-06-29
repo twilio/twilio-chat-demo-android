@@ -15,7 +15,7 @@ What you'll minimally need to get started:
 
 ### Make sure correct Google packages are installed
 
-In Android SDK Manager make sure you have installed  `Google Support Repository` and `Google Repository` under Extras.
+In Android SDK Manager make sure you have installed `Android Support Repository` and `Google Repository` under Extras.
 
 ### Set up gradle wrapper to use correct gradle version.
 
@@ -41,6 +41,10 @@ You can also pass this parameter to gradle during build without need to create a
 ```
 gradle -PACCESS_TOKEN_SERVICE_URL=http://companyfoo.com/get-token/ build
 ```
+
+### Add google-services.json
+
+[Generate google-services.json](https://developers.google.com/mobile/add) file and place it under `ip-messaging-demo-android/`.
 
 ### Build
 
