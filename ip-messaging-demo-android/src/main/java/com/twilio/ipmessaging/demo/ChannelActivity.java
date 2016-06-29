@@ -240,14 +240,17 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
                                     final String sid = newChannel.getSid();
                                     ChannelType  type = newChannel.getType();
                                     newChannel.setListener(ChannelActivity.this);
-                                    logger.d("Channel created|SID|" + sid + "|TYPE|"
-                                             + type.toString());
+                                    logger.d("Channel created with sid|" + sid + "| and type |"
+                                             + type.toString()
+                                             + "|");
                                 }
                             }
 
                             @Override
                             public void onError(ErrorInfo errorInfo)
                             {
+                                TwilioApplication.get().logErrorInfo("Error creating channel",
+                                                                     errorInfo);
                             }
                         });
                     }
@@ -279,7 +282,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
                         ((EditText)createChannelDialog.findViewById(R.id.channel_name))
                             .getText()
                             .toString();
-                    logger.d(channelName);
+                    logger.d("Searching for " + channelName);
                     Channels channelsLocal = basicClient.getIpMessagingClient().getChannels();
                     final Channel channel = channelsLocal.getChannelByUniqueName(channelName);
 
@@ -340,7 +343,8 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
                                         @Override
                                         public void onError(ErrorInfo errorInfo)
                                         {
-                                            logger.e("failed to join channel");
+                                            TwilioApplication.get().logErrorInfo(
+                                                "failed to join channel", errorInfo);
                                         }
 
                                         @Override
@@ -378,7 +382,8 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
                         @Override
                         public void onError(ErrorInfo errorInfo)
                         {
-                            logger.d("Failed to loadChannelsWithListener");
+                            TwilioApplication.get().logErrorInfo(
+                                "Failed to loadChannelsWithListener", errorInfo);
                         }
 
                         @Override
@@ -426,7 +431,8 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
                                             @Override
                                             public void onError(ErrorInfo errorInfo)
                                             {
-                                                logger.d("Failed to join channel");
+                                                TwilioApplication.get().logErrorInfo(
+                                                    "Failed to join channel", errorInfo);
                                             }
 
                                             @Override
@@ -457,13 +463,14 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
                                             @Override
                                             public void onError(ErrorInfo errorInfo)
                                             {
-                                                logger.d("Failed to decline channel invite");
+                                                TwilioApplication.get().logErrorInfo(
+                                                    "Failed to decline channel invite", errorInfo);
                                             }
 
                                             @Override
                                             public void onSuccess()
                                             {
-                                                logger.d("Successfully to declined channel invite");
+                                                logger.d("Successfully declined channel invite");
                                             }
 
                                         };
@@ -529,13 +536,17 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
     @Override
     public void onSynchronizationChange(Channel channel)
     {
-        logger.e("Received onSynchronizationChange callback " + channel.getFriendlyName());
+        logger.e("Received onSynchronizationChange callback for channel |"
+                 + channel.getFriendlyName()
+                 + "|");
     }
 
     @Override
     public void onChannelSynchronizationChange(Channel channel)
     {
-        logger.e("Received onChannelSynchronizationChange callback " + channel.getFriendlyName());
+        logger.e("Received onChannelSynchronizationChange callback for channel |"
+                 + channel.getFriendlyName()
+                 + "|");
     }
 
     @Override
@@ -592,7 +603,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
     @Override
     public void onChannelAdd(Channel channel)
     {
-        logger.d("Received onChannelAdd callback " + channel.getFriendlyName());
+        logger.d("Received onChannelAdd callback for channel |" + channel.getFriendlyName() + "|");
         runOnUiThread(new Runnable() {
             @Override
             public void run()
@@ -605,13 +616,15 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
     @Override
     public void onChannelChange(Channel channel)
     {
-        logger.d("Received onChannelAdd callback " + channel.getFriendlyName());
+        logger.d("Received onChannelChange callback for channel |" + channel.getFriendlyName()
+                 + "|");
     }
 
     @Override
     public void onChannelDelete(Channel channel)
     {
-        logger.d("Received onChannelDelete callback " + channel.getFriendlyName());
+        logger.d("Received onChannelDelete callback for channel |" + channel.getFriendlyName()
+                 + "|");
     }
 
     @Override
@@ -625,8 +638,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
     @Override
     public void onError(ErrorInfo errorInfo)
     {
-        logger.d("Received onError callback " + errorInfo.getErrorCode() + " "
-                 + errorInfo.getErrorText());
+        TwilioApplication.get().logErrorInfo("Received onError callback", errorInfo);
     }
 
     // Message-related callbacks
@@ -650,7 +662,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
     @Override
     public void onMessageDelete(Message message)
     {
-        logger.d("Member deleted");
+        logger.d("Received onMessageDelete event");
     }
 
     // Member-related callbacks
@@ -659,7 +671,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
     public void onMemberJoin(Member member)
     {
         if (member != null) {
-            logger.d(member.getUserInfo().getIdentity() + " joined");
+            logger.d("Member " + member.getUserInfo().getIdentity() + " joined");
         }
     }
 
@@ -667,7 +679,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
     public void onMemberChange(Member member)
     {
         if (member != null) {
-            logger.d(member.getUserInfo().getIdentity() + " changed");
+            logger.d("Member " + member.getUserInfo().getIdentity() + " changed");
         }
     }
 

@@ -162,7 +162,7 @@ public class BasicIPMessagingClient extends CallbackListener<TwilioIPMessagingCl
     @Override
     public void onError(ErrorInfo errorInfo)
     {
-        logger.d("Received onError event.");
+        TwilioApplication.get().logErrorInfo("Received onError event", errorInfo);
     }
 
     public TwilioIPMessagingClient getIpMessagingClient()
@@ -174,9 +174,10 @@ public class BasicIPMessagingClient extends CallbackListener<TwilioIPMessagingCl
     {
         ipMessagingClient.registerGCMToken(getGCMToken(), new StatusListener() {
             @Override
-            public void onError(ErrorInfo error)
+            public void onError(ErrorInfo errorInfo)
             {
-                logger.i("GCM registration not successful");
+                TwilioApplication.get().showError(errorInfo);
+                TwilioApplication.get().logErrorInfo("GCM registration not successful", errorInfo);
             }
 
             @Override
@@ -239,9 +240,9 @@ public class BasicIPMessagingClient extends CallbackListener<TwilioIPMessagingCl
                 }
 
                 @Override
-                public void onError(TwilioAccessManager twilioAccessManager, String s)
+                public void onError(TwilioAccessManager accessManager, String err)
                 {
-                    logger.d("token error: " + s);
+                    logger.d("token error: " + err);
                 }
             });
     }
@@ -312,9 +313,9 @@ public class BasicIPMessagingClient extends CallbackListener<TwilioIPMessagingCl
     }
 
     @Override
-    public void onError(TwilioAccessManager arg0, String arg1)
+    public void onError(TwilioAccessManager accessManager, String err)
     {
-        logger.d("Received AccessManager:onError.");
+        logger.d("Received AccessManager:onError. " + err);
     }
 
     @Override

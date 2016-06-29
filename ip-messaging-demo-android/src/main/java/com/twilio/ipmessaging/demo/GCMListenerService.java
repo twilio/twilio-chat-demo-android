@@ -15,12 +15,12 @@ import android.util.Log;
 
 public class GCMListenerService extends GcmListenerService
 {
-    public static final String     TAG = "GCMListenerService";
+    private static final Logger logger = Logger.getLogger(GCMListenerService.class);
 
     @Override
     public void onMessageReceived(String from, Bundle data)
     {
-        Log.d(TAG, "onMessageReceived for GCM");
+        logger.d("onMessageReceived for GCM");
         HashMap<String, String> pushNotification = new HashMap<String, String>();
         for (String key : data.keySet()) {
             pushNotification.put(key, data.getString(key));

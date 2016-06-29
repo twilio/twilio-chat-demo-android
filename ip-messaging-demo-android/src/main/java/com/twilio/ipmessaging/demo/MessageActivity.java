@@ -147,7 +147,7 @@ public class MessageActivity extends Activity implements ChannelListener
             @Override
             public void onError(ErrorInfo errorInfo)
             {
-                logger.e("Channel sync failed");
+                TwilioApplication.get().logErrorInfo("Channel sync failed", errorInfo);
             }
 
             @Override
@@ -229,7 +229,8 @@ public class MessageActivity extends Activity implements ChannelListener
                             @Override
                             public void onError(ErrorInfo errorInfo)
                             {
-                                logger.e("Error leaving channel");
+                                TwilioApplication.get().logErrorInfo("Error leaving channel",
+                                                                     errorInfo);
                             }
 
                             @Override
@@ -250,7 +251,8 @@ public class MessageActivity extends Activity implements ChannelListener
                             @Override
                             public void onError(ErrorInfo errorInfo)
                             {
-                                logger.e("Error destroying channel");
+                                TwilioApplication.get().logErrorInfo("Error destroying channel",
+                                                                     errorInfo);
                             }
 
                             @Override
@@ -353,7 +355,9 @@ public class MessageActivity extends Activity implements ChannelListener
                             @Override
                             public void onError(ErrorInfo errorInfo)
                             {
-                                logger.e("Setting attributes failed.");
+                                TwilioApplication.get().showError(errorInfo);
+                                TwilioApplication.get().logErrorInfo("Setting attributes failed",
+                                                                     errorInfo);
                             }
                         });
                     }
@@ -391,13 +395,15 @@ public class MessageActivity extends Activity implements ChannelListener
                             @Override
                             public void onError(ErrorInfo errorInfo)
                             {
-                                logger.e("Error inviteByIdentity.");
+                                TwilioApplication.get().showError(errorInfo);
+                                TwilioApplication.get().logErrorInfo("Error in inviteByIdentity",
+                                                                     errorInfo);
                             }
 
                             @Override
                             public void onSuccess()
                             {
-                                logger.d("Successful at inviteByidentity.");
+                                logger.d("Successful at inviteByIdentity.");
                             }
                         });
                     }
@@ -434,7 +440,9 @@ public class MessageActivity extends Activity implements ChannelListener
                             @Override
                             public void onError(ErrorInfo errorInfo)
                             {
-                                logger.e("Error addByIdentity");
+                                TwilioApplication.get().showError(errorInfo);
+                                TwilioApplication.get().logErrorInfo("Error adding member",
+                                                                     errorInfo);
                             }
 
                             @Override
@@ -477,13 +485,15 @@ public class MessageActivity extends Activity implements ChannelListener
                         @Override
                         public void onError(ErrorInfo errorInfo)
                         {
-                            logger.e("Error at removeMember operation");
+                            TwilioApplication.get().showError(errorInfo);
+                            TwilioApplication.get().logErrorInfo("Error in removeMember operation",
+                                                                 errorInfo);
                         }
 
                         @Override
                         public void onSuccess()
                         {
-                            logger.d("Successful at removeMember operation");
+                            logger.d("Successful removeMember operation");
                         }
                     });
                     memberListDialog.dismiss();
@@ -593,13 +603,15 @@ public class MessageActivity extends Activity implements ChannelListener
                             @Override
                             public void onError(ErrorInfo errorInfo)
                             {
-                                logger.e("Error at updating message");
+                                TwilioApplication.get().showError(errorInfo);
+                                TwilioApplication.get().logErrorInfo(
+                                    "Error updating message attributes", errorInfo);
                             }
 
                             @Override
                             public void onSuccess()
                             {
-                                logger.d("Success at updating message");
+                                logger.d("Success updating message attributes");
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run()
@@ -759,14 +771,16 @@ public class MessageActivity extends Activity implements ChannelListener
                                                 @Override
                                                 public void onError(ErrorInfo errorInfo)
                                                 {
-                                                    logger.e("Error removing message.");
+                                                    TwilioApplication.get().showError(errorInfo);
+                                                    TwilioApplication.get().logErrorInfo(
+                                                        "Error removing message", errorInfo);
                                                 }
 
                                                 @Override
                                                 public void onSuccess()
                                                 {
                                                     logger.d(
-                                                        "Successful at removing message. It should be GONE!!");
+                                                        "Successfully removed message. It should be GONE!!");
                                                     runOnUiThread(new Runnable() {
                                                         @Override
                                                         public void run()
@@ -805,13 +819,14 @@ public class MessageActivity extends Activity implements ChannelListener
                 @Override
                 public void onError(ErrorInfo errorInfo)
                 {
-                    logger.e("Error sending message.");
+                    TwilioApplication.get().showError(errorInfo);
+                    TwilioApplication.get().logErrorInfo("Error sending message", errorInfo);
                 }
 
                 @Override
                 public void onSuccess()
                 {
-                    logger.d("Successful at sending message.");
+                    logger.d("Successfully sent message.");
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run()
@@ -838,9 +853,9 @@ public class MessageActivity extends Activity implements ChannelListener
     {
         if (message != null) {
             showToast(message.getSid() + " changed");
-            logger.d("Received onMessageChange " + message.getSid());
+            logger.d("Received onMessageChange for message sid|" + message.getSid() + "|");
         } else {
-            logger.d("Received onMessageChange ");
+            logger.d("Received onMessageChange");
         }
     }
 
@@ -849,7 +864,7 @@ public class MessageActivity extends Activity implements ChannelListener
     {
         if (message != null) {
             showToast(message.getSid() + " deleted");
-            logger.d("Received onMessageDelete " + message.getSid());
+            logger.d("Received onMessageDelete for message sid|" + message.getSid() + "|");
         } else {
             logger.d("Received onMessageDelete.");
         }
@@ -938,13 +953,15 @@ public class MessageActivity extends Activity implements ChannelListener
                         @Override
                         public void onError(ErrorInfo errorInfo)
                         {
-                            logger.e("Error changing uniqueName");
+                            TwilioApplication.get().showError(errorInfo);
+                            TwilioApplication.get().logErrorInfo(
+                                "Error changing channel uniqueName", errorInfo);
                         }
 
                         @Override
                         public void onSuccess()
                         {
-                            logger.d("successfully changed uniqueName");
+                            logger.d("Successfully changed channel uniqueName");
                         }
                     });
                 }
