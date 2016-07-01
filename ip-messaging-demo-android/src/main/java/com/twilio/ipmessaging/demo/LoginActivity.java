@@ -16,6 +16,7 @@ import com.twilio.ipmessaging.demo.BasicIPMessagingClient.LoginListener;
 import com.twilio.ipmessaging.demo.R;
 import com.twilio.ipmessaging.demo.BuildConfig;
 
+import android.net.Uri;
 import android.provider.Settings.Secure;
 import android.support.v4.content.LocalBroadcastManager;
 import android.app.Activity;
@@ -101,17 +102,14 @@ public class LoginActivity extends Activity implements LoginListener
                 String endpointIdFull =
                     idChosen + "-" + endpoint_id + "-android-" + getApplication().getPackageName();
 
-                StringBuilder url = new StringBuilder();
-                url.append(BuildConfig.ACCESS_TOKEN_SERVICE_URL);
-                url.append("&identity=");
-                try {
-                    url.append(URLEncoder.encode(idChosen, "UTF-8"));
-                    url.append("&endpointId=" + URLEncoder.encode(endpointIdFull, "UTF-8"));
-                } catch (java.io.UnsupportedEncodingException e) {
-                    // Can't really happen, really
-                }
-                logger.d("url string : " + url.toString());
-                new GetAccessTokenAsyncTask().execute(url.toString());
+                String url = Uri.parse(BuildConfig.ACCESS_TOKEN_SERVICE_URL)
+                                 .buildUpon()
+                                 .appendQueryParameter("identity", idChosen)
+                                 .appendQueryParameter("endpointId", endpointIdFull)
+                                 .build()
+                                 .toString();
+                logger.d("url string : " + url);
+                new GetAccessTokenAsyncTask().execute(url);
             }
         });
 
