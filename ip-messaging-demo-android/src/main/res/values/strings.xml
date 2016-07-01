@@ -36,5 +36,6 @@
     <string name="about">About</string>
     <string name="user_info_activity">User info activity</string>
     <string name="title_update_attributes">Update message attributes</string>
+    <string name="userAvatar">User avatar</string>
 
 </resources>

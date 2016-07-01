@@ -1,72 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-   <LinearLayout
-        android:id="@+id/singleMessageContainer"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" 
-        android:orientation="vertical">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="5dp">
 
-        <TextView
-            android:id="@+id/txtInfo"
+        <ImageView
+            android:id="@+id/avatar"
+            android:layout_width="64dp"
+            android:scaleType="centerCrop"
+            android:layout_height="64dp"
+            android:layout_alignParentStart="true"
+            android:background="#d3d3d3"
+            android:layout_marginStart="3dp"
+            android:contentDescription="@string/userAvatar"/>
+
+        <LinearLayout
+            android:id="@+id/authorLine"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="12sp"
-            android:layout_marginTop="5dp"
-            />
+            android:orientation="horizontal"
+            android:layout_toEndOf="@+id/avatar">
 
-       <RelativeLayout
-           android:layout_width="match_parent"
-           android:layout_height="match_parent">
+            <com.twilio.ipmessaging.demo.MessageTextView
+                android:id="@+id/author"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dip"
+                android:paddingStart="10dip"
+                android:text="AUTHOR"
+                android:textAllCaps="true"
+                android:textColor="@android:color/primary_text_light"
+                android:fontFamily="PT_Sans-Web-Regular"
+                android:layout_toEndOf="@+id/avatar"/>
 
-           <ImageView
-               android:id="@+id/avatar_message_left"
-               android:layout_width="64dp"
-               android:scaleType="centerCrop"
-               android:layout_height="64dp"
-               android:layout_alignParentLeft="true"
-               android:visibility="gone"
-               android:background="#d3d3d3"
-               android:layout_marginLeft="3dp"/>
+            <ImageView
+                android:id="@+id/reachability"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_margin="5dip"
+                android:scaleType="centerCrop"
+                android:layout_toEndOf="@+id/author"/>
 
-           <TextView
-               android:id="@+id/body"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:layout_margin="5dip"
-               android:background="@drawable/bubble_b"
-               android:paddingLeft="10dip"
-               android:text="Hello bubbles!"
-               android:textColor="@android:color/primary_text_light"
-               android:layout_toRightOf="@+id/avatar_message_left"
-               android:layout_toLeftOf="@+id/avatar_message_right"/>
+        </LinearLayout>
 
-           <ImageView
-               android:id="@+id/avatar_message_right"
-               android:layout_width="64dp"
-               android:scaleType="centerCrop"
-               android:layout_height="64dp"
-               android:layout_gravity="right"
-               android:layout_alignParentRight="true"
-               android:visibility="gone"
-               android:background="#d3d3d3"
-               android:layout_marginRight="3dp"/>
+        <com.twilio.ipmessaging.demo.MessageTextView
+            android:id="@+id/body"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dip"
+            android:paddingStart="10dip"
+            android:paddingEnd="10dip"
+            android:text="some body text"
+            android:textColor="@android:color/primary_text_light"
+            android:layout_below="@+id/authorLine"
+            android:layout_toEndOf="@+id/avatar"/>
 
-       </RelativeLayout>
+        <com.twilio.ipmessaging.demo.MessageTextView
+            android:id="@+id/date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dip"
+            android:visibility="gone"
+            android:paddingStart="10dip"
+            android:paddingEnd="10dip"
+            android:text="Thursday, 30 June 2016 - 17:39"
+            android:textColor="@android:color/primary_text_light"
+            android:layout_below="@+id/body"
+            android:layout_toEndOf="@+id/avatar"/>
 
+    </RelativeLayout>
 
-       <LinearLayout
-           android:id="@+id/consumptionHorizon"
-           android:layout_width="fill_parent"
-           android:layout_height="wrap_content"
-           android:layout_marginLeft="3dp"
-           android:layout_marginRight="3dp"
-           android:orientation="vertical">
-       </LinearLayout>
-
+    <LinearLayout
+        android:id="@+id/consumptionHorizon"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
+        android:orientation="vertical">
+        <RelativeLayout
+            android:id="@+id/consumptionHorizonIdentities"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:orientation="horizontal"/>
+        <LinearLayout
+            android:id="@+id/consumptionHorizonLines"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:orientation="vertical"/>
     </LinearLayout>
 
 </LinearLayout>
