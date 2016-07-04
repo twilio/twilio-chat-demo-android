@@ -57,7 +57,6 @@ public class LoginActivity extends Activity implements LoginListener
     // GCM
     private CheckBox          gcmAvailable;
     private Button            stopGCM;
-    private EditText          etRegId;
     private boolean           isReceiverRegistered;
     private BroadcastReceiver registrationBroadcastReceiver;
     private static final int  PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
@@ -113,8 +112,7 @@ public class LoginActivity extends Activity implements LoginListener
             }
         });
 
-        this.logout = (Button)findViewById(R.id.logout);
-        etRegId = (EditText)findViewById(R.id.etRegId);
+        logout = (Button)findViewById(R.id.logout);
         chatClient = TwilioApplication.get().getBasicClient();
 
         gcmAvailable = (CheckBox)findViewById(R.id.gcmcxbx);
