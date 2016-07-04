@@ -64,14 +64,24 @@ public class MessageViewHolder extends ItemViewHolder<MessageActivity.MessageIte
     @Override
     public void onSetListeners()
     {
-        view.setOnClickListener(new View.OnClickListener() {
+        view.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public void onClick(View v)
+            public boolean onLongClick(View v)
             {
                 OnMessageClickListener listener = getListener(OnMessageClickListener.class);
                 if (listener != null) {
                     listener.onMessageClicked(getItem());
+                    return true;
                 }
+                return false;
+            }
+        });
+
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+                date.setVisibility(date.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
             }
         });
     }
