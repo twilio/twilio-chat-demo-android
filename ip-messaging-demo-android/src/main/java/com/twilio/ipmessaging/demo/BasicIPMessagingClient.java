@@ -3,9 +3,7 @@ package com.twilio.ipmessaging.demo;
 import java.util.Arrays;
 import java.util.List;
 
-import com.twilio.common.TwilioAccessManager;
-import com.twilio.common.TwilioAccessManagerFactory;
-import com.twilio.common.TwilioAccessManagerListener;
+import com.twilio.common.AccessManager;
 
 import com.twilio.ipmessaging.Channel;
 import com.twilio.ipmessaging.Constants;
@@ -26,7 +24,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 public class BasicIPMessagingClient extends CallbackListener<IPMessagingClient>
-    implements IPMessagingClientListener, TwilioAccessManagerListener
+    implements IPMessagingClientListener, AccessManager.Listener
 {
     private static final Logger logger = Logger.getLogger(BasicIPMessagingClient.class);
 
@@ -37,10 +35,10 @@ public class BasicIPMessagingClient extends CallbackListener<IPMessagingClient>
     private IPMessagingClient ipMessagingClient;
 
     private Channel[] channels;
-    private Context             context;
-    private TwilioAccessManager accessManager;
-    private Handler             loginListenerHandler;
-    private String              urlString;
+    private Context       context;
+    private AccessManager accessManager;
+    private Handler       loginListenerHandler;
+    private String        urlString;
 
     public BasicIPMessagingClient(Context context)
     {
@@ -173,61 +171,62 @@ public class BasicIPMessagingClient extends CallbackListener<IPMessagingClient>
 
     private void createClientWithAccessManager(final LoginListener listener)
     {
-        accessManager = TwilioAccessManagerFactory.createAccessManager(
-            accessToken, new TwilioAccessManagerListener() {
-                @Override
-                public void onTokenExpired(TwilioAccessManager accessManager)
-                {
-                    logger.d("token expired.");
-                    new GetAccessTokenAsyncTask().execute(urlString);
-                }
+        accessManager = new AccessManager(context, accessToken, new AccessManager.Listener() {
+            @Override
+            public void onTokenExpired(AccessManager accessManager)
+            {
+                logger.d("token expired.");
+                new GetAccessTokenAsyncTask().execute(urlString);
+            }
 
-                @Override
-                public void onTokenUpdated(TwilioAccessManager accessManager)
-                {
-                    logger.d("token updated. Creating client with valid token.");
+            @Override
+            public void onTokenUpdated(AccessManager accessManager)
+            {
+                logger.d("token updated. Creating client with valid token.");
 
-                    IPMessagingClient.Properties props =
-                        new IPMessagingClient.Properties.Builder()
-                            .setSynchronizationStrategy(
-                                IPMessagingClient.SynchronizationStrategy.CHANNELS_LIST)
-                            .setInitialMessageCount(50)
-                            .createProperties();
+                IPMessagingClient.Properties props =
+                    new IPMessagingClient.Properties.Builder()
+                        .setSynchronizationStrategy(
+                            IPMessagingClient.SynchronizationStrategy.CHANNELS_LIST)
+                        .setInitialMessageCount(50)
+                        .createProperties();
 
-                    ipMessagingClient = IPMessagingClient.create(context.getApplicationContext(),
-                        accessManager, props, BasicIPMessagingClient.this);
+                ipMessagingClient = IPMessagingClient.create(context.getApplicationContext(),
+                                                             accessManager,
+                                                             props,
+                                                             BasicIPMessagingClient.this);
 
-                    if (ipMessagingClient != null) {
-                        ipMessagingClient.setListener(BasicIPMessagingClient.this);
-                        setupGcmToken();
+                if (ipMessagingClient != null) {
+                    ipMessagingClient.setListener(BasicIPMessagingClient.this);
+                    setupGcmToken();
 
-                        PendingIntent pendingIntent =
-                            PendingIntent.getActivity(context,
-                                                      0,
-                                                      new Intent(context, ChannelActivity.class),
-                                                      PendingIntent.FLAG_UPDATE_CURRENT);
-                        ipMessagingClient.setIncomingIntent(pendingIntent);
+                    PendingIntent pendingIntent =
+                        PendingIntent.getActivity(context,
+                                                  0,
+                                                  new Intent(context, ChannelActivity.class),
+                                                  PendingIntent.FLAG_UPDATE_CURRENT);
+                    ipMessagingClient.setIncomingIntent(pendingIntent);
 
-                        loginListenerHandler.post(new Runnable() {
-                            @Override
-                            public void run()
-                            {
-                                if (listener != null) {
-                                    listener.onLoginFinished();
-                                }
+                    loginListenerHandler.post(new Runnable() {
+                        @Override
+                        public void run()
+                        {
+                            if (listener != null) {
+                                listener.onLoginFinished();
                             }
-                        });
-                    } else {
-                        listener.onLoginError("ipMessagingClient is null");
-                    }
+                        }
+                    });
+                } else {
+                    listener.onLoginError("ipMessagingClient is null");
                 }
+            }
 
-                @Override
-                public void onError(TwilioAccessManager accessManager, String err)
-                {
-                    logger.d("token error: " + err);
-                }
-            });
+            @Override
+            public void onError(AccessManager accessManager, String err)
+            {
+                logger.d("token error: " + err);
+            }
+        });
     }
 
     @Override
@@ -290,19 +289,19 @@ public class BasicIPMessagingClient extends CallbackListener<IPMessagingClient>
     }
 
     @Override
-    public void onTokenExpired(TwilioAccessManager accessManager)
+    public void onTokenExpired(AccessManager accessManager)
     {
         logger.d("Received AccessManager:onTokenExpired.");
     }
 
     @Override
-    public void onError(TwilioAccessManager accessManager, String err)
+    public void onError(AccessManager accessManager, String err)
     {
         logger.d("Received AccessManager:onError. " + err);
     }
 
     @Override
-    public void onTokenUpdated(TwilioAccessManager accessManager)
+    public void onTokenUpdated(AccessManager accessManager)
     {
         logger.d("Received AccessManager:onTokenUpdated.");
     }
