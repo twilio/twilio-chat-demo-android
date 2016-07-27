@@ -19,8 +19,7 @@ import com.twilio.ipmessaging.Members;
 import com.twilio.ipmessaging.Message;
 import com.twilio.ipmessaging.Messages;
 import com.twilio.ipmessaging.ErrorInfo;
-import com.twilio.ipmessaging.impl.Logger;
-import com.twilio.ipmessaging.demo.R;
+import com.twilio.ipmessaging.internal.Logger;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -135,10 +134,9 @@ public class MessageActivity extends Activity implements ChannelListener
                 channel = channelsObject.getChannel(channelSid);
                 if (channel != null) {
                     channel.setListener(MessageActivity.this);
-                    this.setTitle("Name:" + channel.getFriendlyName() + " Type:"
-                                  + ((channel.getType() == ChannelType.CHANNEL_TYPE_PUBLIC) ?
-                                         "Public" :
-                                         "Private"));
+                    this.setTitle(
+                        "Name:" + channel.getFriendlyName() + " Type:"
+                        + ((channel.getType() == ChannelType.PUBLIC) ? "Public" : "Private"));
                 }
             }
         }
@@ -891,11 +889,7 @@ public class MessageActivity extends Activity implements ChannelListener
     @Override
     public void onAttributesChange(Map<String, String> updatedAttributes)
     {
-        if (updatedAttributes != null) {
-            logger.d("Received onAttributesChange event" + updatedAttributes.toString());
-        } else {
-            logger.d("Received onAttributesChange event");
-        }
+        logger.d("Deprecated: Received onAttributesChange event");
     }
 
     private void showToast(String text)

@@ -46,12 +46,6 @@
                 android:orderInCategory="100"
                 android:showAsAction="never"
                 android:title="@string/logout" />
-            <item
-                android:id="@+id/action_shutdown"
-                android:icon="@drawable/ic_action_settings"
-                android:orderInCategory="100"
-                android:showAsAction="never"
-                android:title="@string/shutdownlib" />
 
             <item
                 android:id="@+id/action_unregistercm"

@@ -12,8 +12,7 @@ import com.twilio.ipmessaging.Constants;
 import com.twilio.ipmessaging.Constants.StatusListener;
 import com.twilio.ipmessaging.Constants.CallbackListener;
 import com.twilio.ipmessaging.IPMessagingClientListener;
-import com.twilio.ipmessaging.TwilioIPMessagingClient;
-import com.twilio.ipmessaging.TwilioIPMessagingSDK;
+import com.twilio.ipmessaging.IPMessagingClient;
 import com.twilio.ipmessaging.ErrorInfo;
 import com.twilio.ipmessaging.UserInfo;
 
@@ -26,7 +25,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
-public class BasicIPMessagingClient extends CallbackListener<TwilioIPMessagingClient>
+public class BasicIPMessagingClient extends CallbackListener<IPMessagingClient>
     implements IPMessagingClientListener, TwilioAccessManagerListener
 {
     private static final Logger logger = Logger.getLogger(BasicIPMessagingClient.class);
@@ -34,8 +33,8 @@ public class BasicIPMessagingClient extends CallbackListener<TwilioIPMessagingCl
     private String accessToken;
     private String gcmToken;
 
-    private long                    nativeClientParam;
-    private TwilioIPMessagingClient ipMessagingClient;
+    private long              nativeClientParam;
+    private IPMessagingClient ipMessagingClient;
 
     private Channel[] channels;
     private Context             context;
@@ -83,24 +82,8 @@ public class BasicIPMessagingClient extends CallbackListener<TwilioIPMessagingCl
     {
         this.urlString = url;
         this.loginListenerHandler = setupListenerHandler();
-        TwilioIPMessagingSDK.setLogLevel(android.util.Log.DEBUG);
-        if (!TwilioIPMessagingSDK.isInitialized()) {
-            TwilioIPMessagingSDK.initializeSDK(context, new Constants.InitListener() {
-                @Override
-                public void onInitialized()
-                {
-                    createClientWithAccessManager(listener);
-                }
-
-                @Override
-                public void onError(Exception error)
-                {
-                    logger.e("Error initializing the SDK :" + error.getMessage());
-                }
-            });
-        } else {
-            createClientWithAccessManager(listener);
-        }
+        IPMessagingClient.setLogLevel(android.util.Log.DEBUG);
+        createClientWithAccessManager(listener);
     }
 
     public BasicIPMessagingClient()
@@ -154,7 +137,7 @@ public class BasicIPMessagingClient extends CallbackListener<TwilioIPMessagingCl
     }
 
     @Override
-    public void onSuccess(TwilioIPMessagingClient result)
+    public void onSuccess(IPMessagingClient result)
     {
         logger.d("Received completely initialized TwilioIPMessagingClient");
     }
@@ -165,7 +148,7 @@ public class BasicIPMessagingClient extends CallbackListener<TwilioIPMessagingCl
         TwilioApplication.get().logErrorInfo("Received onError event", errorInfo);
     }
 
-    public TwilioIPMessagingClient getIpMessagingClient()
+    public IPMessagingClient getIpMessagingClient()
     {
         return ipMessagingClient;
     }
@@ -204,14 +187,14 @@ public class BasicIPMessagingClient extends CallbackListener<TwilioIPMessagingCl
                 {
                     logger.d("token updated. Creating client with valid token.");
 
-                    TwilioIPMessagingClient.Properties props =
-                        new TwilioIPMessagingClient.Properties.Builder()
+                    IPMessagingClient.Properties props =
+                        new IPMessagingClient.Properties.Builder()
                             .setSynchronizationStrategy(
-                                TwilioIPMessagingClient.SynchronizationStrategy.CHANNELS_LIST)
+                                IPMessagingClient.SynchronizationStrategy.CHANNELS_LIST)
                             .setInitialMessageCount(50)
                             .createProperties();
 
-                    ipMessagingClient = TwilioIPMessagingSDK.createClient(
+                    ipMessagingClient = IPMessagingClient.create(context.getApplicationContext(),
                         accessManager, props, BasicIPMessagingClient.this);
 
                     if (ipMessagingClient != null) {
@@ -248,7 +231,7 @@ public class BasicIPMessagingClient extends CallbackListener<TwilioIPMessagingCl
     }
 
     @Override
-    public void onClientSynchronization(TwilioIPMessagingClient.SynchronizationStatus status)
+    public void onClientSynchronization(IPMessagingClient.SynchronizationStatus status)
     {
         logger.e("Received onClientSynchronization callback with status " + status.toString());
     }

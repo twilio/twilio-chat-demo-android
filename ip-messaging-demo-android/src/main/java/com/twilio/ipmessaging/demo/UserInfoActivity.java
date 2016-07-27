@@ -19,7 +19,7 @@ import com.twilio.ipmessaging.Channels;
 import com.twilio.ipmessaging.Constants.StatusListener;
 import com.twilio.ipmessaging.ErrorInfo;
 import com.twilio.ipmessaging.IPMessagingClientListener;
-import com.twilio.ipmessaging.TwilioIPMessagingClient;
+import com.twilio.ipmessaging.IPMessagingClient;
 import com.twilio.ipmessaging.UserInfo;
 
 import org.json.JSONException;
@@ -33,7 +33,7 @@ public class UserInfoActivity extends Activity
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
-    TwilioIPMessagingClient client;
+    IPMessagingClient       client;
     EditText                friendlyName;
     ImageView               avatarView;
     Button                  save;
@@ -271,7 +271,7 @@ public class UserInfoActivity extends Activity
 
             @Override
             public void onClientSynchronization(
-                TwilioIPMessagingClient.SynchronizationStatus synchronizationStatus)
+                IPMessagingClient.SynchronizationStatus synchronizationStatus)
             {
             }
 

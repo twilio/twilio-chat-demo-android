@@ -3,7 +3,6 @@
     <string name="client_name">Client Name</string>
     <string name="login">Log In</string>
     <string name="logout">Logout Client</string>
-    <string name="shutdownlib">Shutdown SDK</string>
     <string name="invite_participant">Invite Participant</string>
     <string name="incoming_call_message">You got a Channel Invite. Join it?</string>
     <string name="join">Join</string>

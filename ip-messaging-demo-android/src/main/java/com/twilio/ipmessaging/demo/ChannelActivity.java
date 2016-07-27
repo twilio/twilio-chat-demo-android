@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import com.twilio.ipmessaging.demo.R;
 import com.twilio.ipmessaging.Channel;
 import com.twilio.ipmessaging.Channel.ChannelType;
 import com.twilio.ipmessaging.ChannelListener;
@@ -20,8 +19,7 @@ import com.twilio.ipmessaging.Constants.StatusListener;
 import com.twilio.ipmessaging.IPMessagingClientListener;
 import com.twilio.ipmessaging.Member;
 import com.twilio.ipmessaging.Message;
-import com.twilio.ipmessaging.TwilioIPMessagingSDK;
-import com.twilio.ipmessaging.TwilioIPMessagingClient;
+import com.twilio.ipmessaging.IPMessagingClient;
 import com.twilio.ipmessaging.ErrorInfo;
 import com.twilio.ipmessaging.UserInfo;
 
@@ -89,12 +87,8 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
     public boolean onOptionsItemSelected(MenuItem item)
     {
         switch (item.getItemId()) {
-            case R.id.action_create_public:
-                showCreateChannelDialog(ChannelType.CHANNEL_TYPE_PUBLIC);
-                break;
-            case R.id.action_create_private:
-                showCreateChannelDialog(ChannelType.CHANNEL_TYPE_PRIVATE);
-                break;
+            case R.id.action_create_public: showCreateChannelDialog(ChannelType.PUBLIC); break;
+            case R.id.action_create_private: showCreateChannelDialog(ChannelType.PRIVATE); break;
             case R.id.action_create_public_withoptions: {
                 Random rand = new Random();
                 int    value = rand.nextInt(50);
@@ -107,7 +101,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
                 Map<String, Object> options = new HashMap<String, Object>();
                 options.put(Constants.CHANNEL_FRIENDLY_NAME, "Pub_TestChannelF_" + value);
                 options.put(Constants.CHANNEL_UNIQUE_NAME, "Pub_TestChannelU_" + value);
-                options.put(Constants.CHANNEL_TYPE, ChannelType.CHANNEL_TYPE_PUBLIC);
+                options.put(Constants.CHANNEL_TYPE, ChannelType.PUBLIC);
                 options.put("attributes", attrs);
 
                 channelsLocal.createChannel(options, new CreateChannelListener() {
@@ -133,7 +127,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
                 Map<String, Object> options = new HashMap<String, Object>();
                 options.put(Constants.CHANNEL_FRIENDLY_NAME, "Priv_TestChannelF_" + value);
                 options.put(Constants.CHANNEL_UNIQUE_NAME, "Priv_TestChannelU_" + value);
-                options.put(Constants.CHANNEL_TYPE, ChannelType.CHANNEL_TYPE_PUBLIC);
+                options.put(Constants.CHANNEL_TYPE, ChannelType.PUBLIC);
                 channelsLocal.createChannel(null, null);
                 break;
             }
@@ -143,10 +137,6 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
                 break;
             case R.id.action_logout:
                 basicClient.getIpMessagingClient().shutdown();
-                finish();
-                break;
-            case R.id.action_shutdown:
-                TwilioIPMessagingSDK.shutdown();
                 finish();
                 break;
             case R.id.action_unregistercm:
@@ -194,7 +184,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
     {
         super.onResume();
         handleIncomingIntent(getIntent());
-        getChannels(null);
+        getChannels();
     }
 
     private boolean handleIncomingIntent(Intent intent)
@@ -372,42 +362,23 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
                 }
             });
         listView.setAdapter(adapter);
-        getChannels(null);
+        getChannels();
     }
 
-    private void getChannels(String channelId)
+    private void getChannels()
     {
         if (channels != null) {
             if (basicClient != null && basicClient.getIpMessagingClient() != null) {
                 channelsObject = basicClient.getIpMessagingClient().getChannels();
+                channels.clear();
                 if (channelsObject != null) {
-                    channelsObject.loadChannelsWithListener(new StatusListener() {
-                        @Override
-                        public void onError(ErrorInfo errorInfo)
-                        {
-                            TwilioApplication.get().logErrorInfo(
-                                "Failed to loadChannelsWithListener", errorInfo);
-                        }
-
-                        @Override
-                        public void onSuccess()
-                        {
-                            logger.d("Successfully loadChannelsWithListener.");
-                            if (channels != null) {
-                                channels.clear();
-                            }
-                            if (channelsObject != null) {
-                                channelArray = channelsObject.getChannels();
-                                setupListenersForChannel(channelArray);
-                                if (channels != null && channelArray != null) {
-                                    channels.addAll(
-                                        new ArrayList<Channel>(Arrays.asList(channelArray)));
-                                    Collections.sort(channels, new CustomChannelComparator());
-                                    adapter.notifyDataSetChanged();
-                                }
-                            }
-                        }
-                    });
+                    channelArray = channelsObject.getChannels();
+                    setupListenersForChannel(channelArray);
+                    if (channelArray != null) {
+                        channels.addAll(new ArrayList<Channel>(Arrays.asList(channelArray)));
+                        Collections.sort(channels, new CustomChannelComparator());
+                        adapter.notifyDataSetChanged();
+                    }
                 }
             }
         }
@@ -550,7 +521,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
     }
 
     @Override
-    public void onClientSynchronization(TwilioIPMessagingClient.SynchronizationStatus status)
+    public void onClientSynchronization(IPMessagingClient.SynchronizationStatus status)
     {
         logger.e("Received onClientSynchronization callback " + status.toString());
     }
@@ -608,7 +579,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
             @Override
             public void run()
             {
-                getChannels(null);
+                getChannels();
             }
         });
     }
@@ -625,14 +596,6 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
     {
         logger.d("Received onChannelDelete callback for channel |" + channel.getFriendlyName()
                  + "|");
-    }
-
-    @Override
-    public void onAttributesChange(Map<String, String> updatedAttributes)
-    {
-        if (updatedAttributes != null) {
-            logger.d("Channel.updatedAttributes event received");
-        }
     }
 
     @Override
@@ -689,5 +652,10 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
         if (member != null) {
             logger.d("Member " + member.getUserInfo().getIdentity() + " deleted");
         }
+    }
+
+    @Override
+    public void onAttributesChange(Map<String, String> map)
+    {
     }
 }

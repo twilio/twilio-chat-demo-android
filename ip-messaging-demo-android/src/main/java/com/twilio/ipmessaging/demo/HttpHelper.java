@@ -7,7 +7,7 @@ import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public abstract class HttpHelper
+public abstract class  HttpHelper
 {
     private static String stringFromInputStream(InputStream is) throws IOException
     {

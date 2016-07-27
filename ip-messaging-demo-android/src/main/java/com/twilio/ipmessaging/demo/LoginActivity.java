@@ -9,9 +9,9 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.ConnectionResult;
 
 import com.twilio.ipmessaging.Constants.StatusListener;
-import com.twilio.ipmessaging.TwilioIPMessagingSDK;
 import com.twilio.ipmessaging.ErrorInfo;
 
+import com.twilio.ipmessaging.IPMessagingClient;
 import com.twilio.ipmessaging.demo.BasicIPMessagingClient.LoginListener;
 import com.twilio.ipmessaging.demo.R;
 import com.twilio.ipmessaging.demo.BuildConfig;
@@ -147,7 +147,7 @@ public class LoginActivity extends Activity implements LoginListener
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
         builder.setTitle("About")
-            .setMessage("Version: " + TwilioIPMessagingSDK.getVersion())
+            .setMessage("Version: " + IPMessagingClient.getSdkVersion())
             .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id)
                 {
