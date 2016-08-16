@@ -3,21 +3,21 @@ apply plugin: 'com.android.application'
 def ACCESS_TOKEN_SERVICE_URL = project.hasProperty('ACCESS_TOKEN_SERVICE_URL') ? "\""+project.getProperty('ACCESS_TOKEN_SERVICE_URL')+"\"" : "\"http://companyfoo.com/token\""
 
 dependencies {
-    compile 'com.android.support:support-v4:23.3.0+'
-    compile 'com.google.android.gms:play-services:9.0.0'
+    compile 'com.android.support:support-v4:24.1.1'
+    compile 'com.google.android.gms:play-services:9.4.0'
     compile 'uk.co.ribot:easyadapter:1.5.0@aar'
-    compile 'com.twilio:ip-messaging-android:0.9.0+'
+    compile 'com.twilio:ip-messaging-android:0.9.1'
 }
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    compileSdkVersion 24
+    buildToolsVersion '24.0.1'
 
     defaultConfig {
-        applicationId "com.twilio.ipmessaging.demo"
+        applicationId 'com.twilio.ipmessaging.demo'
         minSdkVersion 19
-        targetSdkVersion 23
-        versionName "0.8"
+        targetSdkVersion 24
+        versionName '0.8'
     }
 
     lintOptions {
@@ -27,19 +27,19 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            buildConfigField "String", "ACCESS_TOKEN_SERVICE_URL", ACCESS_TOKEN_SERVICE_URL
+            buildConfigField 'String', 'ACCESS_TOKEN_SERVICE_URL', ACCESS_TOKEN_SERVICE_URL
         }
         debug {
-            applicationIdSuffix ".debug"
-            versionNameSuffix "-debug"
-            buildConfigField "String", "ACCESS_TOKEN_SERVICE_URL", ACCESS_TOKEN_SERVICE_URL
+            applicationIdSuffix '.debug'
+            versionNameSuffix '-debug'
+            buildConfigField 'String', 'ACCESS_TOKEN_SERVICE_URL', ACCESS_TOKEN_SERVICE_URL
         }
     }
 }
 
 // Keep an eye on SDK deprecations
 tasks.withType(JavaCompile) {
-    options.compilerArgs << "-Xlint:deprecation" << "-Xdiags:verbose"
+    options.compilerArgs << '-Xlint:deprecation' << '-Xdiags:verbose'
 }
 
 apply plugin: 'com.google.gms.google-services'
