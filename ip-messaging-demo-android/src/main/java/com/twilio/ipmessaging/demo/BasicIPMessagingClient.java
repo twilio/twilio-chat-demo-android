@@ -37,6 +37,7 @@ public class BasicIPMessagingClient extends CallbackListener<IPMessagingClient>
     private Channel[] channels;
     private Context       context;
     private AccessManager accessManager;
+    private LoginListener loginListener;
     private Handler       loginListenerHandler;
     private String        urlString;
 
@@ -80,8 +81,9 @@ public class BasicIPMessagingClient extends CallbackListener<IPMessagingClient>
     {
         urlString = url;
         loginListenerHandler = setupListenerHandler();
+        loginListener = listener;
         IPMessagingClient.setLogLevel(android.util.Log.DEBUG);
-        createClientWithAccessManager(listener);
+        createClientWithAccessManager();
     }
 
     public BasicIPMessagingClient()
@@ -135,9 +137,29 @@ public class BasicIPMessagingClient extends CallbackListener<IPMessagingClient>
     }
 
     @Override
-    public void onSuccess(IPMessagingClient result)
+    public void onSuccess(IPMessagingClient client)
     {
-        logger.d("Received completely initialized TwilioIPMessagingClient");
+        logger.d("Received completely initialized IPMessagingClient");
+        ipMessagingClient = client;
+        ipMessagingClient.setListener(this);
+        setupGcmToken();
+
+        PendingIntent pendingIntent =
+            PendingIntent.getActivity(context,
+                                      0,
+                                      new Intent(context, ChannelActivity.class),
+                                      PendingIntent.FLAG_UPDATE_CURRENT);
+        ipMessagingClient.setIncomingIntent(pendingIntent);
+
+        loginListenerHandler.post(new Runnable() {
+            @Override
+            public void run()
+            {
+                if (loginListener != null) {
+                    loginListener.onLoginFinished();
+                }
+            }
+        });
     }
 
     @Override
@@ -169,7 +191,7 @@ public class BasicIPMessagingClient extends CallbackListener<IPMessagingClient>
         });
     }
 
-    private void createClientWithAccessManager(final LoginListener listener)
+    private void createClientWithAccessManager()
     {
         accessManager = new AccessManager(context, accessToken, new AccessManager.Listener() {
             @Override
@@ -191,34 +213,10 @@ public class BasicIPMessagingClient extends CallbackListener<IPMessagingClient>
                         .setInitialMessageCount(50)
                         .createProperties();
 
-                ipMessagingClient = IPMessagingClient.create(context.getApplicationContext(),
-                                                             accessManager,
-                                                             props,
-                                                             BasicIPMessagingClient.this);
-
-                if (ipMessagingClient != null) {
-                    ipMessagingClient.setListener(BasicIPMessagingClient.this);
-                    setupGcmToken();
-
-                    PendingIntent pendingIntent =
-                        PendingIntent.getActivity(context,
-                                                  0,
-                                                  new Intent(context, ChannelActivity.class),
-                                                  PendingIntent.FLAG_UPDATE_CURRENT);
-                    ipMessagingClient.setIncomingIntent(pendingIntent);
-
-                    loginListenerHandler.post(new Runnable() {
-                        @Override
-                        public void run()
-                        {
-                            if (listener != null) {
-                                listener.onLoginFinished();
-                            }
-                        }
-                    });
-                } else {
-                    listener.onLoginError("ipMessagingClient is null");
-                }
+                IPMessagingClient.create(context.getApplicationContext(),
+                                         accessManager,
+                                         props,
+                                         BasicIPMessagingClient.this);
             }
 
             @Override
