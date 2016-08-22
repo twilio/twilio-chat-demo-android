@@ -78,8 +78,8 @@ public class BasicIPMessagingClient extends CallbackListener<IPMessagingClient>
 
     public void doLogin(final String accessToken, final LoginListener listener, String url)
     {
-        this.urlString = url;
-        this.loginListenerHandler = setupListenerHandler();
+        urlString = url;
+        loginListenerHandler = setupListenerHandler();
         IPMessagingClient.setLogLevel(android.util.Log.DEBUG);
         createClientWithAccessManager(listener);
     }
@@ -91,7 +91,7 @@ public class BasicIPMessagingClient extends CallbackListener<IPMessagingClient>
 
     public List<Channel> getChannelList()
     {
-        return Arrays.asList(this.channels);
+        return Arrays.asList(channels);
     }
 
     public long getNativeClientParam()
