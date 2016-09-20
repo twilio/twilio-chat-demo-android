@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import com.google.android.gms.gcm.GcmListenerService;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -11,7 +12,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
+import com.twilio.ipmessaging.NotificationPayload;
 
 public class GCMListenerService extends GcmListenerService
 {
@@ -32,32 +33,48 @@ public class GCMListenerService extends GcmListenerService
 
     private void notify(Bundle bundle)
     {
+        NotificationPayload payload = new NotificationPayload(bundle);
+
+        NotificationPayload.Type type = payload.getType();
+
+        if (type == NotificationPayload.Type.UNKNOWN) return; // Ignore everything we don't support
+
+        String title = "Twilio Notification";
+
+        if (type == NotificationPayload.Type.NEW_MESSAGE)
+            title = "Twilio: New Message";
+        if (type == NotificationPayload.Type.ADDED_TO_CHANNEL)
+            title = "Twilio: Added to Channel";
+        if (type == NotificationPayload.Type.INVITED_TO_CHANNEL)
+            title = "Twilio: Invited to Channel";
+        if (type == NotificationPayload.Type.REMOVED_FROM_CHANNEL)
+            title = "Twilio: Removed from Channel";
+
+        // Set up action Intent
         Intent intent = new Intent(this, MessageActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+        // @todo Use payload API
         if (bundle.containsKey("channel_sid")) {
             intent.putExtra("C_SID", bundle.getString("channel_sid"));
-        }
-
-        String message = "";
-        if (bundle.containsKey("channel_sid")) {
-            message = bundle.getString("text_message");
         }
 
         PendingIntent pendingIntent =
             PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
 
-        NotificationCompat.Builder notificationBuilder =
+        Notification notification =
             new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_notification)
-                .setContentTitle("Twilio Notification")
-                .setContentText(message)
+                .setContentTitle(payload.getBody())
+                .setContentText(payload.getBody())
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent)
-                .setColor(Color.rgb(214, 10, 37));
+                .setColor(Color.rgb(214, 10, 37))
+                .build();
 
         NotificationManager notificationManager =
             (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 
-        notificationManager.notify(0, notificationBuilder.build());
+        notificationManager.notify(0, notification);
     }
 }
