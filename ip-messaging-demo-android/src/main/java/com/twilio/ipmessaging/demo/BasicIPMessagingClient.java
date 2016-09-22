@@ -82,7 +82,11 @@ public class BasicIPMessagingClient extends CallbackListener<IPMessagingClient>
         urlString = url;
         loginListenerHandler = setupListenerHandler();
         loginListener = listener;
-        IPMessagingClient.setLogLevel(android.util.Log.DEBUG);
+        if (BuildConfig.DEBUG) {
+            IPMessagingClient.setLogLevel(android.util.Log.DEBUG);
+        } else {
+            IPMessagingClient.setLogLevel(android.util.Log.ERROR);
+        }
         createClientWithAccessManager();
     }
 
