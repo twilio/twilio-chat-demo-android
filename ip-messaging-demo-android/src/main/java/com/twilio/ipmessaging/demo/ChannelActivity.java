@@ -41,6 +41,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import uk.co.ribot.easyadapter.EasyAdapter;
+import org.json.JSONObject;
+import org.json.JSONException;
 
 @SuppressLint("InflateParams")
 public class ChannelActivity extends Activity implements ChannelListener, IPMessagingClientListener
@@ -87,51 +89,21 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
     public boolean onOptionsItemSelected(MenuItem item)
     {
         switch (item.getItemId()) {
-            case R.id.action_create_public: showCreateChannelDialog(ChannelType.PUBLIC); break;
-            case R.id.action_create_private: showCreateChannelDialog(ChannelType.PRIVATE); break;
-            case R.id.action_create_public_withoptions: {
-                Random rand = new Random();
-                int    value = rand.nextInt(50);
-
-                Channels channelsLocal = basicClient.getIpMessagingClient().getChannels();
-
-                final Map<String, String> attrs = new HashMap<String, String>();
-                attrs.put("topic", "testing channel creation with options");
-
-                Map<String, Object> options = new HashMap<String, Object>();
-                options.put(Constants.CHANNEL_FRIENDLY_NAME, "Pub_TestChannelF_" + value);
-                options.put(Constants.CHANNEL_UNIQUE_NAME, "Pub_TestChannelU_" + value);
-                options.put(Constants.CHANNEL_TYPE, ChannelType.PUBLIC);
-                options.put("attributes", attrs);
-
-                channelsLocal.createChannel(options, new CreateChannelListener() {
-                    @Override
-                    public void onCreated(final Channel newChannel)
-                    {
-                        logger.d("Successfully created a channel with options.");
-                    }
-
-                    @Override
-                    public void onError(ErrorInfo errorInfo)
-                    {
-                        logger.e("Error creating a channel");
-                    }
-                });
+            case R.id.action_create_public:
+                showCreateChannelDialog(ChannelType.PUBLIC);
                 break;
-            }
-            case R.id.action_create_private_withoptions: {
-                Random rand = new Random();
-                int    value = rand.nextInt(50);
-
-                Channels channelsLocal = basicClient.getIpMessagingClient().getChannels();
-                Map<String, Object> options = new HashMap<String, Object>();
-                options.put(Constants.CHANNEL_FRIENDLY_NAME, "Priv_TestChannelF_" + value);
-                options.put(Constants.CHANNEL_UNIQUE_NAME, "Priv_TestChannelU_" + value);
-                options.put(Constants.CHANNEL_TYPE, ChannelType.PUBLIC);
-                channelsLocal.createChannel(null, null);
+            case R.id.action_create_private:
+                showCreateChannelDialog(ChannelType.PRIVATE);
                 break;
-            }
-            case R.id.action_search_by_unique_name: showSearchChannelDialog(); break;
+            case R.id.action_create_public_withoptions:
+                createChannelWithType(ChannelType.PUBLIC);
+                break;
+            case R.id.action_create_private_withoptions:
+                createChannelWithType(ChannelType.PRIVATE);
+                break;
+            case R.id.action_search_by_unique_name:
+                showSearchChannelDialog();
+                break;
             case R.id.action_user_info:
                 startActivity(new Intent(getApplicationContext(), UserInfoActivity.class));
                 break;
@@ -139,7 +111,7 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
                 basicClient.getIpMessagingClient().shutdown();
                 finish();
                 break;
-            case R.id.action_unregistercm:
+            case R.id.action_unregistercm: {
                 String gcmToken = basicClient.getGCMToken();
                 basicClient.getIpMessagingClient().unregisterGCMToken(
                     gcmToken, new StatusListener() {
@@ -175,8 +147,43 @@ public class ChannelActivity extends Activity implements ChannelListener, IPMess
                             });
                         }
                     });
+                }
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void createChannelWithType(ChannelType type)
+    {
+        Random rand = new Random();
+        int    value = rand.nextInt(50);
+
+        final JSONObject attrs = new JSONObject();
+        try {
+            attrs.put("topic", "testing channel creation with options " + value);
+        } catch (JSONException xcp) {
+            logger.e("JSON exception", xcp);
+        }
+
+        basicClient.getIpMessagingClient().getChannels()
+            .channelBuilder()
+            .withFriendlyName("Pub_TestChannelF_" + value)
+            .withUniqueName("Pub_TestChannelU_" + value)
+            .withType(type)
+            .withAttributes(attrs)
+            .build(new CreateChannelListener() {
+                @Override
+                public void onCreated(final Channel newChannel)
+                {
+                    logger.d("Successfully created a channel with options.");
+                }
+
+                @Override
+                public void onError(ErrorInfo errorInfo)
+                {
+                    logger.e("Error creating a channel");
+                }
+            });
     }
 
     @Override
