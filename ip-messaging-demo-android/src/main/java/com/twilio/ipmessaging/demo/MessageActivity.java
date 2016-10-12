@@ -256,7 +256,11 @@ public class MessageActivity extends Activity implements ChannelListener
                         };
                         channel.destroy(destroyListener);
                     } else if (which == CHANNEL_ATTRIBUTE) {
-                        showToast(channel.getAttributes().toString());
+                        try {
+                            showToast(channel.getAttributes().toString());
+                        } catch (JSONException e) {
+                            showToast("JSON exception in channel attributes");
+                        }
                     } else if (which == SET_CHANNEL_UNIQUE_NAME) {
                         showChangeUniqueNameDialog();
                     } else if (which == GET_CHANNEL_UNIQUE_NAME) {
@@ -588,7 +592,11 @@ public class MessageActivity extends Activity implements ChannelListener
                             jsonObj = new JSONObject(updatedAttr);
                         } catch (JSONException e) {
                             logger.e("Invalid JSON attributes entered, using old value");
-                            jsonObj = message.getAttributes();
+                            try {
+                                jsonObj = message.getAttributes();
+                            } catch (JSONException ex) {
+                                jsonObj = null;
+                            }
                         }
 
                         message.setAttributes(jsonObj, new StatusListener() {
@@ -643,9 +651,14 @@ public class MessageActivity extends Activity implements ChannelListener
             });
         editTextDialog = builder.create();
 
+        String attr = "";
+        try {
+            attr = message.getAttributes().toString();
+        } catch (JSONException e) {
+        }
         editTextDialog.create(); // Force creation of sub-view hierarchy
         ((EditText)editTextDialog.findViewById(R.id.update_attributes))
-            .setText(message.getAttributes().toString());
+            .setText(attr);
 
         editTextDialog.show();
     }
