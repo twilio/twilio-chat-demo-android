@@ -4,8 +4,10 @@ import android.app.Application;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.Gravity;
 import android.widget.Toast;
 
+import com.google.android.gms.wallet.NotifyTransactionStatusRequest;
 import com.twilio.ipmessaging.ErrorInfo;
 
 public class TwilioApplication extends Application
@@ -31,29 +33,39 @@ public class TwilioApplication extends Application
         return this.basicClient;
     }
 
-    public void showError(final ErrorInfo error)
+    public void showToast(final String text)
     {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
-            public void run()
-            {
-                Toast
-                    .makeText(getApplicationContext(),
-                              String.format("Something went wrong. Error code: %s, text: %s",
-                                            error.getErrorCode(),
-                                            error.getErrorText()),
-                              Toast.LENGTH_LONG)
-                    .show();
+            public void run() {
+                Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER_HORIZONTAL, 0, 0);
+                toast.show();
             }
         });
     }
 
+    public void showError(final ErrorInfo error)
+    {
+        showError("Something went wrong", error);
+    }
+
+    public void showError(final String message, final ErrorInfo error)
+    {
+        showToast(formatted(message, error));
+        logErrorInfo(message, error);
+    }
+
     public void logErrorInfo(final String message, final ErrorInfo error)
     {
-        Log.e("TwilioApplication",
-              String.format("%s. Error code: %s, text: %s",
-                            message,
-                            error.getErrorCode(),
-                            error.getErrorText()));
+        Log.e("TwilioApplication", formatted(message, error));
+    }
+
+    private String formatted(String message, ErrorInfo error)
+    {
+        return String.format("%s. Error code: %s, text: %s",
+                message,
+                error.getErrorCode(),
+                error.getErrorText());
     }
 }
