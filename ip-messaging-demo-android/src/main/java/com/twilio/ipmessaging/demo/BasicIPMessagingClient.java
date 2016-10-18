@@ -24,27 +24,34 @@ import android.util.Log;
 import android.widget.Toast;
 
 public class BasicIPMessagingClient extends CallbackListener<IPMessagingClient>
-    implements IPMessagingClientListener, AccessManager.Listener
+    implements AccessManager.Listener
 {
     private static final Logger logger = Logger.getLogger(BasicIPMessagingClient.class);
 
     private String accessToken;
     private String gcmToken;
 
-    private long              nativeClientParam;
     private IPMessagingClient ipMessagingClient;
 
-    private Channel[] channels;
     private Context       context;
     private AccessManager accessManager;
+
     private LoginListener loginListener;
     private Handler       loginListenerHandler;
+
     private String        urlString;
+    private String        username;
 
     public BasicIPMessagingClient(Context context)
     {
         super();
         this.context = context;
+
+        if (BuildConfig.DEBUG) {
+            IPMessagingClient.setLogLevel(android.util.Log.DEBUG);
+        } else {
+            IPMessagingClient.setLogLevel(android.util.Log.ERROR);
+        }
     }
 
     public interface LoginListener {
@@ -77,99 +84,19 @@ public class BasicIPMessagingClient extends CallbackListener<IPMessagingClient>
         this.gcmToken = gcmToken;
     }
 
-    public void doLogin(final String accessToken, final LoginListener listener, String url)
-    {
+    public void login(final String username, final String url, final LoginListener listener) {
+        if (username == this.username && urlString == url && loginListener == listener && ipMessagingClient != null && accessManager != null) {
+            onSuccess(ipMessagingClient);
+            return;
+        }
+
+        this.username = username;
         urlString = url;
+
         loginListenerHandler = setupListenerHandler();
         loginListener = listener;
-        if (BuildConfig.DEBUG) {
-            IPMessagingClient.setLogLevel(android.util.Log.DEBUG);
-        } else {
-            IPMessagingClient.setLogLevel(android.util.Log.ERROR);
-        }
-        createClientWithAccessManager();
-    }
 
-    public BasicIPMessagingClient()
-    {
-        super();
-    }
-
-    public List<Channel> getChannelList()
-    {
-        return Arrays.asList(channels);
-    }
-
-    public long getNativeClientParam()
-    {
-        return nativeClientParam;
-    }
-
-    public void setNativeClientParam(long nativeClientParam)
-    {
-        this.nativeClientParam = nativeClientParam;
-    }
-
-    @Override
-    public void onChannelAdd(Channel channel)
-    {
-        if (channel != null) {
-            logger.d("A Channel :" + channel.getFriendlyName() + " got added");
-        } else {
-            logger.d("Received onChannelAdd event.");
-        }
-    }
-
-    @Override
-    public void onChannelChange(Channel channel)
-    {
-        if (channel != null) {
-            logger.d("Channel Name : " + channel.getFriendlyName() + " got Changed");
-        } else {
-            logger.d("received onChannelChange event.");
-        }
-    }
-
-    @Override
-    public void onChannelDelete(Channel channel)
-    {
-        if (channel != null) {
-            logger.d("A Channel :" + channel.getFriendlyName() + " got deleted");
-        } else {
-            logger.d("received onChannelDelete event.");
-        }
-    }
-
-    @Override
-    public void onSuccess(IPMessagingClient client)
-    {
-        logger.d("Received completely initialized IPMessagingClient");
-        ipMessagingClient = client;
-        ipMessagingClient.setListener(this);
-        setupGcmToken();
-
-        PendingIntent pendingIntent =
-            PendingIntent.getActivity(context,
-                                      0,
-                                      new Intent(context, ChannelActivity.class),
-                                      PendingIntent.FLAG_UPDATE_CURRENT);
-        ipMessagingClient.setIncomingIntent(pendingIntent);
-
-        loginListenerHandler.post(new Runnable() {
-            @Override
-            public void run()
-            {
-                if (loginListener != null) {
-                    loginListener.onLoginFinished();
-                }
-            }
-        });
-    }
-
-    @Override
-    public void onError(ErrorInfo errorInfo)
-    {
-        TwilioApplication.get().logErrorInfo("Received onError event", errorInfo);
+        new GetAccessTokenAsyncTask().execute(username, urlString);
     }
 
     public IPMessagingClient getIpMessagingClient()
@@ -195,117 +122,116 @@ public class BasicIPMessagingClient extends CallbackListener<IPMessagingClient>
         });
     }
 
-    private void createClientWithAccessManager()
+    private void createAccessManager()
     {
-        accessManager = new AccessManager(context, accessToken, new AccessManager.Listener() {
-            @Override
-            public void onTokenExpired(AccessManager accessManager)
-            {
-                logger.d("token expired.");
-                new GetAccessTokenAsyncTask().execute(urlString);
-            }
+        if (accessManager != null) return;
 
-            @Override
-            public void onTokenUpdated(AccessManager accessManager)
-            {
-                logger.d("token updated. Creating client with valid token.");
-
-                IPMessagingClient.Properties props =
-                    new IPMessagingClient.Properties.Builder()
-                        .setSynchronizationStrategy(
-                            IPMessagingClient.SynchronizationStrategy.CHANNELS_LIST)
-                        .setInitialMessageCount(50)
-                        .createProperties();
-
-                IPMessagingClient.create(context.getApplicationContext(),
-                                         accessManager,
-                                         props,
-                                         BasicIPMessagingClient.this);
-            }
-
-            @Override
-            public void onError(AccessManager accessManager, String err)
-            {
-                logger.d("token error: " + err);
-            }
-        });
+        accessManager = new AccessManager(context, accessToken, this);
     }
 
-    @Override
-    public void onClientSynchronization(IPMessagingClient.SynchronizationStatus status)
+    private void createClient()
     {
-        logger.e("Received onClientSynchronization callback with status " + status.toString());
+        if (ipMessagingClient != null) return;
+
+        IPMessagingClient.Properties props =
+            new IPMessagingClient.Properties.Builder()
+                .setSynchronizationStrategy(
+                        IPMessagingClient.SynchronizationStrategy.CHANNELS_LIST)
+                .setInitialMessageCount(50)
+                .setRegion("us1")
+                .createProperties();
+
+        IPMessagingClient.create(context.getApplicationContext(),
+                                 accessManager,
+                                 props,
+                                 this);
     }
 
-    @Override
-    public void onUserInfoChange(UserInfo userInfo)
+    public void shutdown()
     {
-        logger.e("Received onUserInfoChange callback");
+        ipMessagingClient.shutdown();
+        ipMessagingClient = null; // Client no longer usable after shutdown()
     }
 
+    // Client created, remember the reference and set up UI
     @Override
-    public void onChannelSynchronizationChange(Channel channel)
+    public void onSuccess(IPMessagingClient client)
     {
-        logger.e("Received onChannelSynchronizationChange callback " + channel.getFriendlyName());
-    }
+        logger.d("Received completely initialized IPMessagingClient");
+        ipMessagingClient = client;
 
-    @Override
-    public void onToastNotification(String channelId, String messageId)
-    {
-        setupListenerHandler().post(new Runnable() {
+        setupGcmToken();
+
+        PendingIntent pendingIntent =
+                PendingIntent.getActivity(context,
+                        0,
+                        new Intent(context, ChannelActivity.class),
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+        ipMessagingClient.setIncomingIntent(pendingIntent);
+
+        loginListenerHandler.post(new Runnable() {
             @Override
             public void run()
             {
-                Toast.makeText(context, "Received new push notification", Toast.LENGTH_SHORT)
-                    .show();
+            if (loginListener != null) {
+                loginListener.onLoginFinished();
+            }
             }
         });
     }
 
+    // Client not created, fail
     @Override
-    public void onToastSubscribed()
+    public void onError(final ErrorInfo errorInfo)
     {
-        setupListenerHandler().post(new Runnable() {
+        TwilioApplication.get().logErrorInfo("Received onError event", errorInfo);
+
+        loginListenerHandler.post(new Runnable() {
             @Override
             public void run()
             {
-                Toast.makeText(context, "Subscribed to push notifications", Toast.LENGTH_SHORT)
-                    .show();
+            if (loginListener != null) {
+                loginListener.onLoginError(errorInfo.getErrorCode() + " " + errorInfo.getErrorText());
+            }
             }
         });
     }
 
-    @Override
-    public void onToastFailed(ErrorInfo errorInfo)
-    {
-        setupListenerHandler().post(new Runnable() {
-            @Override
-            public void run()
-            {
-                Toast
-                    .makeText(
-                        context, "Failed to subscribe to push notifications", Toast.LENGTH_LONG)
-                    .show();
-            }
-        });
-    }
+    // AccessManager.Listener
 
     @Override
     public void onTokenExpired(AccessManager accessManager)
     {
-        logger.d("Received AccessManager:onTokenExpired.");
+        logger.d("Token expired. Getting new token.");
+        new GetAccessTokenAsyncTask().execute(username, urlString);
     }
 
     @Override
     public void onError(AccessManager accessManager, String err)
     {
-        logger.d("Received AccessManager:onError. " + err);
+        logger.d("Token error: " + err);
     }
 
     @Override
-    public void onTokenUpdated(AccessManager accessManager)
+    public void onTokenUpdated(AccessManager manager)
     {
-        logger.d("Received AccessManager:onTokenUpdated.");
+        String token = manager.getToken();
+        logger.d("Received AccessManager:onTokenUpdated. "+token);
+
+        if (ipMessagingClient == null) return;
+
+        ipMessagingClient.updateToken(token, new StatusListener() {
+            @Override
+            public void onSuccess()
+            {
+                logger.d("Client Update Token was successfull");
+            }
+            @Override
+            public void onError(ErrorInfo errorInfo)
+            {
+                logger.e("Client Update Token failed");
+            }
+        });
     }
 
     private Handler setupListenerHandler()
@@ -323,42 +249,44 @@ public class BasicIPMessagingClient extends CallbackListener<IPMessagingClient>
         return handler;
     }
 
+    /**
+     * Modify this method if you need to provide more information to your Access Token Service.
+     */
     private class GetAccessTokenAsyncTask extends AsyncTask<String, Void, String>
     {
-        @Override
-        protected void onPostExecute(String result)
-        {
-            super.onPostExecute(result);
-            ipMessagingClient.updateToken(accessToken, new StatusListener() {
-                @Override
-                public void onSuccess()
-                {
-                    logger.d("Updated Token was successfull");
-                }
-                @Override
-                public void onError(ErrorInfo errorInfo)
-                {
-                    logger.e("Updated Token failed");
-                }
-            });
-            accessManager.updateToken(null);
-        }
-
         @Override
         protected void onPreExecute()
         {
             super.onPreExecute();
+            loginListenerHandler.post(new Runnable() {
+                @Override
+                public void run()
+                {
+                    if (loginListener != null) {
+                        loginListener.onLoginStarted();
+                    }
+                }
+            });
         }
 
         @Override
         protected String doInBackground(String... params)
         {
             try {
-                accessToken = HttpHelper.httpGet(params[0]);
+                accessToken = HttpHelper.httpGet(params[0], params[1]);
             } catch (Exception e) {
                 e.printStackTrace();
             }
             return accessToken;
+        }
+
+        @Override
+        protected void onPostExecute(String result)
+        {
+            super.onPostExecute(result);
+            createAccessManager();
+            createClient();
+            accessManager.updateToken(accessToken);
         }
     }
 }
