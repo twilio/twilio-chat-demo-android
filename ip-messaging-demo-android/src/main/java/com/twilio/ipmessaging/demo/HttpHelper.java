@@ -7,7 +7,7 @@ import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public abstract class  HttpHelper
+public abstract class HttpHelper
 {
     private static String stringFromInputStream(InputStream is) throws IOException
     {
@@ -24,7 +24,7 @@ public abstract class  HttpHelper
         return out.toString();
     }
 
-    public static String httpGet(String url) throws Exception
+    public static String httpGet(final String username, String url) throws Exception
     {
         URL urlObj = new URL(url);
 
