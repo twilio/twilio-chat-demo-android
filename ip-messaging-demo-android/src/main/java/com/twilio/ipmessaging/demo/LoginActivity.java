@@ -47,16 +47,11 @@ public class LoginActivity extends Activity implements LoginListener
     private static final String    DEFAULT_CLIENT_NAME = "TestUser";
     private ProgressDialog         progressDialog;
     private Button                 login;
-    private Button                 logout;
-    private String                 accessToken = null;
     private EditText               clientNameTextBox;
-    private BasicIPMessagingClient chatClient;
     private String                 endpoint_id = "";
-    public static String           local_author = DEFAULT_CLIENT_NAME;
 
     // GCM
     private CheckBox          gcmAvailable;
-    private Button            stopGCM;
     private boolean           isReceiverRegistered;
     private BroadcastReceiver registrationBroadcastReceiver;
     private static final int  PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
@@ -108,12 +103,11 @@ public class LoginActivity extends Activity implements LoginListener
                                  .build()
                                  .toString();
                 logger.d("url string : " + url);
-                new GetAccessTokenAsyncTask().execute(url);
+                TwilioApplication.get().getBasicClient().login(idChosen, url, LoginActivity.this);
             }
         });
 
-        logout = (Button)findViewById(R.id.logout);
-        chatClient = TwilioApplication.get().getBasicClient();
+        //logout = (Button)findViewById(R.id.logout);
 
         gcmAvailable = (CheckBox)findViewById(R.id.gcmcxbx);
 
@@ -159,46 +153,11 @@ public class LoginActivity extends Activity implements LoginListener
         aboutDialog.show();
     }
 
-    /**
-     * Modify this method if you need to provide more information to your Access Token Service.
-     */
-    private class GetAccessTokenAsyncTask extends AsyncTask<String, Void, String>
-    {
-        private String urlString;
-
-        @Override
-        protected void onPostExecute(String result)
-        {
-            super.onPostExecute(result);
-            LoginActivity.this.chatClient.doLogin(accessToken, LoginActivity.this, urlString);
-        }
-
-        @Override
-        protected void onPreExecute()
-        {
-            super.onPreExecute();
-            LoginActivity.this.progressDialog =
-                ProgressDialog.show(LoginActivity.this, "", "Logging in. Please wait...", true);
-        }
-
-        @Override
-        protected String doInBackground(String... params)
-        {
-            try {
-                urlString = params[0];
-                accessToken = HttpHelper.httpGet(params[0]);
-                chatClient.setAccessToken(accessToken);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return accessToken;
-        }
-    }
-
     @Override
     public void onLoginStarted()
     {
         logger.d("Log in started");
+        progressDialog = ProgressDialog.show(this, "", "Logging in. Please wait...", true);
     }
 
     @Override
