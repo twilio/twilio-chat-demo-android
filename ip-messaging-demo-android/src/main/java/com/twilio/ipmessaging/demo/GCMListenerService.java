@@ -54,9 +54,9 @@ public class GCMListenerService extends GcmListenerService
         Intent intent = new Intent(this, MessageActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-        // @todo Use payload API
-        if (bundle.containsKey("channel_sid")) {
-            intent.putExtra("C_SID", bundle.getString("channel_sid"));
+        String cSid = payload.getChannelSid();
+        if (!"".contentEquals(cSid)) {
+            intent.putExtra("C_SID", cSid);
         }
 
         PendingIntent pendingIntent =
@@ -65,7 +65,7 @@ public class GCMListenerService extends GcmListenerService
         Notification notification =
             new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_notification)
-                .setContentTitle(payload.getBody())
+                .setContentTitle(title)
                 .setContentText(payload.getBody())
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent)
