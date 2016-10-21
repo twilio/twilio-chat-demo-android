@@ -10,8 +10,11 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+
+import com.twilio.ipmessaging.IPMessagingClient;
 import com.twilio.ipmessaging.NotificationPayload;
 
 public class GCMListenerService extends GcmListenerService
@@ -73,6 +76,17 @@ public class GCMListenerService extends GcmListenerService
                 .setContentIntent(pendingIntent)
                 .setColor(Color.rgb(214, 10, 37))
                 .build();
+
+        String soundFileName = payload.getSound();
+        if (getResources().getIdentifier(soundFileName, "raw", getPackageName()) != 0) {
+            Uri sound = Uri.parse("android.resource://" + getPackageName() + "/raw/" + soundFileName);
+            notification.defaults &= ~Notification.DEFAULT_SOUND;
+            notification.sound = sound;
+            logger.d("Playing specified sound "+soundFileName);
+        } else {
+            notification.defaults |= Notification.DEFAULT_SOUND;
+            logger.d("Playing default sound");
+        }
 
         NotificationManager notificationManager =
             (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
