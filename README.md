@@ -53,3 +53,7 @@ Run `gradle build` to fetch Twilio SDK files and build application.
 ### Android Studio
 
 You can import this project into Android Studio if you so desire by selecting `Import Project (Eclipse ADT, Gradle, etc)` from the menu and then build using Studio's Build menu.
+
+## License
+
+MIT
