@@ -26,8 +26,10 @@ public class GCMListenerService extends GcmListenerService
         for (String key : data.keySet()) {
             pushNotification.put(key, data.getString(key));
         }
-        TwilioApplication.get().getBasicClient().getIpMessagingClient().handleNotification(
-            pushNotification);
+        IPMessagingClient client = TwilioApplication.get().getBasicClient().getIpMessagingClient();
+        if (client != null) {
+            client.handleNotification(pushNotification);
+        }
         notify(data);
     }
 
