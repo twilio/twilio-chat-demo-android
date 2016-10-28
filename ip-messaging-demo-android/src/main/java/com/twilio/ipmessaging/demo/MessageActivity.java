@@ -1,5 +1,6 @@
 package com.twilio.ipmessaging.demo;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -211,7 +212,7 @@ public class MessageActivity extends Activity implements ChannelListener
                                 name.append(", ");
                             }
                         }
-                        showToast(name.toString());
+                        TwilioApplication.get().showToast(name.toString());
                     } else if (which == INVITE_MEMBER) {
                         showInviteMemberDialog();
                     } else if (which == ADD_MEMBER) {
@@ -257,14 +258,14 @@ public class MessageActivity extends Activity implements ChannelListener
                         channel.destroy(destroyListener);
                     } else if (which == CHANNEL_ATTRIBUTE) {
                         try {
-                            showToast(channel.getAttributes().toString());
+                            TwilioApplication.get().showToast(channel.getAttributes().toString());
                         } catch (JSONException e) {
-                            showToast("JSON exception in channel attributes");
+                            TwilioApplication.get().showToast("JSON exception in channel attributes");
                         }
                     } else if (which == SET_CHANNEL_UNIQUE_NAME) {
                         showChangeUniqueNameDialog();
                     } else if (which == GET_CHANNEL_UNIQUE_NAME) {
-                        showToast(channel.getUniqueName());
+                        TwilioApplication.get().showToast(channel.getUniqueName());
                     }
                 }
             });
@@ -400,6 +401,7 @@ public class MessageActivity extends Activity implements ChannelListener
                             public void onSuccess()
                             {
                                 logger.d("Successful at inviteByIdentity.");
+                                TwilioApplication.get().showToast("Invited user to channel");
                             }
                         });
                     }
@@ -505,6 +507,33 @@ public class MessageActivity extends Activity implements ChannelListener
     {
     }
 
+    private void loadAndShowMessages()
+    {
+        final Messages messagesObject = channel.getMessages();
+        final List<MessageItem> items = new ArrayList<MessageItem>();
+        final Members  members = channel.getMembers();
+        if (messagesObject != null) {
+            messagesObject.getLastMessages(100, new Constants.CallbackListener<List<Message>>() {
+                @Override
+                public void onSuccess(List<Message> messagesArray) {
+                    if (messagesArray.size() > 0) {
+                        messages = new ArrayList<Message>(messagesArray);
+                        Collections.sort(messages,
+                                new CustomMessageComparator());
+                    }
+                    for (int i = 0; i < messagesArray.size(); i++) {
+                        items.add(new MessageItem(
+                                messages.get(i), members, identity));
+                    }
+                }
+            });
+        }
+
+        adapter.getItems().clear();
+        adapter.getItems().addAll(items);
+        adapter.notifyDataSetChanged();
+    }
+
     private void showUpdateMessageDialog(final Message message)
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
@@ -536,27 +565,7 @@ public class MessageActivity extends Activity implements ChannelListener
                                     @Override
                                     public void run()
                                     {
-                                        final Channel thisChannel = MessageActivity.this.channel;
-                                        final Messages    messagesObject = channel.getMessages();
-                                        List<MessageItem> items = new ArrayList<MessageItem>();
-                                        Members           members = channel.getMembers();
-                                        if (messagesObject != null) {
-                                            Message[] messagesArray = messagesObject.getMessages();
-                                            if (messagesArray.length > 0) {
-                                                messages = new ArrayList<Message>(
-                                                    Arrays.asList(messagesArray));
-                                                Collections.sort(messages,
-                                                                 new CustomMessageComparator());
-                                            }
-                                            for (int i = 0; i < messagesArray.length; i++) {
-                                                items.add(new MessageItem(
-                                                    messages.get(i), members, identity));
-                                            }
-                                        }
-
-                                        adapter.getItems().clear();
-                                        adapter.getItems().addAll(items);
-                                        adapter.notifyDataSetChanged();
+                                    loadAndShowMessages();// @todo only need to update one message body
                                     }
                                 });
                             }
@@ -616,27 +625,7 @@ public class MessageActivity extends Activity implements ChannelListener
                                     @Override
                                     public void run()
                                     {
-                                        final Channel thisChannel = MessageActivity.this.channel;
-                                        final Messages    messagesObject = channel.getMessages();
-                                        List<MessageItem> items = new ArrayList<MessageItem>();
-                                        Members           members = channel.getMembers();
-                                        if (messagesObject != null) {
-                                            Message[] messagesArray = messagesObject.getMessages();
-                                            if (messagesArray.length > 0) {
-                                                messages = new ArrayList<Message>(
-                                                    Arrays.asList(messagesArray));
-                                                Collections.sort(messages,
-                                                                 new CustomMessageComparator());
-                                            }
-                                            for (int i = 0; i < messagesArray.length; i++) {
-                                                items.add(new MessageItem(
-                                                    messages.get(i), members, identity));
-                                            }
-                                        }
-
-                                        adapter.getItems().clear();
-                                        adapter.getItems().addAll(items);
-                                        adapter.notifyDataSetChanged();
+                                    loadAndShowMessages();// @todo only need to update one message
                                     }
                                 });
                             }
@@ -726,7 +715,6 @@ public class MessageActivity extends Activity implements ChannelListener
     {
         messageListView = (ListView)findViewById(R.id.message_list_view);
         final Messages messagesObject = channel.getMessages();
-        final Members membersObject = channel.getMembers();
 
         messageListView.getViewTreeObserver().addOnScrollChangedListener(
             new ViewTreeObserver.OnScrollChangedListener() {
@@ -744,72 +732,88 @@ public class MessageActivity extends Activity implements ChannelListener
                 }
             });
 
-        if (messagesObject != null) {
-            Message[] messagesArray = messagesObject.getMessages();
-            Members members = channel.getMembers();
-            if (messagesArray.length > 0) {
-                messages = new ArrayList<Message>(Arrays.asList(messagesArray));
-                Collections.sort(messages, new CustomMessageComparator());
-            }
-            MessageItem[] items = new MessageItem[messagesArray.length];
-            for (int i = 0; i < items.length; i++) {
-                items[i] = new MessageItem(messages.get(i), members, identity);
-            }
-            messageItemList = new ArrayList(Arrays.asList(items));
-            adapter = new EasyAdapter<MessageItem>(
-                this,
+        adapter = new EasyAdapter<MessageItem>(
+                MessageActivity.this,
                 MessageViewHolder.class,
-                messageItemList,
                 new MessageViewHolder.OnMessageClickListener() {
                     @Override
                     public void onMessageClicked(final MessageItem message)
                     {
                         AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
                         builder.setTitle("Select an option")
-                            .setItems(MESSAGE_OPTIONS, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which)
-                                {
-                                    if (which == REMOVE) {
-                                        dialog.cancel();
-                                        messagesObject.removeMessage(
-                                            message.getMessage(), new StatusListener() {
-                                                @Override
-                                                public void onError(ErrorInfo errorInfo)
-                                                {
-                                                    TwilioApplication.get().showError(errorInfo);
-                                                    TwilioApplication.get().logErrorInfo(
-                                                        "Error removing message", errorInfo);
-                                                }
-
-                                                @Override
-                                                public void onSuccess()
-                                                {
-                                                    logger.d(
-                                                        "Successfully removed message. It should be GONE!!");
-                                                    runOnUiThread(new Runnable() {
+                                .setItems(MESSAGE_OPTIONS, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which)
+                                    {
+                                        if (which == REMOVE) {
+                                            dialog.cancel();
+                                            messagesObject.removeMessage(
+                                                    message.getMessage(), new StatusListener() {
                                                         @Override
-                                                        public void run()
+                                                        public void onError(ErrorInfo errorInfo)
                                                         {
-                                                            messageItemList.remove(message);
-                                                            adapter.notifyDataSetChanged();
+                                                            TwilioApplication.get().showError(errorInfo);
+                                                            TwilioApplication.get().logErrorInfo(
+                                                                    "Error removing message", errorInfo);
+                                                        }
+
+                                                        @Override
+                                                        public void onSuccess()
+                                                        {
+                                                            logger.d(
+                                                                    "Successfully removed message. It should be GONE!!");
+                                                            runOnUiThread(new Runnable() {
+                                                                @Override
+                                                                public void run()
+                                                                {
+                                                                    messageItemList.remove(message);
+                                                                    adapter.notifyDataSetChanged();
+                                                                }
+                                                            });
                                                         }
                                                     });
-                                                }
-                                            });
-                                    } else if (which == EDIT) {
-                                        showUpdateMessageDialog(message.getMessage());
-                                    } else if (which == GET_ATTRIBUTES) {
-                                        showToast(message.getMessage().getAttributes().toString());
-                                    } else if (which == SET_ATTRIBUTES) {
-                                        showUpdateMessageAttributesDialog(message.getMessage());
+                                        } else if (which == EDIT) {
+                                            showUpdateMessageDialog(message.getMessage());
+                                        } else if (which == GET_ATTRIBUTES) {
+                                            String attr = "";
+                                            try {
+                                                attr = message.getMessage().getAttributes().toString();
+                                            } catch (JSONException e) {
+                                            }
+                                            TwilioApplication.get().showToast(attr);
+                                        } else if (which == SET_ATTRIBUTES) {
+                                            showUpdateMessageAttributesDialog(message.getMessage());
+                                        }
                                     }
-                                }
-                            });
+                                });
                         builder.show();
                     }
                 });
-            messageListView.setAdapter(adapter);
-            adapter.notifyDataSetChanged();
+        messageListView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+
+        if (messagesObject != null) {
+            final Members members = channel.getMembers();
+            messagesObject.getLastMessages(500, new Constants.CallbackListener<List<Message>>() {
+                @Override
+                public void onSuccess(List<Message> messagesArray) {
+                    if (messagesArray.size() > 0) {
+                        messages = new ArrayList<>(messagesArray);
+                        Collections.sort(messages, new CustomMessageComparator());
+                    }
+                    MessageItem[] items = new MessageItem[messagesArray.size()];
+                    for (int i = 0; i < items.length; i++) {
+                        items[i] = new MessageItem(messages.get(i), members, identity);
+                    }
+                    messageItemList = new ArrayList<>(Arrays.asList(items));
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter.setItems(messageItemList);
+                            adapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+            });
         }
     }
 
@@ -857,7 +861,7 @@ public class MessageActivity extends Activity implements ChannelListener
     public void onMessageChange(Message message)
     {
         if (message != null) {
-            showToast(message.getSid() + " changed");
+            TwilioApplication.get().showToast(message.getSid() + " changed");
             logger.d("Received onMessageChange for message sid|" + message.getSid() + "|");
         } else {
             logger.d("Received onMessageChange");
@@ -868,7 +872,7 @@ public class MessageActivity extends Activity implements ChannelListener
     public void onMessageDelete(Message message)
     {
         if (message != null) {
-            showToast(message.getSid() + " deleted");
+            TwilioApplication.get().showToast(message.getSid() + " deleted");
             logger.d("Received onMessageDelete for message sid|" + message.getSid() + "|");
         } else {
             logger.d("Received onMessageDelete.");
@@ -879,7 +883,7 @@ public class MessageActivity extends Activity implements ChannelListener
     public void onMemberJoin(Member member)
     {
         if (member != null) {
-            showToast(member.getUserInfo().getIdentity() + " joined");
+            TwilioApplication.get().showToast(member.getUserInfo().getIdentity() + " joined");
         }
     }
 
@@ -887,7 +891,7 @@ public class MessageActivity extends Activity implements ChannelListener
     public void onMemberChange(Member member)
     {
         if (member != null) {
-            showToast(member.getUserInfo().getIdentity() + " changed");
+            TwilioApplication.get().showToast(member.getUserInfo().getIdentity() + " changed");
         }
     }
 
@@ -895,7 +899,7 @@ public class MessageActivity extends Activity implements ChannelListener
     public void onMemberDelete(Member member)
     {
         if (member != null) {
-            showToast(member.getUserInfo().getIdentity() + " deleted");
+            TwilioApplication.get().showToast(member.getUserInfo().getIdentity() + " deleted");
         }
     }
 
@@ -903,13 +907,6 @@ public class MessageActivity extends Activity implements ChannelListener
     public void onAttributesChange(Map<String, String> updatedAttributes)
     {
         logger.d("Deprecated: Received onAttributesChange event");
-    }
-
-    private void showToast(String text)
-    {
-        Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
-        toast.setGravity(Gravity.CENTER_HORIZONTAL, 0, 0);
-        toast.show();
     }
 
     @Override
