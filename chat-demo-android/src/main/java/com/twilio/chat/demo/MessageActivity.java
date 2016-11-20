@@ -1,4 +1,4 @@
-package com.twilio.ipmessaging.demo;
+package com.twilio.chat.demo;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -9,18 +9,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.twilio.ipmessaging.Channel;
-import com.twilio.ipmessaging.Channel.ChannelType;
-import com.twilio.ipmessaging.ChannelListener;
-import com.twilio.ipmessaging.Channels;
-import com.twilio.ipmessaging.Constants;
-import com.twilio.ipmessaging.Constants.StatusListener;
-import com.twilio.ipmessaging.Member;
-import com.twilio.ipmessaging.Members;
-import com.twilio.ipmessaging.Message;
-import com.twilio.ipmessaging.Messages;
-import com.twilio.ipmessaging.ErrorInfo;
-import com.twilio.ipmessaging.internal.Logger;
+import com.twilio.chat.Channel;
+import com.twilio.chat.Channel.ChannelType;
+import com.twilio.chat.ChannelListener;
+import com.twilio.chat.Channels;
+import com.twilio.chat.Constants;
+import com.twilio.chat.Constants.StatusListener;
+import com.twilio.chat.Member;
+import com.twilio.chat.Members;
+import com.twilio.chat.Message;
+import com.twilio.chat.Messages;
+import com.twilio.chat.ErrorInfo;
+import com.twilio.chat.internal.Logger;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -127,10 +127,10 @@ public class MessageActivity extends Activity implements ChannelListener
     {
         setContentView(R.layout.activity_message);
         if (getIntent() != null) {
-            BasicIPMessagingClient basicClient = TwilioApplication.get().getBasicClient();
-            identity = basicClient.getIpMessagingClient().getMyUserInfo().getIdentity();
+            BasicChatClient basicClient = TwilioApplication.get().getBasicClient();
+            identity = basicClient.getChatClient().getMyUserInfo().getIdentity();
             String   channelSid = getIntent().getStringExtra("C_SID");
-            Channels channelsObject = basicClient.getIpMessagingClient().getChannels();
+            Channels channelsObject = basicClient.getChatClient().getChannels();
             if (channelsObject != null) {
                 channel = channelsObject.getChannel(channelSid);
                 if (channel != null) {

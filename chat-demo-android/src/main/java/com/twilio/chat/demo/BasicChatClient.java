@@ -1,18 +1,18 @@
-package com.twilio.ipmessaging.demo;
+package com.twilio.chat.demo;
 
 import java.util.Arrays;
 import java.util.List;
 
 import com.twilio.common.AccessManager;
 
-import com.twilio.ipmessaging.Channel;
-import com.twilio.ipmessaging.Constants;
-import com.twilio.ipmessaging.Constants.StatusListener;
-import com.twilio.ipmessaging.Constants.CallbackListener;
-import com.twilio.ipmessaging.IPMessagingClientListener;
-import com.twilio.ipmessaging.IPMessagingClient;
-import com.twilio.ipmessaging.ErrorInfo;
-import com.twilio.ipmessaging.UserInfo;
+import com.twilio.chat.Channel;
+import com.twilio.chat.Constants;
+import com.twilio.chat.Constants.StatusListener;
+import com.twilio.chat.Constants.CallbackListener;
+import com.twilio.chat.ChatClientListener;
+import com.twilio.chat.ChatClient;
+import com.twilio.chat.ErrorInfo;
+import com.twilio.chat.UserInfo;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -23,15 +23,15 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
-public class BasicIPMessagingClient extends CallbackListener<IPMessagingClient>
+public class BasicChatClient extends CallbackListener<ChatClient>
     implements AccessManager.Listener
 {
-    private static final Logger logger = Logger.getLogger(BasicIPMessagingClient.class);
+    private static final Logger logger = Logger.getLogger(BasicChatClient.class);
 
     private String accessToken;
     private String gcmToken;
 
-    private IPMessagingClient ipMessagingClient;
+    private ChatClient chatClient;
 
     private Context       context;
     private AccessManager accessManager;
@@ -42,15 +42,15 @@ public class BasicIPMessagingClient extends CallbackListener<IPMessagingClient>
     private String        urlString;
     private String        username;
 
-    public BasicIPMessagingClient(Context context)
+    public BasicChatClient(Context context)
     {
         super();
         this.context = context;
 
         if (BuildConfig.DEBUG) {
-            IPMessagingClient.setLogLevel(android.util.Log.DEBUG);
+            ChatClient.setLogLevel(android.util.Log.DEBUG);
         } else {
-            IPMessagingClient.setLogLevel(android.util.Log.ERROR);
+            ChatClient.setLogLevel(android.util.Log.ERROR);
         }
     }
 
@@ -85,8 +85,8 @@ public class BasicIPMessagingClient extends CallbackListener<IPMessagingClient>
     }
 
     public void login(final String username, final String url, final LoginListener listener) {
-        if (username == this.username && urlString == url && loginListener == listener && ipMessagingClient != null && accessManager != null) {
-            onSuccess(ipMessagingClient);
+        if (username == this.username && urlString == url && loginListener == listener && chatClient != null && accessManager != null) {
+            onSuccess(chatClient);
             return;
         }
 
@@ -99,14 +99,14 @@ public class BasicIPMessagingClient extends CallbackListener<IPMessagingClient>
         new GetAccessTokenAsyncTask().execute(username, urlString);
     }
 
-    public IPMessagingClient getIpMessagingClient()
+    public ChatClient getChatClient()
     {
-        return ipMessagingClient;
+        return chatClient;
     }
 
     private void setupGcmToken()
     {
-        ipMessagingClient.registerGCMToken(getGCMToken(), new StatusListener() {
+        chatClient.registerGCMToken(getGCMToken(), new StatusListener() {
             @Override
             public void onError(ErrorInfo errorInfo)
             {
@@ -131,17 +131,17 @@ public class BasicIPMessagingClient extends CallbackListener<IPMessagingClient>
 
     private void createClient()
     {
-        if (ipMessagingClient != null) return;
+        if (chatClient != null) return;
 
-        IPMessagingClient.Properties props =
-            new IPMessagingClient.Properties.Builder()
+        ChatClient.Properties props =
+            new ChatClient.Properties.Builder()
                 .setSynchronizationStrategy(
-                        IPMessagingClient.SynchronizationStrategy.CHANNELS_LIST)
+                        ChatClient.SynchronizationStrategy.CHANNELS_LIST)
                 .setInitialMessageCount(50)
                 .setRegion("us1")
                 .createProperties();
 
-        IPMessagingClient.create(context.getApplicationContext(),
+        ChatClient.create(context.getApplicationContext(),
                                  accessManager,
                                  props,
                                  this);
@@ -149,16 +149,16 @@ public class BasicIPMessagingClient extends CallbackListener<IPMessagingClient>
 
     public void shutdown()
     {
-        ipMessagingClient.shutdown();
-        ipMessagingClient = null; // Client no longer usable after shutdown()
+        chatClient.shutdown();
+        chatClient = null; // Client no longer usable after shutdown()
     }
 
     // Client created, remember the reference and set up UI
     @Override
-    public void onSuccess(IPMessagingClient client)
+    public void onSuccess(ChatClient client)
     {
-        logger.d("Received completely initialized IPMessagingClient");
-        ipMessagingClient = client;
+        logger.d("Received completely initialized ChatClient");
+        chatClient = client;
 
         setupGcmToken();
 
@@ -167,7 +167,7 @@ public class BasicIPMessagingClient extends CallbackListener<IPMessagingClient>
                         0,
                         new Intent(context, ChannelActivity.class),
                         PendingIntent.FLAG_UPDATE_CURRENT);
-        ipMessagingClient.setIncomingIntent(pendingIntent);
+        chatClient.setIncomingIntent(pendingIntent);
 
         loginListenerHandler.post(new Runnable() {
             @Override
@@ -218,9 +218,9 @@ public class BasicIPMessagingClient extends CallbackListener<IPMessagingClient>
         String token = manager.getToken();
         logger.d("Received AccessManager:onTokenUpdated. "+token);
 
-        if (ipMessagingClient == null) return;
+        if (chatClient == null) return;
 
-        ipMessagingClient.updateToken(token, new StatusListener() {
+        chatClient.updateToken(token, new StatusListener() {
             @Override
             public void onSuccess()
             {

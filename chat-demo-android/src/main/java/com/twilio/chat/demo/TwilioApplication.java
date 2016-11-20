@@ -1,4 +1,4 @@
-package com.twilio.ipmessaging.demo;
+package com.twilio.chat.demo;
 
 import android.app.Application;
 import android.os.Handler;
@@ -8,12 +8,12 @@ import android.view.Gravity;
 import android.widget.Toast;
 
 import com.google.android.gms.wallet.NotifyTransactionStatusRequest;
-import com.twilio.ipmessaging.ErrorInfo;
+import com.twilio.chat.ErrorInfo;
 
 public class TwilioApplication extends Application
 {
     private static TwilioApplication instance;
-    private BasicIPMessagingClient   basicClient;
+    private BasicChatClient   basicClient;
 
     public static TwilioApplication get()
     {
@@ -25,10 +25,10 @@ public class TwilioApplication extends Application
     {
         super.onCreate();
         TwilioApplication.instance = this;
-        basicClient = new BasicIPMessagingClient(getApplicationContext());
+        basicClient = new BasicChatClient(getApplicationContext());
     }
 
-    public BasicIPMessagingClient getBasicClient()
+    public BasicChatClient getBasicClient()
     {
         return this.basicClient;
     }

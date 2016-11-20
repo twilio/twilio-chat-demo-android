@@ -1,4 +1,4 @@
-package com.twilio.ipmessaging.demo;
+package com.twilio.chat.demo;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -2,15 +2,14 @@
 # Proguard rules for use with IP Messaging SDK
 #==============================================
 
--keep class com.twilio.ipmessaging.** { *; }
--keep class com.twilio.common.** { *; }
+-keep class com.twilio.chat.** { *; }
 -keepattributes InnerClasses
-#-keep interface com.twilio.ipmessaging.** { *; }
-#-keep enum com.twilio.ipmessaging.** { *; }
+#-keep interface com.twilio.chat.** { *; }
+#-keep enum com.twilio.chat.** { *; }
 
 ## Keep native methods
 
--keepclasseswithmembernames class com.twilio.ipmessaging.** {
+-keepclasseswithmembernames class com.twilio.chat.** {
     native <methods>;
 }
 

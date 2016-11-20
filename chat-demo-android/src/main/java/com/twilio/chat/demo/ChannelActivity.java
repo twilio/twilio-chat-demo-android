@@ -1,4 +1,4 @@
-package com.twilio.ipmessaging.demo;
+package com.twilio.chat.demo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,19 +10,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import com.twilio.ipmessaging.Channel;
-import com.twilio.ipmessaging.Channel.ChannelType;
-import com.twilio.ipmessaging.ChannelListener;
-import com.twilio.ipmessaging.Channels;
-import com.twilio.ipmessaging.Constants;
-import com.twilio.ipmessaging.Constants.CreateChannelListener;
-import com.twilio.ipmessaging.Constants.StatusListener;
-import com.twilio.ipmessaging.IPMessagingClientListener;
-import com.twilio.ipmessaging.Member;
-import com.twilio.ipmessaging.Message;
-import com.twilio.ipmessaging.IPMessagingClient;
-import com.twilio.ipmessaging.ErrorInfo;
-import com.twilio.ipmessaging.UserInfo;
+import com.twilio.chat.Channel;
+import com.twilio.chat.Channel.ChannelType;
+import com.twilio.chat.ChannelListener;
+import com.twilio.chat.Channels;
+import com.twilio.chat.Constants;
+import com.twilio.chat.Constants.CreateChannelListener;
+import com.twilio.chat.Constants.StatusListener;
+import com.twilio.chat.ChatClientListener;
+import com.twilio.chat.Member;
+import com.twilio.chat.Message;
+import com.twilio.chat.ChatClient;
+import com.twilio.chat.ErrorInfo;
+import com.twilio.chat.UserInfo;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -46,7 +46,7 @@ import org.json.JSONObject;
 import org.json.JSONException;
 
 @SuppressLint("InflateParams")
-public class ChannelActivity extends Activity implements IPMessagingClientListener
+public class ChannelActivity extends Activity implements ChatClientListener
 {
     private static final Logger logger = Logger.getLogger(ChannelActivity.class);
 
@@ -55,7 +55,7 @@ public class ChannelActivity extends Activity implements IPMessagingClientListen
     private static final int JOIN = 0;
 
     private ListView               listView;
-    private BasicIPMessagingClient basicClient;
+    private BasicChatClient basicClient;
     private List<Channel>          channels = new ArrayList<Channel>();
     private EasyAdapter<Channel>   adapter;
     private AlertDialog            createChannelDialog;
@@ -72,7 +72,7 @@ public class ChannelActivity extends Activity implements IPMessagingClientListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_channel);
         basicClient = TwilioApplication.get().getBasicClient();
-        basicClient.getIpMessagingClient().setListener(ChannelActivity.this);
+        basicClient.getChatClient().setListener(ChannelActivity.this);
         setupListView();
     }
 
@@ -119,7 +119,7 @@ public class ChannelActivity extends Activity implements IPMessagingClientListen
                 break;
             case R.id.action_unregistercm: {
                 String gcmToken = basicClient.getGCMToken();
-                basicClient.getIpMessagingClient().unregisterGCMToken(
+                basicClient.getChatClient().unregisterGCMToken(
                     gcmToken, new StatusListener() {
                         @Override
                         public void onError(ErrorInfo errorInfo)
@@ -171,7 +171,7 @@ public class ChannelActivity extends Activity implements IPMessagingClientListen
             logger.e("JSON exception", xcp);
         }
 
-        basicClient.getIpMessagingClient().getChannels()
+        basicClient.getChatClient().getChannels()
             .channelBuilder()
             .withFriendlyName("Pub_TestChannelF_" + value)
             .withUniqueName("Pub_TestChannelU_" + value)
@@ -371,9 +371,9 @@ public class ChannelActivity extends Activity implements IPMessagingClientListen
     private void getChannels()
     {
         if (channels == null) return;
-        if (basicClient == null || basicClient.getIpMessagingClient() == null) return;
+        if (basicClient == null || basicClient.getChatClient() == null) return;
 
-        channelsObject = basicClient.getIpMessagingClient().getChannels();
+        channelsObject = basicClient.getChatClient().getChannels();
 
         channels.clear();
         channels.addAll(new ArrayList<>(Arrays.asList(channelsObject.getChannels())));
@@ -473,7 +473,7 @@ public class ChannelActivity extends Activity implements IPMessagingClientListen
     }
 
     //=============================================================
-    // IPMessagingClientListener
+    // ChatClientListener
     //=============================================================
 
     @Override
@@ -528,7 +528,7 @@ public class ChannelActivity extends Activity implements IPMessagingClientListen
     }
 
     @Override
-    public void onClientSynchronization(IPMessagingClient.SynchronizationStatus status)
+    public void onClientSynchronization(ChatClient.SynchronizationStatus status)
     {
         logger.e("Received onClientSynchronization callback " + status.toString());
     }

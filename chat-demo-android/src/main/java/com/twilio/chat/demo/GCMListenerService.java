@@ -1,4 +1,4 @@
-package com.twilio.ipmessaging.demo;
+package com.twilio.chat.demo;
 
 import java.util.HashMap;
 
@@ -14,8 +14,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 
-import com.twilio.ipmessaging.IPMessagingClient;
-import com.twilio.ipmessaging.NotificationPayload;
+import com.twilio.chat.ChatClient;
+import com.twilio.chat.NotificationPayload;
 
 public class GCMListenerService extends GcmListenerService
 {
@@ -29,7 +29,7 @@ public class GCMListenerService extends GcmListenerService
         for (String key : data.keySet()) {
             pushNotification.put(key, data.getString(key));
         }
-        IPMessagingClient client = TwilioApplication.get().getBasicClient().getIpMessagingClient();
+        ChatClient client = TwilioApplication.get().getBasicClient().getChatClient();
         if (client != null) {
             client.handleNotification(pushNotification);
         }

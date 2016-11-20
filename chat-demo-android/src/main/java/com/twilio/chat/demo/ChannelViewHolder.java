@@ -1,8 +1,8 @@
-package com.twilio.ipmessaging.demo;
+package com.twilio.chat.demo;
 
-import com.twilio.ipmessaging.demo.R;
-import com.twilio.ipmessaging.Channel;
-import com.twilio.ipmessaging.Channel.ChannelStatus;
+import com.twilio.chat.demo.R;
+import com.twilio.chat.Channel;
+import com.twilio.chat.Channel.ChannelStatus;
 
 import android.graphics.Color;
 import android.view.View;

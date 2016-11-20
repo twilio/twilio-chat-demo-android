@@ -1,4 +1,4 @@
-package com.twilio.ipmessaging.demo;
+package com.twilio.chat.demo;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -8,13 +8,13 @@ import com.google.android.gms.iid.InstanceID;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.ConnectionResult;
 
-import com.twilio.ipmessaging.Constants.StatusListener;
-import com.twilio.ipmessaging.ErrorInfo;
+import com.twilio.chat.Constants.StatusListener;
+import com.twilio.chat.ErrorInfo;
 
-import com.twilio.ipmessaging.IPMessagingClient;
-import com.twilio.ipmessaging.demo.BasicIPMessagingClient.LoginListener;
-import com.twilio.ipmessaging.demo.R;
-import com.twilio.ipmessaging.demo.BuildConfig;
+import com.twilio.chat.ChatClient;
+import com.twilio.chat.demo.BasicChatClient.LoginListener;
+import com.twilio.chat.demo.R;
+import com.twilio.chat.demo.BuildConfig;
 
 import android.net.Uri;
 import android.provider.Settings.Secure;
@@ -141,7 +141,7 @@ public class LoginActivity extends Activity implements LoginListener
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
         builder.setTitle("About")
-            .setMessage("Version: " + IPMessagingClient.getSdkVersion())
+            .setMessage("Version: " + ChatClient.getSdkVersion())
             .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id)
                 {

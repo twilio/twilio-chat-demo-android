@@ -26,7 +26,7 @@
             android:orientation="horizontal"
             android:layout_toEndOf="@+id/avatar">
 
-            <com.twilio.ipmessaging.demo.MessageTextView
+            <com.twilio.chat.demo.MessageTextView
                 android:id="@+id/author"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -48,7 +48,7 @@
 
         </LinearLayout>
 
-        <com.twilio.ipmessaging.demo.MessageTextView
+        <com.twilio.chat.demo.MessageTextView
             android:id="@+id/body"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -60,7 +60,7 @@
             android:layout_below="@+id/authorLine"
             android:layout_toEndOf="@+id/avatar"/>
 
-        <com.twilio.ipmessaging.demo.MessageTextView
+        <com.twilio.chat.demo.MessageTextView
             android:id="@+id/date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

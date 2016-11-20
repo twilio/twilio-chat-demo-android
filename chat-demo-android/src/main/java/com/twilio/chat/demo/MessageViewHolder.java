@@ -1,11 +1,11 @@
-package com.twilio.ipmessaging.demo;
+package com.twilio.chat.demo;
 
 import java.util.Map;
 import org.json.JSONObject;
 
-import com.twilio.ipmessaging.Member;
-import com.twilio.ipmessaging.Message;
-import com.twilio.ipmessaging.demo.R;
+import com.twilio.chat.Member;
+import com.twilio.chat.Message;
+import com.twilio.chat.demo.R;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -157,7 +157,7 @@ public class MessageViewHolder extends ItemViewHolder<MessageActivity.MessageIte
     }
 
     private void fillUserReachability(ImageView reachabilityView, Member member) {
-        if (!TwilioApplication.get().getBasicClient().getIpMessagingClient().isReachabilityEnabled()) {
+        if (!TwilioApplication.get().getBasicClient().getChatClient().isReachabilityEnabled()) {
             reachabilityView.setImageResource(R.drawable.reachability_disabled);
         } else if (member.getUserInfo().isOnline()) {
             reachabilityView.setImageResource(R.drawable.reachability_online);

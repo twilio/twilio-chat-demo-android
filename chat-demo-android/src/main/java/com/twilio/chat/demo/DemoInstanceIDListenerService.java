@@ -1,4 +1,4 @@
-package com.twilio.ipmessaging.demo;
+package com.twilio.chat.demo;
 
 import android.content.Intent;
 import android.content.SharedPreferences;

@@ -1,7 +1,7 @@
-package com.twilio.ipmessaging.demo;
+package com.twilio.chat.demo;
 
-import com.twilio.ipmessaging.demo.R;
-import com.twilio.ipmessaging.Member;
+import com.twilio.chat.demo.R;
+import com.twilio.chat.Member;
 
 import android.view.View;
 import android.widget.TextView;

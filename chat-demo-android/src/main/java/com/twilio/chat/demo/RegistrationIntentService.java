@@ -1,4 +1,4 @@
-package com.twilio.ipmessaging.demo;
+package com.twilio.chat.demo;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -9,8 +9,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import com.google.android.gms.gcm.GcmPubSub;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
-import com.twilio.ipmessaging.Constants.StatusListener;
-import com.twilio.ipmessaging.ErrorInfo;
+import com.twilio.chat.Constants.StatusListener;
+import com.twilio.chat.ErrorInfo;
 
 import java.io.IOException;
 
@@ -37,7 +37,7 @@ public class RegistrationIntentService extends IntentService
                                                null);
             logger.i("GCM Registration Token: " + token);
 
-            sendRegistrationToIPMClient(token);
+            sendRegistrationToChatClient(token);
 
             subscribeTopics(token);
 
@@ -61,7 +61,7 @@ public class RegistrationIntentService extends IntentService
      *
      * @param token The new token.
      */
-    private void sendRegistrationToIPMClient(String token)
+    private void sendRegistrationToChatClient(String token)
     {
         TwilioApplication.get().getBasicClient().setGCMToken(token);
     }

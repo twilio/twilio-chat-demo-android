@@ -1,4 +1,4 @@
-package com.twilio.ipmessaging.demo;
+package com.twilio.chat.demo;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -14,13 +14,13 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.twilio.ipmessaging.Channel;
-import com.twilio.ipmessaging.Channels;
-import com.twilio.ipmessaging.Constants.StatusListener;
-import com.twilio.ipmessaging.ErrorInfo;
-import com.twilio.ipmessaging.IPMessagingClientListener;
-import com.twilio.ipmessaging.IPMessagingClient;
-import com.twilio.ipmessaging.UserInfo;
+import com.twilio.chat.Channel;
+import com.twilio.chat.Channels;
+import com.twilio.chat.Constants.StatusListener;
+import com.twilio.chat.ErrorInfo;
+import com.twilio.chat.ChatClientListener;
+import com.twilio.chat.ChatClient;
+import com.twilio.chat.UserInfo;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,7 +33,7 @@ public class UserInfoActivity extends Activity
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
-    IPMessagingClient       client;
+    ChatClient       client;
     EditText                friendlyName;
     ImageView               avatarView;
     Button                  save;
@@ -59,7 +59,7 @@ public class UserInfoActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_info);
         friendlyName = (EditText)findViewById(R.id.user_friendly_name);
-        client = TwilioApplication.get().getBasicClient().getIpMessagingClient();
+        client = TwilioApplication.get().getBasicClient().getChatClient();
 
         friendlyName.setText(client.getMyUserInfo().getFriendlyName());
         avatarView = (ImageView)findViewById(R.id.avatar);
@@ -225,7 +225,7 @@ public class UserInfoActivity extends Activity
 
     private void setListener()
     {
-        client.setListener(new IPMessagingClientListener() {
+        client.setListener(new ChatClientListener() {
             @Override
             public void onChannelAdd(Channel channel)
             {
@@ -271,7 +271,7 @@ public class UserInfoActivity extends Activity
 
             @Override
             public void onClientSynchronization(
-                IPMessagingClient.SynchronizationStatus synchronizationStatus)
+                ChatClient.SynchronizationStatus synchronizationStatus)
             {
             }
 
