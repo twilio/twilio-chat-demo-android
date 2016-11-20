@@ -3,7 +3,7 @@ package com.twilio.chat.demo;
 import java.util.Arrays;
 import java.util.List;
 
-import com.twilio.common.AccessManager;
+import com.twilio.accessmanager.AccessManager;
 
 import com.twilio.chat.Channel;
 import com.twilio.chat.Constants;
@@ -24,7 +24,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 public class BasicChatClient extends CallbackListener<ChatClient>
-    implements AccessManager.Listener
+    implements AccessManager.Listener, AccessManager.TokenUpdateListener
 {
     private static final Logger logger = Logger.getLogger(BasicChatClient.class);
 
@@ -62,16 +62,6 @@ public class BasicChatClient extends CallbackListener<ChatClient>
         public void onLoginError(String errorMessage);
 
         public void onLogoutFinished();
-    }
-
-    public String getAccessToken()
-    {
-        return accessToken;
-    }
-
-    public void setAccessToken(String accessToken)
-    {
-        this.accessToken = accessToken;
     }
 
     public String getGCMToken()
@@ -126,7 +116,8 @@ public class BasicChatClient extends CallbackListener<ChatClient>
     {
         if (accessManager != null) return;
 
-        accessManager = new AccessManager(context, accessToken, this);
+        accessManager = new AccessManager(accessToken, this);
+        accessManager.addTokenUpdateListener(this);
     }
 
     private void createClient()
@@ -142,7 +133,7 @@ public class BasicChatClient extends CallbackListener<ChatClient>
                 .createProperties();
 
         ChatClient.create(context.getApplicationContext(),
-                                 accessManager,
+                                 accessToken,
                                  props,
                                  this);
     }
@@ -200,6 +191,12 @@ public class BasicChatClient extends CallbackListener<ChatClient>
     // AccessManager.Listener
 
     @Override
+    public void onTokenWillExpire(AccessManager accessManager)
+    {
+        logger.d("onTokenWillExpire");
+    }
+
+    @Override
     public void onTokenExpired(AccessManager accessManager)
     {
         logger.d("Token expired. Getting new token.");
@@ -212,10 +209,11 @@ public class BasicChatClient extends CallbackListener<ChatClient>
         logger.d("Token error: " + err);
     }
 
+    // AccessManager.TokenUpdateListener
+
     @Override
-    public void onTokenUpdated(AccessManager manager)
+    public void onTokenUpdated(String token)
     {
-        String token = manager.getToken();
         logger.d("Received AccessManager:onTokenUpdated. "+token);
 
         if (chatClient == null) return;
