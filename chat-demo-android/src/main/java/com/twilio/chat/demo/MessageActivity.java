@@ -70,7 +70,6 @@ public class MessageActivity extends Activity implements ChannelListener
                                                    "Add Member",
                                                    "Remove Member",
                                                    "Leave",
-                                                   "Change ChannelType",
                                                    "Destroy",
                                                    "Get Attributes",
                                                    "Change Unique Name",
@@ -83,11 +82,10 @@ public class MessageActivity extends Activity implements ChannelListener
     private static final int ADD_MEMBER = 4;
     private static final int REMOVE_MEMBER = 5;
     private static final int LEAVE = 6;
-    private static final int CHANNEL_TYPE = 7;
-    private static final int CHANNEL_DESTROY = 8;
-    private static final int CHANNEL_ATTRIBUTE = 9;
-    private static final int SET_CHANNEL_UNIQUE_NAME = 10;
-    private static final int GET_CHANNEL_UNIQUE_NAME = 11;
+    private static final int CHANNEL_DESTROY = 7;
+    private static final int CHANNEL_ATTRIBUTE = 8;
+    private static final int SET_CHANNEL_UNIQUE_NAME = 9;
+    private static final int GET_CHANNEL_UNIQUE_NAME = 10;
 
     private static final int REMOVE = 0;
     private static final int EDIT = 1;
@@ -97,10 +95,6 @@ public class MessageActivity extends Activity implements ChannelListener
     private AlertDialog            editTextDialog;
     private AlertDialog            memberListDialog;
     private AlertDialog            changeChannelTypeDialog;
-    private StatusListener         messageListener;
-    private StatusListener         leaveListener;
-    private StatusListener         destroyListener;
-    private StatusListener         nameUpdateListener;
     private ArrayList<MessageItem> messageItemList;
     private String                 identity;
 
@@ -224,44 +218,29 @@ public class MessageActivity extends Activity implements ChannelListener
                     } else if (which == ADD_MEMBER) {
                         showAddMemberDialog();
                     } else if (which == LEAVE) {
-                        leaveListener = new StatusListener() {
-                            @Override
-                            public void onError(ErrorInfo errorInfo)
-                            {
-                                TwilioApplication.get().logErrorInfo("Error leaving channel",
-                                                                     errorInfo);
-                            }
-
+                        channel.leave(new ToastStatusListener(
+                            "Successfully left channel",
+                            "Error leaving channel") {
                             @Override
                             public void onSuccess()
                             {
-                                logger.d("Successful at leaving channel");
+                                super.onSuccess();
                                 finish();
                             }
-                        };
-                        channel.leave(leaveListener);
-
+                        });
                     } else if (which == REMOVE_MEMBER) {
                         showRemoveMemberDialog();
-                    } else if (which == CHANNEL_TYPE) {
-                        showChangeChannelType();
                     } else if (which == CHANNEL_DESTROY) {
-                        destroyListener = new StatusListener() {
-                            @Override
-                            public void onError(ErrorInfo errorInfo)
-                            {
-                                TwilioApplication.get().logErrorInfo("Error destroying channel",
-                                                                     errorInfo);
-                            }
-
+                        channel.destroy(new ToastStatusListener(
+                            "Successfully destroyed channel",
+                            "Error destroying channel") {
                             @Override
                             public void onSuccess()
                             {
-                                logger.d("Successful at destroying channel");
+                                super.onSuccess();
                                 finish();
                             }
-                        };
-                        channel.destroy(destroyListener);
+                        });
                     } else if (which == CHANNEL_ATTRIBUTE) {
                         try {
                             TwilioApplication.get().showToast(channel.getAttributes().toString());
@@ -288,7 +267,6 @@ public class MessageActivity extends Activity implements ChannelListener
             .setPositiveButton(
                 "Update",
                 new DialogInterface.OnClickListener() {
-
                     @Override
                     public void onClick(DialogInterface dialog, int id)
                     {
@@ -297,22 +275,8 @@ public class MessageActivity extends Activity implements ChannelListener
                                 .getText()
                                 .toString();
                         logger.d(friendlyName);
-                        nameUpdateListener = new StatusListener() {
-                            @Override
-                            public void onError(ErrorInfo errorInfo)
-                            {
-                                TwilioApplication.get().showError(errorInfo);
-                                TwilioApplication.get().logErrorInfo("Error changing name",
-                                                                     errorInfo);
-                            }
-
-                            @Override
-                            public void onSuccess()
-                            {
-                                logger.d("successfully changed name");
-                            }
-                        };
-                        channel.setFriendlyName(friendlyName, nameUpdateListener);
+                        channel.setFriendlyName(friendlyName, new ToastStatusListener(
+                            "Successfully changed name", "Error changing name"));
                     }
                 })
             .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -496,10 +460,6 @@ public class MessageActivity extends Activity implements ChannelListener
                 memberListDialog.getWindow().setLayout(800, 600);
             }
         });
-    }
-
-    private void showChangeChannelType()
-    {
     }
 
     private void loadAndShowMessages()
@@ -928,11 +888,6 @@ public class MessageActivity extends Activity implements ChannelListener
         public Members getMembers()
         {
             return members;
-        }
-
-        public String getCurrentUser()
-        {
-            return currentUser;
         }
     }
 }

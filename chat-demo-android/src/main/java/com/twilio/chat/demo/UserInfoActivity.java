@@ -109,10 +109,6 @@ public class UserInfoActivity extends Activity
         });
     }
 
-    private void initUserInfoListeners()
-    {
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
@@ -120,18 +116,8 @@ public class UserInfoActivity extends Activity
             Bundle extras = data.getExtras();
             Bitmap imageBitmap = (Bitmap)extras.get("data");
             bitmap = getResizedBitmap(imageBitmap, 96);
-            // bitmap = compress(bitmap, Bitmap.CompressFormat.JPEG, 100);
             avatarView.setImageBitmap(bitmap);
         }
-    }
-
-    private static Bitmap compress(Bitmap src, Bitmap.CompressFormat format, int quality)
-    {
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        src.compress(format, quality, os);
-
-        byte[] array = os.toByteArray();
-        return BitmapFactory.decodeByteArray(array, 0, array.length);
     }
 
     public String getBase64FromBitmap(Bitmap bitmap)
@@ -139,7 +125,6 @@ public class UserInfoActivity extends Activity
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         String string = Base64.encodeToString(stream.toByteArray(), Base64.NO_WRAP);
-        // int    size = string.length();
         return string;
     }
 
