@@ -289,6 +289,10 @@ public class UserInfoActivity extends Activity
             public void onToastFailed(ErrorInfo errorInfo)
             {
             }
+
+            @Override
+            public void onConnectionStateChange(ChatClient.ConnectionState connectionState) {
+            }
         });
     }
 }

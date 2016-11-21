@@ -564,4 +564,9 @@ public class ChannelActivity extends Activity implements ChatClientListener
     {
         TwilioApplication.get().showError("Received onError callback", errorInfo);
     }
+
+    @Override
+    public void onConnectionStateChange(ChatClient.ConnectionState connectionState) {
+        TwilioApplication.get().showToast("Transport state changed to "+connectionState.toString());
+    }
 }
