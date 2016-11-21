@@ -37,7 +37,10 @@ public class RegistrationIntentService extends IntentService
                                                null);
             logger.i("GCM Registration Token: " + token);
 
-            sendRegistrationToChatClient(token);
+            /**
+             * Persist registration to Twilio servers.
+             */
+            TwilioApplication.get().getBasicClient().setGCMToken(token);
 
             subscribeTopics(token);
 
@@ -54,16 +57,6 @@ public class RegistrationIntentService extends IntentService
         // Notify UI that registration has completed, so the progress indicator can be hidden.
         Intent registrationComplete = new Intent(GcmPreferences.REGISTRATION_COMPLETE);
         LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
-    }
-
-    /**
-     * Persist registration to Twilio servers.
-     *
-     * @param token The new token.
-     */
-    private void sendRegistrationToChatClient(String token)
-    {
-        TwilioApplication.get().getBasicClient().setGCMToken(token);
     }
 
     /**
