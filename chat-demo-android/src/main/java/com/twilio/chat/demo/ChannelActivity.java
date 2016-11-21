@@ -425,7 +425,7 @@ public class ChannelActivity extends Activity implements ChatClientListener
     }
 
     @Override
-    public void onUserInfoChange(UserInfo userInfo)
+    public void onUserInfoChange(UserInfo userInfo, UserInfo.UpdateReason reason)
     {
         logger.e("Received onUserInfoChange callback");
     }

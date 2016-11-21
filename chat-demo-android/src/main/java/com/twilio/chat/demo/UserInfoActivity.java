@@ -215,9 +215,11 @@ public class UserInfoActivity extends Activity
             }
 
             @Override
-            public void onUserInfoChange(UserInfo userInfo)
+            public void onUserInfoChange(UserInfo userInfo, UserInfo.UpdateReason reason)
             {
-                fillUserAvatar();
+                if (reason == UserInfo.UpdateReason.ATTRIBUTES) {
+                    fillUserAvatar();
+                }
                 TwilioApplication.get().showToast("Update successful for user attributes");
             }
 
