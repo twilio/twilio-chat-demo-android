@@ -20,6 +20,7 @@ import com.twilio.chat.Members;
 import com.twilio.chat.Message;
 import com.twilio.chat.Messages;
 import com.twilio.chat.ErrorInfo;
+import com.twilio.chat.Paginator;
 import com.twilio.chat.internal.Logger;
 
 import android.app.Activity;
@@ -131,46 +132,48 @@ public class MessageActivity extends Activity implements ChannelListener
             identity = basicClient.getChatClient().getMyUserInfo().getIdentity();
             String   channelSid = getIntent().getStringExtra(Constants.EXTRA_CHANNEL_SID);
             Channels channelsObject = basicClient.getChatClient().getChannels();
-            if (channelsObject != null) {
-                channel = channelsObject.getChannel(channelSid);
-                if (channel != null) {
+            channelsObject.getChannel(channelSid, new CallbackListener<Channel>() {
+                @Override
+                public void onSuccess(final Channel foundChannel)
+                {
+                    channel = foundChannel;
                     channel.addListener(MessageActivity.this);
-                    this.setTitle(
+                    MessageActivity.this.setTitle(
                         "Name:" + channel.getFriendlyName() + " Type:"
                         + ((channel.getType() == ChannelType.PUBLIC) ? "Public" : "Private"));
-                }
-            }
-        }
 
-        channel.synchronize(new CallbackListener<Channel>() {
-            @Override
-            public void onError(ErrorInfo errorInfo)
-            {
-                TwilioApplication.get().logErrorInfo("Channel sync failed", errorInfo);
-            }
+                    channel.synchronize(new CallbackListener<Channel>() {
+                        @Override
+                        public void onError(ErrorInfo errorInfo)
+                        {
+                            TwilioApplication.get().showError("Channel sync failed", errorInfo);
+                        }
 
-            @Override
-            public void onSuccess(Channel result)
-            {
-                logger.d("Channel sync success for " + result.getFriendlyName());
-            }
-        });
+                        @Override
+                        public void onSuccess(Channel result)
+                        {
+                            TwilioApplication.get().showToast("Channel sync success for " + result.getFriendlyName());
+                            setupListView(channel);
 
-        setupListView(channel);
-        messageListView = (ListView)findViewById(R.id.message_list_view);
-        if (messageListView != null) {
-            messageListView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-            messageListView.setStackFromBottom(true);
-            adapter.registerDataSetObserver(new DataSetObserver() {
-                @Override
-                public void onChanged()
-                {
-                    super.onChanged();
-                    messageListView.setSelection(adapter.getCount() - 1);
+                            messageListView = (ListView)findViewById(R.id.message_list_view);
+                            if (messageListView != null) {
+                                messageListView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+                                messageListView.setStackFromBottom(true);
+                                adapter.registerDataSetObserver(new DataSetObserver() {
+                                    @Override
+                                    public void onChanged()
+                                    {
+                                        super.onChanged();
+                                        messageListView.setSelection(adapter.getCount() - 1);
+                                    }
+                                });
+                            }
+                            setupInput();
+                        }
+                    });
                 }
             });
         }
-        setupInput();
     }
 
     @Override
@@ -201,18 +204,21 @@ public class MessageActivity extends Activity implements ChannelListener
                     } else if (which == TOPIC_CHANGE) {
                         showChangeTopicDialog();
                     } else if (which == LIST_MEMBERS) {
-                        Members membersObject = channel.getMembers();
-                        Member[] members = membersObject.getMembers();
-
-                        logger.d("members retrieved");
-                        StringBuffer name = new StringBuffer();
-                        for (int i = 0; i < members.length; i++) {
-                            name.append(members[i].getUserInfo().getIdentity());
-                            if (i + 1 < members.length) {
-                                name.append(", ");
+                        channel.getMembers().getMembers(new CallbackListener<Paginator<Member>>() {
+                            @Override
+                            public void onSuccess(Paginator<Member> memberPaginator) {
+                                logger.d("members retrieved");
+                                ArrayList<Member> members = memberPaginator.getItems();
+                                StringBuffer name = new StringBuffer();
+                                for (int i = 0; i < members.size(); i++) {
+                                    name.append(members.get(i).getUserInfo().getIdentity());
+                                    if (i + 1 < members.size()) {
+                                        name.append(", ");
+                                    }
+                                }
+                                TwilioApplication.get().showToast(name.toString(), Toast.LENGTH_LONG);
                             }
-                        }
-                        TwilioApplication.get().showToast(name.toString());
+                        });
                     } else if (which == INVITE_MEMBER) {
                         showInviteMemberDialog();
                     } else if (which == ADD_MEMBER) {
@@ -464,43 +470,32 @@ public class MessageActivity extends Activity implements ChannelListener
     private void showRemoveMemberDialog()
     {
         final Members membersObject = channel.getMembers();
-        Member[] membersArray = membersObject.getMembers();
-        if (membersArray.length > 0) {
-            members = new ArrayList<Member>(Arrays.asList(membersArray));
-        }
-
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(MessageActivity.this);
-        View convertView = (View)getLayoutInflater().inflate(R.layout.member_list, null);
-        alertDialog.setView(convertView);
-        alertDialog.setTitle("Remove members");
-        ListView            lv = (ListView)convertView.findViewById(R.id.listView1);
-        EasyAdapter<Member> adapterMember = new EasyAdapter<Member>(
-            this, MemberViewHolder.class, members, new MemberViewHolder.OnMemberClickListener() {
-                @Override
-                public void onMemberClicked(Member member)
-                {
-                    membersObject.removeMember(member, new StatusListener() {
-                        @Override
-                        public void onError(ErrorInfo errorInfo)
-                        {
-                            TwilioApplication.get().showError(errorInfo);
-                            TwilioApplication.get().logErrorInfo("Error in removeMember operation",
-                                                                 errorInfo);
-                        }
-
-                        @Override
-                        public void onSuccess()
-                        {
-                            logger.d("Successful removeMember operation");
-                        }
-                    });
-                    memberListDialog.dismiss();
-                }
-            });
-        lv.setAdapter(adapterMember);
-        memberListDialog = alertDialog.create();
-        memberListDialog.show();
-        memberListDialog.getWindow().setLayout(800, 600);
+        membersObject.getMembers(new CallbackListener<Paginator<Member>>() {
+            @Override
+            public void onSuccess(Paginator<Member> memberPaginator) {
+                ArrayList<Member> members= memberPaginator.getItems();
+                final View convertView = getLayoutInflater().inflate(R.layout.member_list, null);
+                final AlertDialog memberListDialog = new AlertDialog.Builder(MessageActivity.this)
+                    .setView(convertView)
+                    .setTitle("Remove members")
+                    .create();
+                ListView            lv = (ListView)convertView.findViewById(R.id.listView1);
+                EasyAdapter<Member> adapterMember = new EasyAdapter<Member>(
+                        MessageActivity.this, MemberViewHolder.class, members, new MemberViewHolder.OnMemberClickListener() {
+                    @Override
+                    public void onMemberClicked(Member member)
+                    {
+                        membersObject.removeMember(member, new ToastStatusListener(
+                            "Successful removeMember operation",
+                            "Error in removeMember operation"));
+                        memberListDialog.dismiss();
+                    }
+                });
+                lv.setAdapter(adapterMember);
+                memberListDialog.show();
+                memberListDialog.getWindow().setLayout(800, 600);
+            }
+        });
     }
 
     private void showChangeChannelType()

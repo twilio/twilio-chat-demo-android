@@ -3,8 +3,10 @@ package com.twilio.chat.demo;
 import java.util.Map;
 import org.json.JSONObject;
 
+import com.twilio.chat.CallbackListener;
 import com.twilio.chat.Member;
 import com.twilio.chat.Message;
+import com.twilio.chat.Paginator;
 import com.twilio.chat.demo.R;
 
 import android.graphics.Bitmap;
@@ -87,10 +89,10 @@ public class MessageViewHolder extends ItemViewHolder<MessageActivity.MessageIte
     }
 
     @Override
-    public void onSetValues(MessageActivity.MessageItem message, PositionInfo pos)
+    public void onSetValues(final MessageActivity.MessageItem message, PositionInfo pos)
     {
         if (message != null) {
-            Message msg = message.getMessage();
+            final Message msg = message.getMessage();
 
             author.setText(msg.getAuthor());
             body.setText(msg.getMessageBody());
@@ -99,20 +101,23 @@ public class MessageViewHolder extends ItemViewHolder<MessageActivity.MessageIte
             identities.removeAllViews();
             lines.removeAllViews();
 
-            if (message.getMembers() != null && message.getMembers().getMembers() != null) {
-                for (Member member : message.getMembers().getMembers()) {
-                    if (msg.getAuthor().equals(member.getUserInfo().getIdentity())) {
-                        fillUserAvatar(imageView, member);
-                        fillUserReachability(reachabilityView, member);
-                    }
+            message.getMembers().getMembers(new CallbackListener<Paginator<Member>>() {
+                @Override
+                public void onSuccess(Paginator<Member> memberPaginator) {
+                    for (Member member : memberPaginator.getItems()) {
+                        if (msg.getAuthor().equals(member.getUserInfo().getIdentity())) {
+                            fillUserAvatar(imageView, member);
+                            fillUserReachability(reachabilityView, member);
+                        }
 
-                    if (member.getLastConsumedMessageIndex() != null
-                        && member.getLastConsumedMessageIndex()
-                               == message.getMessage().getMessageIndex()) {
-                        drawConsumptionHorizon(member);
+                        if (member.getLastConsumedMessageIndex() != null
+                            && member.getLastConsumedMessageIndex()
+                                   == message.getMessage().getMessageIndex()) {
+                            drawConsumptionHorizon(member);
+                        }
                     }
                 }
-            }
+            });
         }
     }
 

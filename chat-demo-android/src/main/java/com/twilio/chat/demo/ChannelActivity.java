@@ -228,13 +228,16 @@ public class ChannelActivity extends Activity implements ChatClientListener
                             .getText()
                             .toString();
                     logger.d("Searching for " + channelName);
-                    final Channel channel = channelsObject.getChannelByUniqueName(channelName);
-
-                    if (channel != null) {
-                        TwilioApplication.get().showToast(channel.getSid() + ":" + channel.getFriendlyName());
-                    } else {
-                        TwilioApplication.get().showToast("Channel not found.");
-                    }
+                    channelsObject.getChannel(channelName, new CallbackListener<Channel>() {
+                        @Override
+                        public void onSuccess(final Channel channel) {
+                            if (channel != null) {
+                                TwilioApplication.get().showToast(channel.getSid() + ":" + channel.getFriendlyName());
+                            } else {
+                                TwilioApplication.get().showToast("Channel not found.");
+                            }
+                        }
+                    });
                 }
             });
         createChannelDialog = builder.create();
@@ -293,7 +296,6 @@ public class ChannelActivity extends Activity implements ChatClientListener
 
         listView.setAdapter(adapter);
         getChannels();
-        adapter.notifyDataSetChanged();
     }
 
     // Initialize channels with channel list
@@ -304,10 +306,16 @@ public class ChannelActivity extends Activity implements ChatClientListener
 
         channelsObject = basicClient.getChatClient().getChannels();
 
-        channels.clear();
-        channels.addAll(new ArrayList<>(Arrays.asList(channelsObject.getChannels())));
-
-        Collections.sort(channels, new CustomChannelComparator());
+        channelsObject.getUserChannels(new CallbackListener<Paginator<Channel>>() {
+            @Override
+            public void onSuccess(Paginator<Channel> channelsPaginator)
+            {
+                channels.clear();
+                channels.addAll(channelsPaginator.getItems());
+                Collections.sort(channels, new CustomChannelComparator());
+                adapter.notifyDataSetChanged();
+            }
+        });
     }
 
     private void showIncomingInvite(final Channel channel)
