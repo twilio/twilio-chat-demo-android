@@ -125,9 +125,7 @@ public class BasicChatClient extends CallbackListener<ChatClient>
 
         ChatClient.Properties props =
             new ChatClient.Properties.Builder()
-                .setSynchronizationStrategy(
-                        ChatClient.SynchronizationStrategy.CHANNELS_LIST)
-                .setInitialMessageCount(50)
+                .setSynchronizationStrategy(ChatClient.SynchronizationStrategy.CHANNELS_LIST)
                 .setRegion("us1")
                 .createProperties();
 
