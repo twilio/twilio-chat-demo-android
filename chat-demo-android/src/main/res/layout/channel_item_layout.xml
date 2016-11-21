@@ -37,4 +37,28 @@
         android:textColor="@android:color/darker_gray"
         android:textSize="11sp" />
 
+    <TextView
+        android:id="@+id/channel_users_count"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusable="false"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="11sp" />
+
+    <TextView
+        android:id="@+id/channel_total_messages_count"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusable="false"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="11sp" />
+
+    <TextView
+        android:id="@+id/channel_unconsumed_messages_count"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusable="false"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="11sp" />
+
 </LinearLayout>

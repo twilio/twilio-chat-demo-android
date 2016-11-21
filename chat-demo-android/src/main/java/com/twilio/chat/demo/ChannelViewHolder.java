@@ -1,10 +1,11 @@
 package com.twilio.chat.demo;
 
-import com.twilio.chat.demo.R;
 import com.twilio.chat.Channel;
 import com.twilio.chat.Channel.ChannelStatus;
+import com.twilio.chat.CallbackListener;
 
 import android.graphics.Color;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import uk.co.ribot.easyadapter.ItemViewHolder;
@@ -26,6 +27,15 @@ public class ChannelViewHolder extends ItemViewHolder<Channel>
 
     @ViewId(R.id.channel_created_date)
     TextView createdDate;
+
+    @ViewId(R.id.channel_users_count)
+    TextView usersCount;
+
+    @ViewId(R.id.channel_total_messages_count)
+    TextView totalMessagesCount;
+
+    @ViewId(R.id.channel_unconsumed_messages_count)
+    TextView unconsumedMessagesCount;
 
     View view;
 
@@ -66,8 +76,32 @@ public class ChannelViewHolder extends ItemViewHolder<Channel>
                              "<no created date>";
         createdDate.setText(created);
 
-        boolean chStatus = (channel.getStatus() == ChannelStatus.JOINED);
-        view.setBackgroundColor(chStatus ? Color.WHITE : Color.GRAY);
+        channel.getUnconsumedMessagesCount(new CallbackListener<Integer>() {
+            @Override
+            public void onSuccess(Integer value) {
+                Log.d("ChannelViewHolder", "getUnconsumedMessagesCount callback");
+                unconsumedMessagesCount.setText("Unread "+value.toString());
+            }
+        });
+
+        channel.getMessagesCount(new CallbackListener<Integer>() {
+            @Override
+            public void onSuccess(Integer value) {
+                Log.d("ChannelViewHolder", "getMessagesCount callback");
+                totalMessagesCount.setText("Messages "+value.toString());
+            }
+        });
+
+        channel.getMembersCount(new CallbackListener<Integer>() {
+            @Override
+            public void onSuccess(Integer value) {
+                Log.d("ChannelViewHolder", "getMembersCount callback");
+                usersCount.setText("Members "+value.toString());
+            }
+        });
+
+        boolean joined = (channel.getStatus() == ChannelStatus.JOINED);
+        view.setBackgroundColor(joined ? Color.WHITE : Color.GRAY);
     }
 
     public interface OnChannelClickListener {
