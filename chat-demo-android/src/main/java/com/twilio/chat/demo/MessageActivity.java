@@ -134,7 +134,7 @@ public class MessageActivity extends Activity implements ChannelListener
             if (channelsObject != null) {
                 channel = channelsObject.getChannel(channelSid);
                 if (channel != null) {
-                    channel.setListener(MessageActivity.this);
+                    channel.addListener(MessageActivity.this);
                     this.setTitle(
                         "Name:" + channel.getFriendlyName() + " Type:"
                         + ((channel.getType() == ChannelType.PUBLIC) ? "Public" : "Private"));
