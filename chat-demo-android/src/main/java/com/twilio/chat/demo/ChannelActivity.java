@@ -176,9 +176,9 @@ public class ChannelActivity extends Activity implements ChatClientListener
             .withUniqueName("Pub_TestChannelU_" + value)
             .withType(type)
             .withAttributes(attrs)
-            .build(new CreateChannelListener() {
+            .build(new CallbackListener<Channel>() {
                 @Override
-                public void onCreated(final Channel newChannel)
+                public void onSuccess(final Channel newChannel)
                 {
                     logger.d("Successfully created a channel with options.");
                 }
@@ -227,9 +227,9 @@ public class ChannelActivity extends Activity implements ChatClientListener
                                 .getText()
                                 .toString();
                         logger.d("Creating channel with friendly Name|" + channelName + "|");
-                        channelsObject.createChannel(channelName, type, new CreateChannelListener() {
+                        channelsObject.createChannel(channelName, type, new CallbackListener<Channel>() {
                             @Override
-                            public void onCreated(final Channel newChannel)
+                            public void onSuccess(final Channel newChannel)
                             {
                                 logger.d("Successfully created a channel");
                                 if (newChannel != null) {
