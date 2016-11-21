@@ -9,7 +9,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import com.google.android.gms.gcm.GcmPubSub;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
-import com.twilio.chat.Constants.StatusListener;
+import com.twilio.chat.StatusListener;
 import com.twilio.chat.ErrorInfo;
 
 import java.io.IOException;

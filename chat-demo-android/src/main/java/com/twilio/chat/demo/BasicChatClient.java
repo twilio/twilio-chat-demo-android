@@ -6,9 +6,8 @@ import java.util.List;
 import com.twilio.accessmanager.AccessManager;
 
 import com.twilio.chat.Channel;
-import com.twilio.chat.Constants;
-import com.twilio.chat.Constants.StatusListener;
-import com.twilio.chat.Constants.CallbackListener;
+import com.twilio.chat.StatusListener;
+import com.twilio.chat.CallbackListener;
 import com.twilio.chat.ChatClientListener;
 import com.twilio.chat.ChatClient;
 import com.twilio.chat.ErrorInfo;

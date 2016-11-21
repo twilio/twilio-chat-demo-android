@@ -8,7 +8,7 @@ import com.google.android.gms.iid.InstanceID;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.ConnectionResult;
 
-import com.twilio.chat.Constants.StatusListener;
+import com.twilio.chat.StatusListener;
 import com.twilio.chat.ErrorInfo;
 
 import com.twilio.chat.ChatClient;

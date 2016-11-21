@@ -13,8 +13,8 @@ import com.twilio.chat.Channel;
 import com.twilio.chat.Channel.ChannelType;
 import com.twilio.chat.ChannelListener;
 import com.twilio.chat.Channels;
-import com.twilio.chat.Constants;
-import com.twilio.chat.Constants.StatusListener;
+import com.twilio.chat.StatusListener;
+import com.twilio.chat.CallbackListener;
 import com.twilio.chat.Member;
 import com.twilio.chat.Members;
 import com.twilio.chat.Message;
@@ -129,7 +129,7 @@ public class MessageActivity extends Activity implements ChannelListener
         if (getIntent() != null) {
             BasicChatClient basicClient = TwilioApplication.get().getBasicClient();
             identity = basicClient.getChatClient().getMyUserInfo().getIdentity();
-            String   channelSid = getIntent().getStringExtra("C_SID");
+            String   channelSid = getIntent().getStringExtra(Constants.EXTRA_CHANNEL_SID);
             Channels channelsObject = basicClient.getChatClient().getChannels();
             if (channelsObject != null) {
                 channel = channelsObject.getChannel(channelSid);
@@ -142,7 +142,7 @@ public class MessageActivity extends Activity implements ChannelListener
             }
         }
 
-        channel.synchronize(new Constants.CallbackListener<Channel>() {
+        channel.synchronize(new CallbackListener<Channel>() {
             @Override
             public void onError(ErrorInfo errorInfo)
             {
@@ -513,7 +513,7 @@ public class MessageActivity extends Activity implements ChannelListener
         final List<MessageItem> items = new ArrayList<MessageItem>();
         final Members  members = channel.getMembers();
         if (messagesObject != null) {
-            messagesObject.getLastMessages(100, new Constants.CallbackListener<List<Message>>() {
+            messagesObject.getLastMessages(100, new CallbackListener<List<Message>>() {
                 @Override
                 public void onSuccess(List<Message> messagesArray) {
                     if (messagesArray.size() > 0) {
@@ -793,7 +793,7 @@ public class MessageActivity extends Activity implements ChannelListener
 
         if (messagesObject != null) {
             final Members members = channel.getMembers();
-            messagesObject.getLastMessages(500, new Constants.CallbackListener<List<Message>>() {
+            messagesObject.getLastMessages(500, new CallbackListener<List<Message>>() {
                 @Override
                 public void onSuccess(List<Message> messagesArray) {
                     if (messagesArray.size() > 0) {

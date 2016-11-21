@@ -16,7 +16,7 @@ import android.widget.Toast;
 
 import com.twilio.chat.Channel;
 import com.twilio.chat.Channels;
-import com.twilio.chat.Constants.StatusListener;
+import com.twilio.chat.StatusListener;
 import com.twilio.chat.ErrorInfo;
 import com.twilio.chat.ChatClientListener;
 import com.twilio.chat.ChatClient;

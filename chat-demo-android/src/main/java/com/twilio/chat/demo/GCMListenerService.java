@@ -61,7 +61,7 @@ public class GCMListenerService extends GcmListenerService
 
         String cSid = payload.getChannelSid();
         if (!"".contentEquals(cSid)) {
-            intent.putExtra("C_SID", cSid);
+            intent.putExtra(Constants.EXTRA_CHANNEL_SID, cSid);
         }
 
         PendingIntent pendingIntent =

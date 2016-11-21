@@ -14,9 +14,8 @@ import com.twilio.chat.Channel;
 import com.twilio.chat.Channel.ChannelType;
 import com.twilio.chat.ChannelListener;
 import com.twilio.chat.Channels;
-import com.twilio.chat.Constants;
-import com.twilio.chat.Constants.CreateChannelListener;
-import com.twilio.chat.Constants.StatusListener;
+import com.twilio.chat.CallbackListener;
+import com.twilio.chat.StatusListener;
 import com.twilio.chat.ChatClientListener;
 import com.twilio.chat.Member;
 import com.twilio.chat.Message;
@@ -319,7 +318,7 @@ public class ChannelActivity extends Activity implements ChatClientListener
                                     new Intent(ChannelActivity.this, MessageActivity.class);
                                 i.putExtra(Constants.EXTRA_CHANNEL,
                                            (Parcelable)channel);
-                                i.putExtra("C_SID", channel.getSid());
+                                i.putExtra(Constants.EXTRA_CHANNEL_SID, channel.getSid());
                                 startActivity(i);
                             }
                         }, 0);
