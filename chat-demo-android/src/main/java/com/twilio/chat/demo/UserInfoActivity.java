@@ -74,37 +74,9 @@ public class UserInfoActivity extends Activity
                 if (!client.getMyUserInfo().getFriendlyName().equals(
                         friendlyName.getText().toString())) {
                     client.getMyUserInfo().setFriendlyName(
-                        friendlyName.getText().toString(), new StatusListener() {
-                            @Override
-                            public void onSuccess()
-                            {
-                                runOnUiThread(new Runnable() {
-                                    public void run()
-                                    {
-                                        Toast
-                                            .makeText(getApplicationContext(),
-                                                      "Update successful for user friendlyName",
-                                                      Toast.LENGTH_SHORT)
-                                            .show();
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void onError(ErrorInfo error)
-                            {
-                                runOnUiThread(new Runnable() {
-                                    public void run()
-                                    {
-                                        Toast
-                                            .makeText(UserInfoActivity.this.getApplicationContext(),
-                                                      "Update failed for user friendlyName",
-                                                      Toast.LENGTH_SHORT)
-                                            .show();
-                                    }
-                                });
-                            }
-                        });
+                        friendlyName.getText().toString(), new ToastStatusListener(
+                            "Update successful for user friendlyName",
+                            "Update failed for user friendlyName"));
                 }
                 if (bitmap != null) {
                     JSONObject attributes = new JSONObject();
@@ -113,30 +85,14 @@ public class UserInfoActivity extends Activity
                     } catch (JSONException ignored) {
                         // whatever?
                     }
-                    client.getMyUserInfo().setAttributes(attributes, new StatusListener() {
+                    client.getMyUserInfo().setAttributes(attributes, new ToastStatusListener(
+                        "Update successful for user attributes",
+                        "Update failed for user attributes") {
                         @Override
                         public void onSuccess()
                         {
-                            runOnUiThread(new Runnable() {
-                                public void run()
-                                {
-                                    fillUserAvatar();
-                                    Toast
-                                        .makeText(UserInfoActivity.this.getApplicationContext(),
-                                                  "Update successful for user attributes",
-                                                  Toast.LENGTH_SHORT)
-                                        .show();
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void onError(ErrorInfo error)
-                        {
-                            logger.e("update failed for user attributes");
-                            TwilioApplication.get().showError(error);
-                            TwilioApplication.get().logErrorInfo(
-                                "Update failed for user attributes", error);
+                            super.onSuccess();
+                            fillUserAvatar();
                         }
                     });
                 }
@@ -261,17 +217,8 @@ public class UserInfoActivity extends Activity
             @Override
             public void onUserInfoChange(UserInfo userInfo)
             {
-                runOnUiThread(new Runnable() {
-                    public void run()
-                    {
-                        fillUserAvatar();
-                        Toast
-                            .makeText(UserInfoActivity.this.getApplicationContext(),
-                                      "Update successful for user attributes",
-                                      Toast.LENGTH_SHORT)
-                            .show();
-                    }
-                });
+                fillUserAvatar();
+                TwilioApplication.get().showToast("Update successful for user attributes");
             }
 
             @Override

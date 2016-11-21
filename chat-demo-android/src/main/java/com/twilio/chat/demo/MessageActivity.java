@@ -548,26 +548,14 @@ public class MessageActivity extends Activity implements ChannelListener
                             ((EditText)editTextDialog.findViewById(R.id.update_message))
                                 .getText()
                                 .toString();
-                        message.updateMessageBody(updatedMsg, new StatusListener() {
-                            @Override
-                            public void onError(ErrorInfo errorInfo)
-                            {
-                                TwilioApplication.get().showError(errorInfo);
-                                TwilioApplication.get().logErrorInfo("Error updating message",
-                                                                     errorInfo);
-                            }
-
+                        message.updateMessageBody(updatedMsg, new ToastStatusListener(
+                            "Success updating message",
+                            "Error updating message") {
                             @Override
                             public void onSuccess()
                             {
-                                logger.d("Success updating message");
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run()
-                                    {
-                                    loadAndShowMessages();// @todo only need to update one message body
-                                    }
-                                });
+                                super.onSuccess();
+                                loadAndShowMessages();// @todo only need to update one message body
                             }
                         });
                     }
@@ -608,26 +596,14 @@ public class MessageActivity extends Activity implements ChannelListener
                             }
                         }
 
-                        message.setAttributes(jsonObj, new StatusListener() {
-                            @Override
-                            public void onError(ErrorInfo errorInfo)
-                            {
-                                TwilioApplication.get().showError(errorInfo);
-                                TwilioApplication.get().logErrorInfo(
-                                    "Error updating message attributes", errorInfo);
-                            }
-
+                        message.setAttributes(jsonObj, new ToastStatusListener(
+                            "Success updating message attributes",
+                            "Error updating message attributes") {
                             @Override
                             public void onSuccess()
                             {
-                                logger.d("Success updating message attributes");
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run()
-                                    {
-                                    loadAndShowMessages();// @todo only need to update one message
-                                    }
-                                });
+                                super.onSuccess();
+                                loadAndShowMessages();// @todo only need to update one message
                             }
                         });
                     }
@@ -747,28 +723,15 @@ public class MessageActivity extends Activity implements ChannelListener
                                         if (which == REMOVE) {
                                             dialog.cancel();
                                             messagesObject.removeMessage(
-                                                    message.getMessage(), new StatusListener() {
-                                                        @Override
-                                                        public void onError(ErrorInfo errorInfo)
-                                                        {
-                                                            TwilioApplication.get().showError(errorInfo);
-                                                            TwilioApplication.get().logErrorInfo(
-                                                                    "Error removing message", errorInfo);
-                                                        }
-
+                                                    message.getMessage(), new ToastStatusListener(
+                                                        "Successfully removed message. It should be GONE!!",
+                                                        "Error removing message") {
                                                         @Override
                                                         public void onSuccess()
                                                         {
-                                                            logger.d(
-                                                                    "Successfully removed message. It should be GONE!!");
-                                                            runOnUiThread(new Runnable() {
-                                                                @Override
-                                                                public void run()
-                                                                {
-                                                                    messageItemList.remove(message);
-                                                                    adapter.notifyDataSetChanged();
-                                                                }
-                                                            });
+                                                            super.onSuccess();
+                                                            messageItemList.remove(message);
+                                                            adapter.notifyDataSetChanged();
                                                         }
                                                     });
                                         } else if (which == EDIT) {
@@ -805,13 +768,8 @@ public class MessageActivity extends Activity implements ChannelListener
                         items[i] = new MessageItem(messages.get(i), members, identity);
                     }
                     messageItemList = new ArrayList<>(Arrays.asList(items));
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            adapter.setItems(messageItemList);
-                            adapter.notifyDataSetChanged();
-                        }
-                    });
+
+                    adapter.setItems(messageItemList);
                 }
             });
         }
@@ -824,26 +782,15 @@ public class MessageActivity extends Activity implements ChannelListener
         if (!input.equals("")) {
             final Messages messagesObject = this.channel.getMessages();
 
-            messagesObject.sendMessage(input, new StatusListener() {
-                @Override
-                public void onError(ErrorInfo errorInfo)
-                {
-                    TwilioApplication.get().showError(errorInfo);
-                    TwilioApplication.get().logErrorInfo("Error sending message", errorInfo);
-                }
-
+            messagesObject.sendMessage(input, new ToastStatusListener(
+                "Successfully sent message",
+                "Error sending message") {
                 @Override
                 public void onSuccess()
                 {
-                    logger.d("Successfully sent message.");
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run()
-                        {
-                            adapter.notifyDataSetChanged();
-                            inputText.setText("");
-                        }
-                    });
+                    super.onSuccess();
+                    adapter.notifyDataSetChanged();
+                    inputText.setText("");
                 }
             });
         }

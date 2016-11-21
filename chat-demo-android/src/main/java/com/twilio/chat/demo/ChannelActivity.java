@@ -63,8 +63,6 @@ public class ChannelActivity extends Activity implements ChatClientListener
 
     private static final Handler handler = new Handler();
     private AlertDialog          incomingChannelInvite;
-    private StatusListener       joinListener;
-    private StatusListener       declineInvitationListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -116,43 +114,10 @@ public class ChannelActivity extends Activity implements ChatClientListener
                 basicClient.shutdown();
                 finish();
                 break;
-            case R.id.action_unregistercm: {
-                String gcmToken = basicClient.getGCMToken();
-                basicClient.getChatClient().unregisterGCMToken(
-                    gcmToken, new StatusListener() {
-                        @Override
-                        public void onError(ErrorInfo errorInfo)
-                        {
-                            logger.w("GCM unregistration not successful");
-                            runOnUiThread(new Runnable() {
-                                public void run()
-                                {
-                                    Toast
-                                        .makeText(ChannelActivity.this,
-                                                  "GCM unregistration not successful",
-                                                  Toast.LENGTH_SHORT)
-                                        .show();
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void onSuccess()
-                        {
-                            logger.d("GCM unregistration successful");
-                            runOnUiThread(new Runnable() {
-                                public void run()
-                                {
-                                    Toast
-                                        .makeText(ChannelActivity.this,
-                                                  "GCM unregistration successful",
-                                                  Toast.LENGTH_SHORT)
-                                        .show();
-                                }
-                            });
-                        }
-                    });
-                }
+            case R.id.action_unregistercm:
+                basicClient.getChatClient().unregisterGCMToken(basicClient.getGCMToken(),
+                    new ToastStatusListener("GCM unregistration successful",
+                                            "GCM unregistration not successful"));
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -265,17 +230,11 @@ public class ChannelActivity extends Activity implements ChatClientListener
                     logger.d("Searching for " + channelName);
                     final Channel channel = channelsObject.getChannelByUniqueName(channelName);
 
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run()
-                        {
-                            if (channel != null) {
-                                TwilioApplication.get().showToast(channel.getSid() + ":" + channel.getFriendlyName());
-                            } else {
-                                TwilioApplication.get().showToast("Channel not found.");
-                            }
-                        }
-                    });
+                    if (channel != null) {
+                        TwilioApplication.get().showToast(channel.getSid() + ":" + channel.getFriendlyName());
+                    } else {
+                        TwilioApplication.get().showToast("Channel not found.");
+                    }
                 }
             });
         createChannelDialog = builder.create();
@@ -315,29 +274,16 @@ public class ChannelActivity extends Activity implements ChatClientListener
                             {
                                 if (which == JOIN) {
                                     dialog.cancel();
-                                    joinListener = new StatusListener() {
-                                        @Override
-                                        public void onError(ErrorInfo errorInfo)
-                                        {
-                                            TwilioApplication.get().showError(
-                                                "failed to join channel", errorInfo);
-                                        }
-
+                                    channel.join(
+                                        new ToastStatusListener("Successfully joined channel",
+                                                                "Failed to join channel") {
                                         @Override
                                         public void onSuccess()
                                         {
-                                            runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run()
-                                                {
-                                                    adapter.notifyDataSetChanged();
-                                                }
-                                            });
-                                            logger.d("Successfully joined channel");
+                                            super.onSuccess();
+                                            adapter.notifyDataSetChanged();
                                         }
-
-                                    };
-                                    channel.join(joinListener);
+                                    });
                                 }
                             }
                         });
@@ -381,25 +327,14 @@ public class ChannelActivity extends Activity implements ChatClientListener
                                     @Override
                                     public void onClick(DialogInterface dialog, int which)
                                     {
-                                        channel.join(new StatusListener() {
-                                            @Override
-                                            public void onError(ErrorInfo errorInfo)
-                                            {
-                                                TwilioApplication.get().showError(
-                                                        "Failed to join channel", errorInfo);
-                                            }
-
+                                        channel.join(new ToastStatusListener(
+                                            "Successfully joined channel",
+                                            "Failed to join channel") {
                                             @Override
                                             public void onSuccess()
                                             {
-                                                runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run()
-                                                    {
-                                                        adapter.notifyDataSetChanged();
-                                                    }
-                                                });
-                                                logger.d("Successfully joined channel");
+                                                super.onSuccess();
+                                                adapter.notifyDataSetChanged();
                                             }
                                         });
                                         incomingChannelInvite = null;
@@ -408,34 +343,19 @@ public class ChannelActivity extends Activity implements ChatClientListener
                             .setNegativeButton(
                                 R.string.decline,
                                 new DialogInterface.OnClickListener() {
-
                                     @Override
                                     public void onClick(DialogInterface dialog, int which)
                                     {
-                                        declineInvitationListener = new StatusListener() {
-
-                                            @Override
-                                            public void onError(ErrorInfo errorInfo)
-                                            {
-                                                TwilioApplication.get().showError(
-                                                        "Failed to decline channel invite", errorInfo);
-                                            }
-
+                                        channel.declineInvitation(new ToastStatusListener(
+                                            "Successfully declined channel invite",
+                                            "Failed to decline channel invite") {
                                             @Override
                                             public void onSuccess()
                                             {
-                                                runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run()
-                                                    {
-                                                        adapter.notifyDataSetChanged();
-                                                    }
-                                                });
-                                                logger.d("Successfully declined channel invite");
+                                                super.onSuccess();
+                                                adapter.notifyDataSetChanged();
                                             }
-
-                                        };
-                                        channel.declineInvitation(declineInvitationListener);
+                                        });
                                         incomingChannelInvite = null;
                                     }
                                 })
@@ -463,14 +383,8 @@ public class ChannelActivity extends Activity implements ChatClientListener
     public void onChannelAdd(final Channel channel)
     {
         logger.d("Received onChannelAdd callback for channel |" + channel.getFriendlyName() + "|");
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run()
-            {
-                channels.add(channel);
-                adapter.notifyDataSetChanged();
-            }
-        });
+        channels.add(channel);
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -478,13 +392,7 @@ public class ChannelActivity extends Activity implements ChatClientListener
     {
         logger.d("Received onChannelChange callback for channel |" + channel.getFriendlyName()
                 + "|");
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run()
-            {
-                adapter.notifyDataSetChanged();
-            }
-        });
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -492,14 +400,8 @@ public class ChannelActivity extends Activity implements ChatClientListener
     {
         logger.d("Received onChannelDelete callback for channel |" + channel.getFriendlyName()
                 + "|");
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run()
-            {
-                channels.remove(channel);
-                adapter.notifyDataSetChanged();
-            }
-        });
+        channels.remove(channel);
+        adapter.notifyDataSetChanged();
     }
 
     @Override
