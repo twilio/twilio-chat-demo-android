@@ -22,6 +22,7 @@ import com.twilio.chat.Message;
 import com.twilio.chat.ChatClient;
 import com.twilio.chat.ErrorInfo;
 import com.twilio.chat.UserInfo;
+import com.twilio.chat.Paginator;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -79,7 +80,6 @@ public class ChannelActivity extends Activity implements ChatClientListener
     protected void onResume()
     {
         super.onResume();
-        handleIncomingIntent(getIntent());
         getChannels();
     }
 
@@ -189,22 +189,6 @@ public class ChannelActivity extends Activity implements ChatClientListener
                     logger.e("Error creating a channel");
                 }
             });
-    }
-
-    private boolean handleIncomingIntent(Intent intent)
-    {
-        if (intent != null) {
-            Channel channel = intent.getParcelableExtra(Constants.EXTRA_CHANNEL);
-            String  action = intent.getStringExtra(Constants.EXTRA_ACTION);
-            intent.removeExtra(Constants.EXTRA_CHANNEL);
-            intent.removeExtra(Constants.EXTRA_ACTION);
-            if (action != null) {
-                if (action.compareTo(Constants.EXTRA_ACTION_INVITE) == 0) {
-                    this.showIncomingInvite(channel);
-                }
-            }
-        }
-        return false;
     }
 
     private void showCreateChannelDialog(final ChannelType type)
@@ -516,6 +500,12 @@ public class ChannelActivity extends Activity implements ChatClientListener
                 adapter.notifyDataSetChanged();
             }
         });
+    }
+
+    @Override
+    public void onChannelInvite(final Channel channel)
+    {
+        this.showIncomingInvite(channel);
     }
 
     @Override

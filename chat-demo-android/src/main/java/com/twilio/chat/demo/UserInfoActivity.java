@@ -242,6 +242,11 @@ public class UserInfoActivity extends Activity
             }
 
             @Override
+            public void onChannelInvite(Channel channel)
+            {
+            }
+
+            @Override
             public void onError(ErrorInfo error)
             {
                 TwilioApplication.get().showError(error);
