@@ -173,20 +173,20 @@ public class BasicChatClient extends CallbackListener<ChatClient>
     @Override
     public void onTokenWillExpire(AccessManager accessManager)
     {
-        logger.d("onTokenWillExpire");
+        TwilioApplication.get().showToast("AccessManager.onTokenWillExpire");
     }
 
     @Override
     public void onTokenExpired(AccessManager accessManager)
     {
-        logger.d("Token expired. Getting new token.");
+        TwilioApplication.get().showToast("Token expired. Getting new token.");
         new GetAccessTokenAsyncTask().execute(username, urlString);
     }
 
     @Override
     public void onError(AccessManager accessManager, String err)
     {
-        logger.d("Token error: " + err);
+        TwilioApplication.get().showToast("AccessManager error: " + err);
     }
 
     // AccessManager.TokenUpdateListener
@@ -194,7 +194,7 @@ public class BasicChatClient extends CallbackListener<ChatClient>
     @Override
     public void onTokenUpdated(String token)
     {
-        logger.d("Received AccessManager:onTokenUpdated. "+token);
+        TwilioApplication.get().showToast("AccessManager token updated: " + token);
 
         if (chatClient == null) return;
 
