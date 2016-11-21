@@ -33,12 +33,17 @@ public class TwilioApplication extends Application
         return this.basicClient;
     }
 
-    public void showToast(final String text)
+    public void showToast(final String text) {
+        showToast(text, Toast.LENGTH_SHORT);
+    }
+
+    public void showToast(final String text, final int duration)
     {
+        Log.d("TwilioApplication", text);
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
+                Toast toast = Toast.makeText(getApplicationContext(), text, duration);
                 toast.setGravity(Gravity.CENTER_HORIZONTAL, 0, 0);
                 toast.show();
             }
@@ -52,7 +57,7 @@ public class TwilioApplication extends Application
 
     public void showError(final String message, final ErrorInfo error)
     {
-        showToast(formatted(message, error));
+        showToast(formatted(message, error), Toast.LENGTH_LONG);
         logErrorInfo(message, error);
     }
 

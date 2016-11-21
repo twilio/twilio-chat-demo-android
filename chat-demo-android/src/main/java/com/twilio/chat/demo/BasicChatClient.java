@@ -95,20 +95,10 @@ public class BasicChatClient extends CallbackListener<ChatClient>
 
     private void setupGcmToken()
     {
-        chatClient.registerGCMToken(getGCMToken(), new StatusListener() {
-            @Override
-            public void onError(ErrorInfo errorInfo)
-            {
-                TwilioApplication.get().showError(errorInfo);
-                TwilioApplication.get().logErrorInfo("GCM registration not successful", errorInfo);
-            }
-
-            @Override
-            public void onSuccess()
-            {
-                logger.i("GCM registration successful");
-            }
-        });
+        chatClient.registerGCMToken(getGCMToken(),
+            new ToastStatusListener(
+                "GCM registration successful",
+                "GCM registration not successful"));
     }
 
     private void createAccessManager()
@@ -208,18 +198,9 @@ public class BasicChatClient extends CallbackListener<ChatClient>
 
         if (chatClient == null) return;
 
-        chatClient.updateToken(token, new StatusListener() {
-            @Override
-            public void onSuccess()
-            {
-                logger.d("Client Update Token was successfull");
-            }
-            @Override
-            public void onError(ErrorInfo errorInfo)
-            {
-                logger.e("Client Update Token failed");
-            }
-        });
+        chatClient.updateToken(token, new ToastStatusListener(
+            "Client Update Token was successfull",
+            "Client Update Token failed"));
     }
 
     private Handler setupListenerHandler()
