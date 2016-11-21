@@ -25,20 +25,12 @@ public class GCMListenerService extends GcmListenerService
     public void onMessageReceived(String from, Bundle data)
     {
         logger.d("onMessageReceived for GCM");
-        HashMap<String, String> pushNotification = new HashMap<String, String>();
-        for (String key : data.keySet()) {
-            pushNotification.put(key, data.getString(key));
-        }
+        NotificationPayload payload = new NotificationPayload(data);
+
         ChatClient client = TwilioApplication.get().getBasicClient().getChatClient();
         if (client != null) {
-            client.handleNotification(pushNotification);
+            client.handleNotification(payload);
         }
-        notify(data);
-    }
-
-    private void notify(Bundle bundle)
-    {
-        NotificationPayload payload = new NotificationPayload(bundle);
 
         NotificationPayload.Type type = payload.getType();
 
