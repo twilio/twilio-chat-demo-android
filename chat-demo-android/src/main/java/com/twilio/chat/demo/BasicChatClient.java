@@ -152,13 +152,6 @@ public class BasicChatClient extends CallbackListener<ChatClient>
 
         setupGcmToken();
 
-        PendingIntent pendingIntent =
-                PendingIntent.getActivity(context,
-                        0,
-                        new Intent(context, ChannelActivity.class),
-                        PendingIntent.FLAG_UPDATE_CURRENT);
-        chatClient.setIncomingIntent(pendingIntent);
-
         loginListenerHandler.post(new Runnable() {
             @Override
             public void run()
