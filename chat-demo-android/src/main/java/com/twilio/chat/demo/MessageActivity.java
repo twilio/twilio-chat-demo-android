@@ -904,12 +904,6 @@ public class MessageActivity extends Activity implements ChannelListener
     }
 
     @Override
-    public void onAttributesChange(Map<String, String> updatedAttributes)
-    {
-        logger.d("Deprecated: Received onAttributesChange event");
-    }
-
-    @Override
     public void onTypingStarted(Member member)
     {
         if (member != null) {
