@@ -115,9 +115,7 @@ public class ChannelActivity extends Activity implements ChatClientListener
                 finish();
                 break;
             case R.id.action_unregistercm:
-                basicClient.getChatClient().unregisterGCMToken(basicClient.getGCMToken(),
-                    new ToastStatusListener("GCM unregistration successful",
-                                            "GCM unregistration not successful"));
+                basicClient.unregisterFcmToken();
                 break;
         }
         return super.onOptionsItemSelected(item);

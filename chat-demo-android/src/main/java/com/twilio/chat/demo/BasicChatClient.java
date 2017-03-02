@@ -28,7 +28,7 @@ public class BasicChatClient extends CallbackListener<ChatClient>
     private static final Logger logger = Logger.getLogger(BasicChatClient.class);
 
     private String accessToken;
-    private String gcmToken;
+    private String fcmToken;
 
     private ChatClient chatClient;
 
@@ -63,14 +63,13 @@ public class BasicChatClient extends CallbackListener<ChatClient>
         public void onLogoutFinished();
     }
 
-    public String getGCMToken()
+    public void setFCMToken(String fcmToken)
     {
-        return gcmToken;
-    }
-
-    public void setGCMToken(String gcmToken)
-    {
-        this.gcmToken = gcmToken;
+        logger.e("setFCMToken "+fcmToken);
+        this.fcmToken = fcmToken;
+        if (chatClient != null) {
+            setupFcmToken();
+        }
     }
 
     public void login(final String username, final String url, final LoginListener listener) {
@@ -93,12 +92,20 @@ public class BasicChatClient extends CallbackListener<ChatClient>
         return chatClient;
     }
 
-    private void setupGcmToken()
+    private void setupFcmToken()
     {
-        chatClient.registerGCMToken(getGCMToken(),
+        chatClient.registerFCMToken(fcmToken,
             new ToastStatusListener(
-                "GCM registration successful",
-                "GCM registration not successful"));
+                "Firebase Messaging registration successful",
+                "Firebase Messaging registration not successful"));
+    }
+
+    public void unregisterFcmToken()
+    {
+        chatClient.unregisterFCMToken(fcmToken,
+            new ToastStatusListener(
+                "Firebase Messaging unregistration successful",
+                "Firebase Messaging unregistration not successful"));
     }
 
     private void createAccessManager()
@@ -138,7 +145,9 @@ public class BasicChatClient extends CallbackListener<ChatClient>
         logger.d("Received completely initialized ChatClient");
         chatClient = client;
 
-        setupGcmToken();
+        if (fcmToken != null) {
+            setupFcmToken();
+        }
 
         loginListenerHandler.post(new Runnable() {
             @Override

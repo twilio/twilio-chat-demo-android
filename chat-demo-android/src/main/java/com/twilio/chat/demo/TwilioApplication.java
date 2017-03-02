@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
 
-import com.google.android.gms.wallet.NotifyTransactionStatusRequest;
 import com.twilio.chat.ErrorInfo;
 
 public class TwilioApplication extends Application

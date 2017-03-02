@@ -48,30 +48,30 @@
             android:launchMode="singleTop" >
         </activity>
 
-        <receiver
-            android:name="com.google.android.gms.gcm.GcmReceiver"
-            android:exported="true"
-            android:permission="com.google.android.c2dm.permission.SEND" >
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-                <category android:name="com.twilio.chat.demo" />
-            </intent-filter>
-        </receiver>
+        <!-- FCM service -->
 
         <service
-            android:name=".GCMListenerService"
-            android:exported="false" >
+            android:name=".FCMListenerService">
+            <!-- android:exported="true" -->
             <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </service>
 
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_launcher" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/darkred" />
+
+        <!-- FCM instance ID service -->
+
         <service
-            android:name=".DemoInstanceIDListenerService"
-            android:exported="false">
+            android:name=".FCMInstanceIDService"
+            android:exported="true">
             <intent-filter>
-                <action android:name="com.google.android.gms.iid.InstanceID" />
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
             </intent-filter>
         </service>
 

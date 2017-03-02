@@ -3,11 +3,9 @@ package com.twilio.chat.demo;
 import java.io.IOException;
 import java.net.URLEncoder;
 
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.google.android.gms.iid.InstanceID;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.ConnectionResult;
 
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.twilio.chat.StatusListener;
 import com.twilio.chat.ErrorInfo;
 
@@ -50,10 +48,8 @@ public class LoginActivity extends Activity implements LoginListener
     private EditText               clientNameTextBox;
     private String                 endpoint_id = "";
 
-    // GCM
-    private CheckBox          gcmAvailable;
-    private boolean           isReceiverRegistered;
-    private BroadcastReceiver registrationBroadcastReceiver;
+    // FCM
+    private CheckBox          fcmAvailable;
     private static final int  PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
     @Override
@@ -61,26 +57,6 @@ public class LoginActivity extends Activity implements LoginListener
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
-        registrationBroadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent)
-            {
-                // progressDialog.dismiss();
-                SharedPreferences sharedPreferences =
-                    PreferenceManager.getDefaultSharedPreferences(context);
-                boolean sentToken =
-                    sharedPreferences.getBoolean(GcmPreferences.SENT_TOKEN_TO_SERVER, false);
-                if (sentToken) {
-                    logger.i("GCM token remembered");
-                } else {
-                    logger.w("GCM token NOT remembered");
-                }
-            }
-        };
-
-        // Registering BroadcastReceiver
-        registerReceiver();
 
         this.clientNameTextBox = (EditText)findViewById(R.id.client_name);
         this.clientNameTextBox.setText(DEFAULT_CLIENT_NAME);
@@ -109,10 +85,10 @@ public class LoginActivity extends Activity implements LoginListener
 
         //logout = (Button)findViewById(R.id.logout);
 
-        gcmAvailable = (CheckBox)findViewById(R.id.gcmcxbx);
+        fcmAvailable = (CheckBox)findViewById(R.id.fcmcxbx);
 
         if (checkPlayServices()) {
-            gcmAvailable.setChecked(true);
+            fcmAvailable.setChecked(true);
             // Start IntentService to register this application with GCM.
             Intent intent = new Intent(this, RegistrationIntentService.class);
             startService(intent);
@@ -186,25 +162,12 @@ public class LoginActivity extends Activity implements LoginListener
     protected void onResume()
     {
         super.onResume();
-        registerReceiver();
     }
 
     @Override
     protected void onPause()
     {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(registrationBroadcastReceiver);
-        isReceiverRegistered = false;
         super.onPause();
-    }
-
-    private void registerReceiver()
-    {
-        if (!isReceiverRegistered) {
-            LocalBroadcastManager.getInstance(this).registerReceiver(
-                registrationBroadcastReceiver,
-                new IntentFilter(GcmPreferences.REGISTRATION_COMPLETE));
-            isReceiverRegistered = true;
-        }
     }
 
     /**
@@ -212,20 +175,20 @@ public class LoginActivity extends Activity implements LoginListener
      * it doesn't, display a dialog that allows users to download the APK from
      * the Google Play Store or enable it in the device's system settings.
      */
-    private boolean checkPlayServices()
-    {
-        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
-        int                   resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
-        if (resultCode != ConnectionResult.SUCCESS) {
-            if (apiAvailability.isUserResolvableError(resultCode)) {
-                apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
-                    .show();
-            } else {
-                logger.i("This device is not supported.");
-                finish();
-            }
-            return false;
-        }
-        return true;
-    }
+     private boolean checkPlayServices()
+     {
+         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+         int                   resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
+         if (resultCode != ConnectionResult.SUCCESS) {
+             if (apiAvailability.isUserResolvableError(resultCode)) {
+                 apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
+                     .show();
+             } else {
+                 logger.i("This device is not supported.");
+                 finish();
+             }
+             return false;
+         }
+         return true;
+     }
 }

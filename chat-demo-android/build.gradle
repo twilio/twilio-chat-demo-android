@@ -4,9 +4,10 @@ def ACCESS_TOKEN_SERVICE_URL = project.hasProperty('ACCESS_TOKEN_SERVICE_URL') ?
 
 dependencies {
     compile 'com.android.support:support-v4:23.3.0+'
-    compile 'com.google.android.gms:play-services:9.0.0'
+    compile 'com.google.firebase:firebase-messaging:10.2.0' // FCM
+    compile 'com.google.android.gms:play-services-base:10.2.0'
     compile 'uk.co.ribot:easyadapter:1.5.0@aar'
-    compile 'com.twilio:chat-android:0.11.0'
+    compile 'com.twilio:chat-android:0.12.2'
     compile 'com.twilio:accessmanager-android:0.1.0'
 }
 

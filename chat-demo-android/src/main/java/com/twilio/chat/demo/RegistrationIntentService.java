@@ -6,14 +6,13 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 
-import com.google.android.gms.gcm.GcmPubSub;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.google.android.gms.iid.InstanceID;
-import com.twilio.chat.StatusListener;
-import com.twilio.chat.ErrorInfo;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.io.IOException;
 
+/**
+ * Registration intent handles receiving and updating the FCM token lifecycle events.
+ */
 public class RegistrationIntentService extends IntentService
 {
     private static final Logger logger = Logger.getLogger(RegistrationIntentService.class);
@@ -23,39 +22,38 @@ public class RegistrationIntentService extends IntentService
     public RegistrationIntentService()
     {
         super("RegistrationIntentService");
+        logger.i("Stared");
     }
 
     @Override
     protected void onHandleIntent(Intent intent)
     {
+        logger.i("onHandleIntent");
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         try {
-            InstanceID instanceID = InstanceID.getInstance(this);
-            String     token = instanceID.getToken(getString(R.string.gcm_defaultSenderId),
-                                               GoogleCloudMessaging.INSTANCE_ID_SCOPE,
-                                               null);
-            logger.i("GCM Registration Token: " + token);
+            String token = FirebaseInstanceId.getInstance().getToken();
+            logger.i("FCM Registration Token: " + token);
 
             /**
              * Persist registration to Twilio servers.
              */
-            TwilioApplication.get().getBasicClient().setGCMToken(token);
+            TwilioApplication.get().getBasicClient().setFCMToken(token);
 
             subscribeTopics(token);
 
             // You should store a boolean that indicates whether the generated token has been
             // sent to your server. If the boolean is false, send the token to your server,
             // otherwise your server should have already received the token.
-            sharedPreferences.edit().putBoolean(GcmPreferences.SENT_TOKEN_TO_SERVER, true).apply();
+            sharedPreferences.edit().putBoolean(FCMPreferences.SENT_TOKEN_TO_SERVER, true).apply();
         } catch (Exception e) {
             logger.e("Failed to complete token refresh", e);
             // If an exception happens while fetching the new token or updating our registration
             // data, this ensures that we'll attempt the update at a later time.
-            sharedPreferences.edit().putBoolean(GcmPreferences.SENT_TOKEN_TO_SERVER, false).apply();
+            sharedPreferences.edit().putBoolean(FCMPreferences.SENT_TOKEN_TO_SERVER, false).apply();
         }
         // Notify UI that registration has completed, so the progress indicator can be hidden.
-        Intent registrationComplete = new Intent(GcmPreferences.REGISTRATION_COMPLETE);
+        Intent registrationComplete = new Intent(FCMPreferences.REGISTRATION_COMPLETE);
         LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
     }
 
@@ -67,9 +65,8 @@ public class RegistrationIntentService extends IntentService
      */
     private void subscribeTopics(String token) throws IOException
     {
-        GcmPubSub pubSub = GcmPubSub.getInstance(this);
-        for (String topic : TOPICS) {
-            pubSub.subscribe(token, "/topics/" + topic, null);
-        }
+        // for (String topic : TOPICS) {
+        //     FirebaseMessaging.getInstance().subscribeToTopic("/topics/"+topic);
+        // }
     }
 }

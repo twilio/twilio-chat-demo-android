@@ -1,14 +1,13 @@
 package com.twilio.chat.demo;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
-import com.google.android.gms.iid.InstanceIDListenerService;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.FirebaseInstanceIdService;
 
-public class DemoInstanceIDListenerService extends InstanceIDListenerService
+public class FCMInstanceIDService extends FirebaseInstanceIdService
 {
-    private static final Logger logger = Logger.getLogger(DemoInstanceIDListenerService.class);
+    private static final Logger logger = Logger.getLogger(FCMInstanceIDService.class);
 
     /**
      * Called if InstanceID token is updated. This may occur if the security of
@@ -18,7 +17,8 @@ public class DemoInstanceIDListenerService extends InstanceIDListenerService
     @Override
     public void onTokenRefresh()
     {
-        logger.d("onTokenRefresh");
+        logger.e("onTokenRefresh");
+
         // Fetch updated Instance ID token and notify our app's server of any changes.
         Intent intent = new Intent(this, RegistrationIntentService.class);
         startService(intent);

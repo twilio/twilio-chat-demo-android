@@ -27,8 +27,8 @@
     <string name="Create_public_channel">Create public channel</string>
     <string name="Create_private_channel">Create private channel</string>
     <string name="RegId">Reg Id:</string>
-    <string name="gcm">GCM</string>
-    <string name="unregister_gcm">Unregister GCM Token</string>
+    <string name="fcm">FCM</string>
+    <string name="unregister_fcm">Unregister FCM Token</string>
     <string name="Create_public_channel_withOption">Create Pub Ch with Options</string>
     <string name="Create_private_channel_withOption">Create Pri Ch with Options</string>
      <string name="Search_channel_by_unique_name">Search channel by unique name</string>

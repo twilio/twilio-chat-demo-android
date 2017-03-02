@@ -1,4 +1,3 @@
 <resources>
-
-
+    <item name="darkred" type="color">#FFCC0000</item>
 </resources>

@@ -33,11 +33,11 @@
             android:text="@string/login" />
 
         <CheckBox
-            android:id="@+id/gcmcxbx"
+            android:id="@+id/fcmcxbx"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="false"
-            android:text="@string/gcm"
+            android:text="@string/fcm"
             android:enabled="false"/>
 
     </LinearLayout>
