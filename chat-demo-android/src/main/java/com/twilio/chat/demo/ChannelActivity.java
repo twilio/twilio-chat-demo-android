@@ -12,6 +12,7 @@ import java.util.Random;
 
 import com.twilio.chat.Channel;
 import com.twilio.chat.Channel.ChannelType;
+import com.twilio.chat.ChannelDescriptor;
 import com.twilio.chat.ChannelListener;
 import com.twilio.chat.Channels;
 import com.twilio.chat.CallbackListener;
@@ -32,6 +33,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -51,15 +53,14 @@ public class ChannelActivity extends Activity implements ChatClientListener
     private static final Logger logger = Logger.getLogger(ChannelActivity.class);
 
     private static final String[] CHANNEL_OPTIONS = { "Join" };
-
     private static final int JOIN = 0;
 
-    private ListView               listView;
-    private BasicChatClient basicClient;
-    private List<Channel>          channels = new ArrayList<Channel>();
-    private EasyAdapter<Channel>   adapter;
-    private AlertDialog            createChannelDialog;
-    private Channels               channelsObject;
+    private ListView                         listView;
+    private BasicChatClient                  basicClient;
+    private List<ChannelModel>               channels = new ArrayList<ChannelModel>();
+    private EasyAdapter<ChannelModel>        adapter;
+    private AlertDialog                      createChannelDialog;
+    private Channels                         channelsObject;
 
     private static final Handler handler = new Handler();
     private AlertDialog          incomingChannelInvite;
@@ -245,25 +246,30 @@ public class ChannelActivity extends Activity implements ChatClientListener
     private void setupListView()
     {
         listView = (ListView)findViewById(R.id.channel_list);
-        adapter = new EasyAdapter<Channel>(
+        adapter = new EasyAdapter<ChannelModel>(
             this,
             ChannelViewHolder.class,
             channels,
             new ChannelViewHolder.OnChannelClickListener() {
                 @Override
-                public void onChannelClicked(final Channel channel)
+                public void onChannelClicked(final ChannelModel channel)
                 {
                     if (channel.getStatus() == Channel.ChannelStatus.JOINED) {
                         new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run()
                             {
-                                Intent i =
-                                    new Intent(ChannelActivity.this, MessageActivity.class);
-                                i.putExtra(Constants.EXTRA_CHANNEL,
-                                           (Parcelable)channel);
-                                i.putExtra(Constants.EXTRA_CHANNEL_SID, channel.getSid());
-                                startActivity(i);
+                                channel.getChannel(new CallbackListener<Channel>() {
+                                                       @Override
+                                                       public void onSuccess(Channel chan) {
+                                                           Intent i =
+                                                                   new Intent(ChannelActivity.this, MessageActivity.class);
+                                                           i.putExtra(Constants.EXTRA_CHANNEL,
+                                                                   (Parcelable)chan);
+                                                           i.putExtra(Constants.EXTRA_CHANNEL_SID, chan.getSid());
+                                                           startActivity(i);
+                                                       }
+                                                   });
                             }
                         }, 0);
                         return;
@@ -296,6 +302,28 @@ public class ChannelActivity extends Activity implements ChatClientListener
         getChannels();
     }
 
+    private void getChannelsPage(Paginator<ChannelDescriptor> paginator) {
+        for (ChannelDescriptor cd : paginator.getItems()) {
+            channels.add(new ChannelModel(cd));
+        }
+        Collections.sort(channels, new CustomChannelComparator());
+        adapter.notifyDataSetChanged();
+
+        Log.e("HASNEXTPAGE", String.valueOf(paginator.getItems().size()));
+        Log.e("HASNEXTPAGE", paginator.hasNextPage() ? "YES" : "NO");
+
+        if (paginator.hasNextPage()) {
+            paginator.requestNextPage(new CallbackListener<Paginator<ChannelDescriptor>>() {
+                @Override
+                public void onSuccess(Paginator<ChannelDescriptor> channelDescriptorPaginator) {
+                    getChannelsPage(channelDescriptorPaginator);
+                }
+            });
+        }
+
+        //adapter2.notifyDataSetChanged();
+    }
+
     // Initialize channels with channel list
     private void getChannels()
     {
@@ -304,14 +332,19 @@ public class ChannelActivity extends Activity implements ChatClientListener
 
         channelsObject = basicClient.getChatClient().getChannels();
 
-        channelsObject.getUserChannels(new CallbackListener<Paginator<Channel>>() {
+        List<Channel> ch = channelsObject.getSubscribedChannels();
+
+        channels.clear();
+        for (Channel channel : ch) {
+            channels.add(new ChannelModel(channel));
+        }
+        Collections.sort(channels, new CustomChannelComparator());
+        adapter.notifyDataSetChanged();
+
+        channelsObject.getPublicChannelsList(new CallbackListener<Paginator<ChannelDescriptor>>() {
             @Override
-            public void onSuccess(Paginator<Channel> channelsPaginator)
-            {
-                channels.clear();
-                channels.addAll(channelsPaginator.getItems());
-                Collections.sort(channels, new CustomChannelComparator());
-                adapter.notifyDataSetChanged();
+            public void onSuccess(Paginator<ChannelDescriptor> channelDescriptorPaginator) {
+                getChannelsPage(channelDescriptorPaginator);
             }
         });
     }
@@ -372,10 +405,10 @@ public class ChannelActivity extends Activity implements ChatClientListener
         });
     }
 
-    private class CustomChannelComparator implements Comparator<Channel>
+    private class CustomChannelComparator implements Comparator<ChannelModel>
     {
         @Override
-        public int compare(Channel lhs, Channel rhs)
+        public int compare(ChannelModel lhs, ChannelModel rhs)
         {
             return lhs.getFriendlyName().compareTo(rhs.getFriendlyName());
         }
@@ -389,7 +422,7 @@ public class ChannelActivity extends Activity implements ChatClientListener
     public void onChannelAdd(final Channel channel)
     {
         logger.d("Received onChannelAdd callback for channel |" + channel.getFriendlyName() + "|");
-        channels.add(channel);
+        channels.add(new ChannelModel(channel));
         adapter.notifyDataSetChanged();
     }
 

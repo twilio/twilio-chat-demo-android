@@ -1,7 +1,8 @@
 package com.twilio.chat.demo;
 
-import com.twilio.chat.Channel;
+import com.twilio.chat.demo.ChannelModel;
 import com.twilio.chat.Channel.ChannelStatus;
+import com.twilio.chat.Channel.ChannelType;
 import com.twilio.chat.CallbackListener;
 
 import android.graphics.Color;
@@ -14,7 +15,7 @@ import uk.co.ribot.easyadapter.annotations.LayoutId;
 import uk.co.ribot.easyadapter.annotations.ViewId;
 
 @LayoutId(R.layout.channel_item_layout)
-public class ChannelViewHolder extends ItemViewHolder<Channel>
+public class ChannelViewHolder extends ItemViewHolder<ChannelModel>
 {
     @ViewId(R.id.channel_friendly_name)
     TextView friendlyName;
@@ -61,7 +62,7 @@ public class ChannelViewHolder extends ItemViewHolder<Channel>
     }
 
     @Override
-    public void onSetValues(Channel channel, PositionInfo arg1)
+    public void onSetValues(ChannelModel channel, PositionInfo arg1)
     {
         friendlyName.setText(channel.getFriendlyName());
         channelSid.setText(channel.getSid());
@@ -100,12 +101,16 @@ public class ChannelViewHolder extends ItemViewHolder<Channel>
             }
         });
 
-        view.setBackgroundColor(
-            channel.getStatus() == ChannelStatus.JOINED ? Color.WHITE : 
-            channel.getStatus() == ChannelStatus.INVITED ? Color.YELLOW : Color.GRAY);
+        if (channel.getStatus() == ChannelStatus.JOINED) {
+            view.setBackgroundColor(channel.getType() == ChannelType.PRIVATE ?
+                Color.BLUE : Color.WHITE);    
+        } else {
+            view.setBackgroundColor(channel.getStatus() == ChannelStatus.INVITED ?
+                Color.YELLOW : Color.GRAY);
+        }
     }
 
     public interface OnChannelClickListener {
-        void onChannelClicked(Channel channel);
+        void onChannelClicked(ChannelModel channel);
     }
 }
