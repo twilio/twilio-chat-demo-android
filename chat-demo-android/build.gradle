@@ -19,7 +19,7 @@ android {
         applicationId "com.twilio.chat.demo"
         minSdkVersion 19
         targetSdkVersion 23
-        versionName "0.8"
+        versionName "0.9"
     }
 
     lintOptions {
