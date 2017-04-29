@@ -57,8 +57,11 @@ public class LoginActivity extends Activity implements LoginListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String userName = sharedPreferences.getString("userName", DEFAULT_CLIENT_NAME);
+
         this.clientNameTextBox = (EditText)findViewById(R.id.client_name);
-        this.clientNameTextBox.setText(DEFAULT_CLIENT_NAME);
+        this.clientNameTextBox.setText(userName);
 
         this.login = (Button)findViewById(R.id.register);
         this.login.setOnClickListener(new View.OnClickListener() {
@@ -66,6 +69,7 @@ public class LoginActivity extends Activity implements LoginListener
             public void onClick(View v)
             {
                 String idChosen = clientNameTextBox.getText().toString();
+                sharedPreferences.edit().putString("userName", idChosen).apply();
 
                 String url = Uri.parse(BuildConfig.ACCESS_TOKEN_SERVICE_URL)
                                  .buildUpon()
