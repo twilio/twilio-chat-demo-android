@@ -152,9 +152,9 @@ public class BasicChatClient extends CallbackListener<ChatClient>
             @Override
             public void run()
             {
-            if (loginListener != null) {
-                loginListener.onLoginFinished();
-            }
+                if (loginListener != null) {
+                    loginListener.onLoginFinished();
+                }
             }
         });
     }
@@ -163,15 +163,15 @@ public class BasicChatClient extends CallbackListener<ChatClient>
     @Override
     public void onError(final ErrorInfo errorInfo)
     {
-        TwilioApplication.get().logErrorInfo("Received onError event", errorInfo);
+        TwilioApplication.get().logErrorInfo("Login error", errorInfo);
 
         loginListenerHandler.post(new Runnable() {
             @Override
             public void run()
             {
-            if (loginListener != null) {
-                loginListener.onLoginError(errorInfo.getErrorCode() + " " + errorInfo.getErrorText());
-            }
+                if (loginListener != null) {
+                    loginListener.onLoginError(errorInfo.toString());
+                }
             }
         });
     }
@@ -181,7 +181,7 @@ public class BasicChatClient extends CallbackListener<ChatClient>
     @Override
     public void onTokenWillExpire(AccessManager accessManager)
     {
-        TwilioApplication.get().showToast("AccessManager.onTokenWillExpire");
+        TwilioApplication.get().showToast("Token will expire in 3 minutes. Getting new token.");
     }
 
     @Override
@@ -202,8 +202,6 @@ public class BasicChatClient extends CallbackListener<ChatClient>
     @Override
     public void onTokenUpdated(String token)
     {
-        TwilioApplication.get().showToast("AccessManager token updated: " + token);
-
         if (chatClient == null) return;
 
         chatClient.updateToken(token, new ToastStatusListener(
