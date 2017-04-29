@@ -123,7 +123,7 @@ public class MessageActivity extends Activity implements ChannelListener
         setContentView(R.layout.activity_message);
         if (getIntent() != null) {
             BasicChatClient basicClient = TwilioApplication.get().getBasicClient();
-            identity = basicClient.getChatClient().getMyUserInfo().getIdentity();
+            identity = basicClient.getChatClient().getMyIdentity();
             String   channelSid = getIntent().getStringExtra(Constants.EXTRA_CHANNEL_SID);
             Channels channelsObject = basicClient.getChatClient().getChannels();
             channelsObject.getChannel(channelSid, new CallbackListener<Channel>() {
@@ -136,35 +136,22 @@ public class MessageActivity extends Activity implements ChannelListener
                         ((channel.getType() == ChannelType.PUBLIC) ? "PUB " : "PRIV ")
                         + channel.getFriendlyName());
 
-                    channel.synchronize(new CallbackListener<Channel>() {
-                        @Override
-                        public void onError(ErrorInfo errorInfo)
-                        {
-                            TwilioApplication.get().showError("Channel sync failed", errorInfo);
-                        }
+                    setupListView(channel);
 
-                        @Override
-                        public void onSuccess(Channel result)
-                        {
-                            TwilioApplication.get().showToast("Channel sync success for " + result.getFriendlyName());
-                            setupListView(channel);
-
-                            messageListView = (ListView)findViewById(R.id.message_list_view);
-                            if (messageListView != null) {
-                                messageListView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-                                messageListView.setStackFromBottom(true);
-                                adapter.registerDataSetObserver(new DataSetObserver() {
-                                    @Override
-                                    public void onChanged()
-                                    {
-                                        super.onChanged();
-                                        messageListView.setSelection(adapter.getCount() - 1);
-                                    }
-                                });
+                    messageListView = (ListView)findViewById(R.id.message_list_view);
+                    if (messageListView != null) {
+                        messageListView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+                        messageListView.setStackFromBottom(true);
+                        adapter.registerDataSetObserver(new DataSetObserver() {
+                            @Override
+                            public void onChanged()
+                            {
+                                super.onChanged();
+                                messageListView.setSelection(adapter.getCount() - 1);
                             }
-                            setupInput();
-                        }
-                    });
+                        });
+                    }
+                    setupInput();
                 }
             });
         }
@@ -198,21 +185,15 @@ public class MessageActivity extends Activity implements ChannelListener
                     } else if (which == TOPIC_CHANGE) {
                         showChangeTopicDialog();
                     } else if (which == LIST_MEMBERS) {
-                        channel.getMembers().getMembers(new CallbackListener<Paginator<Member>>() {
-                            @Override
-                            public void onSuccess(Paginator<Member> memberPaginator) {
-                                logger.d("members retrieved");
-                                ArrayList<Member> members = memberPaginator.getItems();
-                                StringBuffer name = new StringBuffer();
-                                for (int i = 0; i < members.size(); i++) {
-                                    name.append(members.get(i).getUserInfo().getIdentity());
-                                    if (i + 1 < members.size()) {
-                                        name.append(", ");
-                                    }
-                                }
-                                TwilioApplication.get().showToast(name.toString(), Toast.LENGTH_LONG);
+                        List<Member> members = channel.getMembers().getMembersList();
+                        StringBuffer name = new StringBuffer();
+                        for (int i = 0; i < members.size(); i++) {
+                            name.append(members.get(i).getIdentity());
+                            if (i + 1 < members.size()) {
+                                name.append(", ");
                             }
-                        });
+                        }
+                        TwilioApplication.get().showToast(name.toString(), Toast.LENGTH_LONG);
                     } else if (which == INVITE_MEMBER) {
                         showInviteMemberDialog();
                     } else if (which == ADD_MEMBER) {
@@ -434,59 +415,49 @@ public class MessageActivity extends Activity implements ChannelListener
     private void showRemoveMemberDialog()
     {
         final Members membersObject = channel.getMembers();
-        membersObject.getMembers(new CallbackListener<Paginator<Member>>() {
+        List<Member> members = membersObject.getMembersList();
+        final View convertView = getLayoutInflater().inflate(R.layout.member_list, null);
+        final AlertDialog memberListDialog = new AlertDialog.Builder(MessageActivity.this)
+                .setView(convertView)
+                .setTitle("Remove members")
+                .create();
+        ListView            lv = (ListView)convertView.findViewById(R.id.listView1);
+        EasyAdapter<Member> adapterMember = new EasyAdapter<Member>(
+                MessageActivity.this, MemberViewHolder.class, members, new MemberViewHolder.OnMemberClickListener() {
             @Override
-            public void onSuccess(Paginator<Member> memberPaginator) {
-                ArrayList<Member> members= memberPaginator.getItems();
-                final View convertView = getLayoutInflater().inflate(R.layout.member_list, null);
-                final AlertDialog memberListDialog = new AlertDialog.Builder(MessageActivity.this)
-                    .setView(convertView)
-                    .setTitle("Remove members")
-                    .create();
-                ListView            lv = (ListView)convertView.findViewById(R.id.listView1);
-                EasyAdapter<Member> adapterMember = new EasyAdapter<Member>(
-                        MessageActivity.this, MemberViewHolder.class, members, new MemberViewHolder.OnMemberClickListener() {
-                    @Override
-                    public void onMemberClicked(Member member)
-                    {
-                        membersObject.removeMember(member, new ToastStatusListener(
-                            "Successful removeMember operation",
-                            "Error in removeMember operation"));
-                        memberListDialog.dismiss();
-                    }
-                });
-                lv.setAdapter(adapterMember);
-                memberListDialog.show();
-                memberListDialog.getWindow().setLayout(800, 600);
+            public void onMemberClicked(Member member)
+            {
+                membersObject.remove(member, new ToastStatusListener(
+                        "Successful removeMember operation",
+                        "Error in removeMember operation"));
+                memberListDialog.dismiss();
             }
         });
+        lv.setAdapter(adapterMember);
+        memberListDialog.show();
+        memberListDialog.getWindow().setLayout(800, 600);
     }
 
     private void loadAndShowMessages()
     {
         final Messages messagesObject = channel.getMessages();
-        final List<MessageItem> items = new ArrayList<MessageItem>();
-        final Members  members = channel.getMembers();
         if (messagesObject != null) {
-            messagesObject.getLastMessages(100, new CallbackListener<List<Message>>() {
+            messagesObject.getLastMessages(50, new CallbackListener<List<Message>>() {
                 @Override
                 public void onSuccess(List<Message> messagesArray) {
+                    List<MessageItem> items = new ArrayList<MessageItem>();
+                    Members  members = channel.getMembers();
                     if (messagesArray.size() > 0) {
-                        messages = new ArrayList<Message>(messagesArray);
-                        Collections.sort(messages,
-                                new CustomMessageComparator());
+                        for (int i = 0; i < messagesArray.size(); i++) {
+                            items.add(new MessageItem(messagesArray.get(i), members, identity));
+                        }
                     }
-                    for (int i = 0; i < messagesArray.size(); i++) {
-                        items.add(new MessageItem(
-                                messages.get(i), members, identity));
-                    }
+                    adapter.getItems().clear();
+                    adapter.getItems().addAll(items);
+                    adapter.notifyDataSetChanged();
                 }
             });
         }
-
-        adapter.getItems().clear();
-        adapter.getItems().addAll(items);
-        adapter.notifyDataSetChanged();
     }
 
     private void showUpdateMessageDialog(final Message message)
@@ -707,27 +678,8 @@ public class MessageActivity extends Activity implements ChannelListener
                     }
                 });
         messageListView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
 
-        if (messagesObject != null) {
-            final Members members = channel.getMembers();
-            messagesObject.getLastMessages(500, new CallbackListener<List<Message>>() {
-                @Override
-                public void onSuccess(List<Message> messagesArray) {
-                    if (messagesArray.size() > 0) {
-                        messages = new ArrayList<>(messagesArray);
-                        Collections.sort(messages, new CustomMessageComparator());
-                    }
-                    MessageItem[] items = new MessageItem[messagesArray.size()];
-                    for (int i = 0; i < items.length; i++) {
-                        items[i] = new MessageItem(messages.get(i), members, identity);
-                    }
-                    messageItemList = new ArrayList<>(Arrays.asList(items));
-
-                    adapter.setItems(messageItemList);
-                }
-            });
-        }
+        loadAndShowMessages();
     }
 
     private void sendMessage()
@@ -754,13 +706,13 @@ public class MessageActivity extends Activity implements ChannelListener
     }
 
     @Override
-    public void onMessageAdd(Message message)
+    public void onMessageAdded(Message message)
     {
         setupListView(this.channel);
     }
 
     @Override
-    public void onMessageChange(Message message)
+    public void onMessageUpdated(Message message)
     {
         if (message != null) {
             TwilioApplication.get().showToast(message.getSid() + " changed");
@@ -771,7 +723,7 @@ public class MessageActivity extends Activity implements ChannelListener
     }
 
     @Override
-    public void onMessageDelete(Message message)
+    public void onMessageDeleted(Message message)
     {
         if (message != null) {
             TwilioApplication.get().showToast(message.getSid() + " deleted");
@@ -782,26 +734,26 @@ public class MessageActivity extends Activity implements ChannelListener
     }
 
     @Override
-    public void onMemberJoin(Member member)
+    public void onMemberAdded(Member member)
     {
         if (member != null) {
-            TwilioApplication.get().showToast(member.getUserInfo().getIdentity() + " joined");
+            TwilioApplication.get().showToast(member.getIdentity() + " joined");
         }
     }
 
     @Override
-    public void onMemberChange(Member member)
+    public void onMemberUpdated(Member member)
     {
         if (member != null) {
-            TwilioApplication.get().showToast(member.getUserInfo().getIdentity() + " changed");
+            TwilioApplication.get().showToast(member.getIdentity() + " changed");
         }
     }
 
     @Override
-    public void onMemberDelete(Member member)
+    public void onMemberDeleted(Member member)
     {
         if (member != null) {
-            TwilioApplication.get().showToast(member.getUserInfo().getIdentity() + " deleted");
+            TwilioApplication.get().showToast(member.getIdentity() + " deleted");
         }
     }
 
@@ -810,7 +762,7 @@ public class MessageActivity extends Activity implements ChannelListener
     {
         if (member != null) {
             TextView typingIndc = (TextView)findViewById(R.id.typingIndicator);
-            String   text = member.getUserInfo().getIdentity() + " is typing .....";
+            String   text = member.getIdentity() + " is typing .....";
             typingIndc.setText(text);
             typingIndc.setTextColor(Color.RED);
             logger.d(text);
@@ -823,7 +775,7 @@ public class MessageActivity extends Activity implements ChannelListener
         if (member != null) {
             TextView typingIndc = (TextView)findViewById(R.id.typingIndicator);
             typingIndc.setText(null);
-            logger.d(member.getUserInfo().getIdentity() + " ended typing");
+            logger.d(member.getIdentity() + " ended typing");
         }
     }
 
@@ -862,9 +814,9 @@ public class MessageActivity extends Activity implements ChannelListener
     }
 
     @Override
-    public void onSynchronizationChange(Channel channel)
+    public void onSynchronizationChanged(Channel channel)
     {
-        logger.d("Received onSynchronizationChange callback " + channel.getFriendlyName());
+        logger.d("Received onSynchronizationChanged callback " + channel.getFriendlyName());
     }
 
     public static class MessageItem
