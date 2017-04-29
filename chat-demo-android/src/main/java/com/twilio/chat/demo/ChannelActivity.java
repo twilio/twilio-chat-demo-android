@@ -301,7 +301,6 @@ public class ChannelActivity extends Activity implements ChatClientListener
             });
 
         listView.setAdapter(adapter);
-        getChannels();
     }
 
     private void getChannelsPage(Paginator<ChannelDescriptor> paginator) {
