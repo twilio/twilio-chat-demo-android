@@ -268,10 +268,8 @@ public class ChannelActivity extends Activity implements ChatClientListener
                                 channel.getChannel(new CallbackListener<Channel>() {
                                                        @Override
                                                        public void onSuccess(Channel chan) {
-                                                           Intent i =
-                                                                   new Intent(ChannelActivity.this, MessageActivity.class);
-                                                           i.putExtra(Constants.EXTRA_CHANNEL,
-                                                                   (Parcelable)chan);
+                                                           Intent i = new Intent(ChannelActivity.this, MessageActivity.class);
+                                                           i.putExtra(Constants.EXTRA_CHANNEL, (Parcelable)chan);
                                                            i.putExtra(Constants.EXTRA_CHANNEL_SID, chan.getSid());
                                                            startActivity(i);
                                                        }
