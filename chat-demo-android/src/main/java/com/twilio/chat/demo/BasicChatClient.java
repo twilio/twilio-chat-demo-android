@@ -73,7 +73,13 @@ public class BasicChatClient extends CallbackListener<ChatClient>
     }
 
     public void login(final String username, final String url, final LoginListener listener) {
-        if (username == this.username && urlString == url && loginListener == listener && chatClient != null && accessManager != null) {
+        if (username == this.username
+            && urlString == url
+            && loginListener == listener
+            && chatClient != null
+            && accessManager != null
+            && !accessManager.isTokenExpired())
+        {
             onSuccess(chatClient);
             return;
         }
