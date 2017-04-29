@@ -3,6 +3,9 @@ package com.twilio.chat.demo;
 import com.twilio.chat.ErrorInfo;
 import com.twilio.chat.StatusListener;
 
+/**
+ * Status listener that shows a toast with operation results.
+ */
 class ToastStatusListener extends StatusListener
 {
     private final String okText;
