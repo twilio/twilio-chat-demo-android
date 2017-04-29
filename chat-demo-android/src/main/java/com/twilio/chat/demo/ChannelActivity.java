@@ -21,7 +21,7 @@ import com.twilio.chat.Member;
 import com.twilio.chat.Message;
 import com.twilio.chat.ChatClient;
 import com.twilio.chat.ErrorInfo;
-import com.twilio.chat.UserInfo;
+import com.twilio.chat.User;
 import com.twilio.chat.Paginator;
 
 import android.annotation.SuppressLint;
@@ -108,7 +108,7 @@ public class ChannelActivity extends Activity implements ChatClientListener
                 showSearchChannelDialog();
                 break;
             case R.id.action_user_info:
-                startActivity(new Intent(getApplicationContext(), UserInfoActivity.class));
+                startActivity(new Intent(getApplicationContext(), UserActivity.class));
                 break;
             case R.id.action_logout:
                 basicClient.shutdown();
@@ -431,9 +431,9 @@ public class ChannelActivity extends Activity implements ChatClientListener
     }
 
     @Override
-    public void onUserInfoChange(UserInfo userInfo, UserInfo.UpdateReason reason)
+    public void onUserUpdated(User user, User.UpdateReason reason)
     {
-        logger.e("Received onUserInfoChange callback");
+        logger.e("Received onUserUpdated callback");
     }
 
     @Override

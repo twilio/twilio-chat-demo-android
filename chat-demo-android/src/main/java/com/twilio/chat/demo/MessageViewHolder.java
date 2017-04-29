@@ -7,6 +7,7 @@ import com.twilio.chat.CallbackListener;
 import com.twilio.chat.Member;
 import com.twilio.chat.Message;
 import com.twilio.chat.Paginator;
+import com.twilio.chat.User;
 import com.twilio.chat.demo.R;
 
 import android.graphics.Bitmap;
@@ -123,7 +124,7 @@ public class MessageViewHolder extends ItemViewHolder<MessageActivity.MessageIte
 
     private void drawConsumptionHorizon(Member member)
     {
-        String ident = member.getUserInfo().getIdentity();
+        String ident = member.getIdentity();
         int color = getMemberRgb(ident);
 
         TextView identity = new TextView(getContext());
