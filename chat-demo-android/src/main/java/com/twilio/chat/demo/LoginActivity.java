@@ -46,7 +46,6 @@ public class LoginActivity extends Activity implements LoginListener
     private ProgressDialog         progressDialog;
     private Button                 login;
     private EditText               clientNameTextBox;
-    private String                 endpoint_id = "";
 
     // FCM
     private CheckBox          fcmAvailable;
@@ -60,8 +59,6 @@ public class LoginActivity extends Activity implements LoginListener
 
         this.clientNameTextBox = (EditText)findViewById(R.id.client_name);
         this.clientNameTextBox.setText(DEFAULT_CLIENT_NAME);
-        this.endpoint_id =
-            Secure.getString(this.getApplicationContext().getContentResolver(), Secure.ANDROID_ID);
 
         this.login = (Button)findViewById(R.id.register);
         this.login.setOnClickListener(new View.OnClickListener() {
@@ -69,13 +66,10 @@ public class LoginActivity extends Activity implements LoginListener
             public void onClick(View v)
             {
                 String idChosen = clientNameTextBox.getText().toString();
-                String endpointIdFull =
-                    idChosen + "-" + endpoint_id + "-android-" + getApplication().getPackageName();
 
                 String url = Uri.parse(BuildConfig.ACCESS_TOKEN_SERVICE_URL)
                                  .buildUpon()
                                  .appendQueryParameter("identity", idChosen)
-                                 .appendQueryParameter("endpointId", endpointIdFull)
                                  .build()
                                  .toString();
                 logger.d("url string : " + url);
