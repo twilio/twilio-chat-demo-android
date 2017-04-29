@@ -100,8 +100,9 @@ public class ChannelViewHolder extends ItemViewHolder<Channel>
             }
         });
 
-        boolean joined = (channel.getStatus() == ChannelStatus.JOINED);
-        view.setBackgroundColor(joined ? Color.WHITE : Color.GRAY);
+        view.setBackgroundColor(
+            channel.getStatus() == ChannelStatus.JOINED ? Color.WHITE : 
+            channel.getStatus() == ChannelStatus.INVITED ? Color.YELLOW : Color.GRAY);
     }
 
     public interface OnChannelClickListener {
