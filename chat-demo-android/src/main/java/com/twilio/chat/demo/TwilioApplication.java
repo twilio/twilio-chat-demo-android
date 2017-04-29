@@ -67,9 +67,6 @@ public class TwilioApplication extends Application
 
     private String formatted(String message, ErrorInfo error)
     {
-        return String.format("%s. Error code: %s, text: %s",
-                message,
-                error.getErrorCode(),
-                error.getErrorText());
+        return String.format("%s. %s", message, error.toString());
     }
 }
