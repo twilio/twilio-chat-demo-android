@@ -148,14 +148,13 @@ public class LoginActivity extends Activity implements LoginListener
     public void onLoginError(String errorMessage)
     {
         progressDialog.dismiss();
-        logger.e("Error logging in : " + errorMessage);
-        Toast.makeText(getBaseContext(), errorMessage, Toast.LENGTH_LONG).show();
+        TwilioApplication.get().showToast("Error logging in : " + errorMessage, Toast.LENGTH_LONG);
     }
 
     @Override
     public void onLogoutFinished()
     {
-        logger.d("Log out finished");
+        TwilioApplication.get().showToast("Log out finished");
     }
 
     @Override

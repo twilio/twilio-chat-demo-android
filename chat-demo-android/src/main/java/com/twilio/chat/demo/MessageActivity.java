@@ -200,8 +200,7 @@ public class MessageActivity extends Activity implements ChannelListener
                         showAddMemberDialog();
                     } else if (which == LEAVE) {
                         channel.leave(new ToastStatusListener(
-                            "Successfully left channel",
-                            "Error leaving channel") {
+                            "Successfully left channel", "Error leaving channel") {
                             @Override
                             public void onSuccess()
                             {
@@ -213,8 +212,7 @@ public class MessageActivity extends Activity implements ChannelListener
                         showRemoveMemberDialog();
                     } else if (which == CHANNEL_DESTROY) {
                         channel.destroy(new ToastStatusListener(
-                            "Successfully destroyed channel",
-                            "Error destroying channel") {
+                            "Successfully destroyed channel", "Error destroying channel") {
                             @Override
                             public void onSuccess()
                             {
@@ -293,21 +291,9 @@ public class MessageActivity extends Activity implements ChannelListener
                             // whatever
                         }
 
-                        channel.setAttributes(attrObj, new StatusListener() {
-                            @Override
-                            public void onSuccess()
-                            {
-                                logger.d("Attributes were set successfullly.");
-                            }
-
-                            @Override
-                            public void onError(ErrorInfo errorInfo)
-                            {
-                                TwilioApplication.get().showError(errorInfo);
-                                TwilioApplication.get().logErrorInfo("Setting attributes failed",
-                                                                     errorInfo);
-                            }
-                        });
+                        channel.setAttributes(attrObj, new ToastStatusListener(
+                            "Attributes were set successfullly.",
+                            "Setting attributes failed"));
                     }
                 })
             .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -339,22 +325,9 @@ public class MessageActivity extends Activity implements ChannelListener
                         logger.d(memberName);
 
                         Members membersObject = channel.getMembers();
-                        membersObject.inviteByIdentity(memberName, new StatusListener() {
-                            @Override
-                            public void onError(ErrorInfo errorInfo)
-                            {
-                                TwilioApplication.get().showError(errorInfo);
-                                TwilioApplication.get().logErrorInfo("Error in inviteByIdentity",
-                                                                     errorInfo);
-                            }
-
-                            @Override
-                            public void onSuccess()
-                            {
-                                logger.d("Successful at inviteByIdentity.");
-                                TwilioApplication.get().showToast("Invited user to channel");
-                            }
-                        });
+                        membersObject.inviteByIdentity(memberName, new ToastStatusListener(
+                            "Invited user to channel",
+                            "Error in inviteByIdentity"));
                     }
                 })
             .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -385,21 +358,9 @@ public class MessageActivity extends Activity implements ChannelListener
                         logger.d(memberName);
 
                         Members membersObject = channel.getMembers();
-                        membersObject.addByIdentity(memberName, new StatusListener() {
-                            @Override
-                            public void onError(ErrorInfo errorInfo)
-                            {
-                                TwilioApplication.get().showError(errorInfo);
-                                TwilioApplication.get().logErrorInfo("Error adding member",
-                                                                     errorInfo);
-                            }
-
-                            @Override
-                            public void onSuccess()
-                            {
-                                logger.d("Successful at addByIdentity");
-                            }
-                        });
+                        membersObject.addByIdentity(memberName, new ToastStatusListener(
+                            "Successful addByIdentity",
+                            "Error adding member"));
                     }
                 })
             .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

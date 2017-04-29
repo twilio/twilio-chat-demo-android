@@ -495,7 +495,7 @@ public class ChannelActivity extends Activity implements ChatClientListener
     @Override
     public void onError(ErrorInfo errorInfo)
     {
-        TwilioApplication.get().showError("Received onError callback", errorInfo);
+        TwilioApplication.get().showError("Received error", errorInfo);
     }
 
     @Override
