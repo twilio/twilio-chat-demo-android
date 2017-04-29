@@ -134,10 +134,12 @@ public class ChannelActivity extends Activity implements ChatClientListener
             logger.e("JSON exception", xcp);
         }
 
+        String typ = type == ChannelType.PRIVATE ? "Priv" : "Pub";
+
         basicClient.getChatClient().getChannels()
             .channelBuilder()
-            .withFriendlyName("Pub_TestChannelF_" + value)
-            .withUniqueName("Pub_TestChannelU_" + value)
+            .withFriendlyName(typ + "_TestChannelF_" + value)
+            .withUniqueName(typ + "_TestChannelU_" + value)
             .withType(type)
             .withAttributes(attrs)
             .build(new CallbackListener<Channel>() {
