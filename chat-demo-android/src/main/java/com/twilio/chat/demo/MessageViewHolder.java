@@ -102,23 +102,18 @@ public class MessageViewHolder extends ItemViewHolder<MessageActivity.MessageIte
             identities.removeAllViews();
             lines.removeAllViews();
 
-            message.getMembers().getMembers(new CallbackListener<Paginator<Member>>() {
-                @Override
-                public void onSuccess(Paginator<Member> memberPaginator) {
-                    for (Member member : memberPaginator.getItems()) {
-                        if (msg.getAuthor().equals(member.getUserInfo().getIdentity())) {
-                            fillUserAvatar(imageView, member);
-                            fillUserReachability(reachabilityView, member);
-                        }
-
-                        if (member.getLastConsumedMessageIndex() != null
-                            && member.getLastConsumedMessageIndex()
-                                   == message.getMessage().getMessageIndex()) {
-                            drawConsumptionHorizon(member);
-                        }
-                    }
+            for (Member member : message.getMembers().getMembersList()) {
+                if (msg.getAuthor().equals(member.getIdentity())) {
+                    fillUserAvatar(imageView, member);
+                    fillUserReachability(reachabilityView, member);
                 }
-            });
+
+                if (member.getLastConsumedMessageIndex() != null
+                        && member.getLastConsumedMessageIndex()
+                        == message.getMessage().getMessageIndex()) {
+                    drawConsumptionHorizon(member);
+                }
+            }
         }
     }
 
@@ -148,29 +143,41 @@ public class MessageViewHolder extends ItemViewHolder<MessageActivity.MessageIte
         lines.addView(line);
     }
 
-    private void fillUserAvatar(ImageView avatarView, Member member)
+    private void fillUserAvatar(final ImageView avatarView, Member member)
     {
-        JSONObject attributes = member.getUserInfo().getAttributes();
-        String     avatar = (String)attributes.opt("avatar");
-        if (avatar != null) {
-            byte[] data = Base64.decode(avatar, Base64.NO_WRAP);
-            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-            avatarView.setImageBitmap(bitmap);
-        }
-        else {
-            avatarView.setImageResource(R.drawable.avatar2);
-        }
+        TwilioApplication.get().getBasicClient().getChatClient().getUsers().getAndSubscribeUser(member.getIdentity(), new CallbackListener<User>() {
+            @Override
+            public void onSuccess(User user) {
+                JSONObject attributes = user.getAttributes();
+                String     avatar = (String)attributes.opt("avatar");
+                if (avatar != null) {
+                    byte[] data = Base64.decode(avatar, Base64.NO_WRAP);
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                    avatarView.setImageBitmap(bitmap);
+                }
+                else {
+                    avatarView.setImageResource(R.drawable.avatar2);
+                }
+            }
+        });
     }
 
-    private void fillUserReachability(ImageView reachabilityView, Member member) {
+    private void fillUserReachability(final ImageView reachabilityView, Member member) {
         if (!TwilioApplication.get().getBasicClient().getChatClient().isReachabilityEnabled()) {
             reachabilityView.setImageResource(R.drawable.reachability_disabled);
-        } else if (member.getUserInfo().isOnline()) {
-            reachabilityView.setImageResource(R.drawable.reachability_online);
-        } else if (member.getUserInfo().isNotifiable()) {
-            reachabilityView.setImageResource(R.drawable.reachability_notifiable);
         } else {
-            reachabilityView.setImageResource(R.drawable.reachability_offline);
+            TwilioApplication.get().getBasicClient().getChatClient().getUsers().getAndSubscribeUser(member.getIdentity(), new CallbackListener<User>() {
+                @Override
+                public void onSuccess(User user) {
+                    if (user.isOnline()) {
+                        reachabilityView.setImageResource(R.drawable.reachability_online);
+                    } else if (user.isNotifiable()) {
+                        reachabilityView.setImageResource(R.drawable.reachability_notifiable);
+                    } else {
+                        reachabilityView.setImageResource(R.drawable.reachability_offline);
+                    }
+                }
+            });
         }
     }
 

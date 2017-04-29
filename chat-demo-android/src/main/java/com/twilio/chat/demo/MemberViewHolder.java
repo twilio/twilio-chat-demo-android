@@ -49,6 +49,6 @@ public class MemberViewHolder extends ItemViewHolder<Member>
     @Override
     public void onSetValues(Member member, PositionInfo arg1)
     {
-        this.memberIdentity.setText(member.getUserInfo().getIdentity());
+        this.memberIdentity.setText(member.getIdentity());
     }
 }

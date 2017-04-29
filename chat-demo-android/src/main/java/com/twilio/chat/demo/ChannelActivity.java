@@ -421,7 +421,14 @@ public class ChannelActivity extends Activity implements ChatClientListener
     //=============================================================
 
     @Override
-    public void onChannelAdd(final Channel channel)
+    public void onChannelJoined(final Channel channel)
+    {
+        logger.d("Received onChannelJoined callback for channel |" + channel.getFriendlyName() + "|");
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onChannelAdded(final Channel channel)
     {
         logger.d("Received onChannelAdd callback for channel |" + channel.getFriendlyName() + "|");
         channels.add(new ChannelModel(channel));
@@ -429,15 +436,15 @@ public class ChannelActivity extends Activity implements ChatClientListener
     }
 
     @Override
-    public void onChannelChange(Channel channel)
+    public void onChannelUpdated(final Channel channel, final Channel.UpdateReason reason)
     {
         logger.d("Received onChannelChange callback for channel |" + channel.getFriendlyName()
-                + "|");
+                + "| with reason " + reason.toString());
         adapter.notifyDataSetChanged();
     }
 
     @Override
-    public void onChannelDelete(final Channel channel)
+    public void onChannelDeleted(final Channel channel)
     {
         logger.d("Received onChannelDelete callback for channel |" + channel.getFriendlyName()
                 + "|");
@@ -446,9 +453,9 @@ public class ChannelActivity extends Activity implements ChatClientListener
     }
 
     @Override
-    public void onChannelInvite(final Channel channel)
+    public void onChannelInvited(final Channel channel)
     {
-        this.showIncomingInvite(channel);
+        showIncomingInvite(channel);
     }
 
     @Override
@@ -456,7 +463,7 @@ public class ChannelActivity extends Activity implements ChatClientListener
     {
         logger.e("Received onChannelSynchronizationChange callback for channel |"
                  + channel.getFriendlyName()
-                 + "|");
+                 + "| with new status " + channel.getStatus().toString());
     }
 
     @Override
@@ -472,21 +479,33 @@ public class ChannelActivity extends Activity implements ChatClientListener
     }
 
     @Override
-    public void onToastNotification(String channelId, String messageId)
+    public void onUserSubscribed(User user)
+    {
+        logger.e("Received onUserSubscribed callback");
+    }
+
+    @Override
+    public void onUserUnsubscribed(User user)
+    {
+        logger.e("Received onUserUnsubscribed callback");
+    }
+
+    @Override
+    public void onNotification(String channelId, String messageId)
     {
         logger.d("Received new push notification");
         TwilioApplication.get().showToast("Received new push notification");
     }
 
     @Override
-    public void onToastSubscribed()
+    public void onNotificationSubscribed()
     {
         logger.d("Subscribed to push notifications");
         TwilioApplication.get().showToast("Subscribed to push notifications");
     }
 
     @Override
-    public void onToastFailed(ErrorInfo errorInfo)
+    public void onNotificationFailed(ErrorInfo errorInfo)
     {
         logger.d("Failed to subscribe to push notifications");
         TwilioApplication.get().showError("Failed to subscribe to push notifications", errorInfo);
