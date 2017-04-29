@@ -224,12 +224,12 @@ public class ChannelActivity extends Activity implements ChatClientListener
                 @Override
                 public void onClick(DialogInterface dialog, int id)
                 {
-                    String channelName =
+                    String channelSid =
                         ((EditText)createChannelDialog.findViewById(R.id.channel_name))
                             .getText()
                             .toString();
-                    logger.d("Searching for " + channelName);
-                    channelsObject.getChannel(channelName, new CallbackListener<Channel>() {
+                    logger.d("Searching for " + channelSid);
+                    channelsObject.getChannel(channelSid, new CallbackListener<Channel>() {
                         @Override
                         public void onSuccess(final Channel channel) {
                             if (channel != null) {
