@@ -12,6 +12,7 @@ import com.twilio.chat.ChatClientListener;
 import com.twilio.chat.ChatClient;
 import com.twilio.chat.ErrorInfo;
 import com.twilio.chat.UserInfo;
+import com.twilio.chat.internal.HandlerUtil;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -81,7 +82,7 @@ public class BasicChatClient extends CallbackListener<ChatClient>
         this.username = username;
         urlString = url;
 
-        loginListenerHandler = setupListenerHandler();
+        loginListenerHandler = HandlerUtil.setupListenerHandler();
         loginListener = listener;
 
         new GetAccessTokenAsyncTask().execute(username, urlString);
@@ -210,21 +211,6 @@ public class BasicChatClient extends CallbackListener<ChatClient>
         chatClient.updateToken(token, new ToastStatusListener(
             "Client Update Token was successfull",
             "Client Update Token failed"));
-    }
-
-    private Handler setupListenerHandler()
-    {
-        Looper  looper;
-        Handler handler;
-        if ((looper = Looper.myLooper()) != null) {
-            handler = new Handler(looper);
-        } else if ((looper = Looper.getMainLooper()) != null) {
-            handler = new Handler(looper);
-        } else {
-            handler = null;
-            throw new IllegalArgumentException("Channel Listener must have a Looper.");
-        }
-        return handler;
     }
 
     /**
