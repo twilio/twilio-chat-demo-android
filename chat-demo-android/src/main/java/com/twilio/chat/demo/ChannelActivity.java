@@ -325,8 +325,8 @@ public class ChannelActivity extends Activity implements ChatClientListener
                 if (incomingChannelInvite == null) {
                     incomingChannelInvite =
                         new AlertDialog.Builder(ChannelActivity.this)
-                            .setTitle(R.string.incoming_call)
-                            .setMessage(R.string.incoming_call_message)
+                            .setTitle(R.string.channel_invite)
+                            .setMessage(R.string.channel_invite_message)
                             .setPositiveButton(
                                 R.string.join,
                                 new DialogInterface.OnClickListener() {

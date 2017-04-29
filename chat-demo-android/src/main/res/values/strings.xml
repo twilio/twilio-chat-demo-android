@@ -4,10 +4,10 @@
     <string name="login">Log In</string>
     <string name="logout">Logout Client</string>
     <string name="invite_participant">Invite Participant</string>
-    <string name="incoming_call_message">You got a Channel Invite. Join it?</string>
+    <string name="channel_invite">Channel Invite</string>
+    <string name="channel_invite_message">You got a Channel Invite. Join it?</string>
     <string name="join">Join</string>
     <string name="decline">Decline</string>
-    <string name="incoming_call">Incoming Call</string>
     <string name="conversation">Conversation</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
