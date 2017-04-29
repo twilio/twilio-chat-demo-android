@@ -48,9 +48,8 @@ public class BasicChatClient extends CallbackListener<ChatClient>
         this.context = context;
 
         if (BuildConfig.DEBUG) {
+            logger.e("Enabling DEBUG logging");
             ChatClient.setLogLevel(android.util.Log.DEBUG);
-        } else {
-            ChatClient.setLogLevel(android.util.Log.ERROR);
         }
     }
 
