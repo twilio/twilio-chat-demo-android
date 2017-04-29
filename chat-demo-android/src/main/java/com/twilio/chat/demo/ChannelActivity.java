@@ -57,7 +57,8 @@ public class ChannelActivity extends Activity implements ChatClientListener
 
     private ListView                         listView;
     private BasicChatClient                  basicClient;
-    private List<ChannelModel>               channels = new ArrayList<ChannelModel>();
+    private Map<String, ChannelModel>        channels = new HashMap<String, ChannelModel>();
+    private List<ChannelModel>               adapterContents = new ArrayList<>();
     private EasyAdapter<ChannelModel>        adapter;
     private AlertDialog                      createChannelDialog;
     private Channels                         channelsObject;
@@ -147,6 +148,8 @@ public class ChannelActivity extends Activity implements ChatClientListener
                 public void onSuccess(final Channel newChannel)
                 {
                     logger.d("Successfully created a channel with options.");
+                    channels.put(newChannel.getSid(), new ChannelModel(newChannel));
+                    refreshChannelList();
                 }
 
                 @Override
@@ -188,7 +191,8 @@ public class ChannelActivity extends Activity implements ChatClientListener
                                     logger.d("Channel created with sid|" + sid + "| and type |"
                                              + type.toString()
                                              + "|");
-                                    adapter.notifyDataSetChanged();
+                                    channels.put(newChannel.getSid(), new ChannelModel(newChannel));
+                                    refreshChannelList();
                                 }
                             }
 
@@ -251,7 +255,7 @@ public class ChannelActivity extends Activity implements ChatClientListener
         adapter = new EasyAdapter<ChannelModel>(
             this,
             ChannelViewHolder.class,
-            channels,
+            adapterContents,
             new ChannelViewHolder.OnChannelClickListener() {
                 @Override
                 public void onChannelClicked(final ChannelModel channel)
@@ -290,7 +294,7 @@ public class ChannelActivity extends Activity implements ChatClientListener
                                         public void onSuccess()
                                         {
                                             super.onSuccess();
-                                            adapter.notifyDataSetChanged();
+                                            refreshChannelList();
                                         }
                                     });
                                 }
@@ -303,12 +307,20 @@ public class ChannelActivity extends Activity implements ChatClientListener
         listView.setAdapter(adapter);
     }
 
+    private void refreshChannelList()
+    {
+        adapterContents.clear();
+        adapterContents.addAll(channels.values());
+        Collections.sort(adapterContents, new CustomChannelComparator());
+        adapter.notifyDataSetChanged();
+    }
+
     private void getChannelsPage(Paginator<ChannelDescriptor> paginator) {
         for (ChannelDescriptor cd : paginator.getItems()) {
-            channels.add(new ChannelModel(cd));
+            logger.e("Adding channel descriptor for sid|"+cd.getSid()+"| friendlyName "+cd.getFriendlyName());
+            channels.put(cd.getSid(), new ChannelModel(cd));
         }
-        Collections.sort(channels, new CustomChannelComparator());
-        adapter.notifyDataSetChanged();
+        refreshChannelList();
 
         Log.e("HASNEXTPAGE", String.valueOf(paginator.getItems().size()));
         Log.e("HASNEXTPAGE", paginator.hasNextPage() ? "YES" : "NO");
@@ -320,9 +332,16 @@ public class ChannelActivity extends Activity implements ChatClientListener
                     getChannelsPage(channelDescriptorPaginator);
                 }
             });
+        } else {
+            // Get subscribed channels last - so their status will overwrite whatever we received
+            // from public list. Ugly workaround for now.
+            channelsObject = basicClient.getChatClient().getChannels();
+            List<Channel> ch = channelsObject.getSubscribedChannels();
+            for (Channel channel : ch) {
+                channels.put(channel.getSid(), new ChannelModel(channel));
+            }
+            refreshChannelList();            
         }
-
-        //adapter2.notifyDataSetChanged();
     }
 
     // Initialize channels with channel list
@@ -333,14 +352,7 @@ public class ChannelActivity extends Activity implements ChatClientListener
 
         channelsObject = basicClient.getChatClient().getChannels();
 
-        List<Channel> ch = channelsObject.getSubscribedChannels();
-
         channels.clear();
-        for (Channel channel : ch) {
-            channels.add(new ChannelModel(channel));
-        }
-        Collections.sort(channels, new CustomChannelComparator());
-        adapter.notifyDataSetChanged();
 
         channelsObject.getPublicChannelsList(new CallbackListener<Paginator<ChannelDescriptor>>() {
             @Override
@@ -374,7 +386,8 @@ public class ChannelActivity extends Activity implements ChatClientListener
                                             public void onSuccess()
                                             {
                                                 super.onSuccess();
-                                                adapter.notifyDataSetChanged();
+                                                channels.put(channel.getSid(), new ChannelModel(channel));
+                                                refreshChannelList();
                                             }
                                         });
                                         incomingChannelInvite = null;
@@ -393,7 +406,6 @@ public class ChannelActivity extends Activity implements ChatClientListener
                                             public void onSuccess()
                                             {
                                                 super.onSuccess();
-                                                adapter.notifyDataSetChanged();
                                             }
                                         });
                                         incomingChannelInvite = null;
@@ -423,15 +435,16 @@ public class ChannelActivity extends Activity implements ChatClientListener
     public void onChannelJoined(final Channel channel)
     {
         logger.d("Received onChannelJoined callback for channel |" + channel.getFriendlyName() + "|");
-        adapter.notifyDataSetChanged();
+        channels.put(channel.getSid(), new ChannelModel(channel));
+        refreshChannelList();
     }
 
     @Override
     public void onChannelAdded(final Channel channel)
     {
         logger.d("Received onChannelAdd callback for channel |" + channel.getFriendlyName() + "|");
-        channels.add(new ChannelModel(channel));
-        adapter.notifyDataSetChanged();
+        channels.put(channel.getSid(), new ChannelModel(channel));
+        refreshChannelList();
     }
 
     @Override
@@ -439,7 +452,8 @@ public class ChannelActivity extends Activity implements ChatClientListener
     {
         logger.d("Received onChannelChange callback for channel |" + channel.getFriendlyName()
                 + "| with reason " + reason.toString());
-        adapter.notifyDataSetChanged();
+        channels.put(channel.getSid(), new ChannelModel(channel));
+        refreshChannelList();
     }
 
     @Override
@@ -447,13 +461,15 @@ public class ChannelActivity extends Activity implements ChatClientListener
     {
         logger.d("Received onChannelDelete callback for channel |" + channel.getFriendlyName()
                 + "|");
-        channels.remove(channel);
-        adapter.notifyDataSetChanged();
+        channels.remove(channel.getSid());
+        refreshChannelList();
     }
 
     @Override
     public void onChannelInvited(final Channel channel)
     {
+        channels.put(channel.getSid(), new ChannelModel(channel));
+        refreshChannelList();
         showIncomingInvite(channel);
     }
 
@@ -463,6 +479,7 @@ public class ChannelActivity extends Activity implements ChatClientListener
         logger.e("Received onChannelSynchronizationChange callback for channel |"
                  + channel.getFriendlyName()
                  + "| with new status " + channel.getStatus().toString());
+        refreshChannelList();
     }
 
     @Override
