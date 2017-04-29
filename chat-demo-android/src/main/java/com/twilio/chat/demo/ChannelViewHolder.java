@@ -76,25 +76,25 @@ public class ChannelViewHolder extends ItemViewHolder<Channel>
                              "<no created date>";
         createdDate.setText(created);
 
-        channel.getUnconsumedMessagesCount(new CallbackListener<Integer>() {
+        channel.getUnconsumedMessagesCount(new CallbackListener<Long>() {
             @Override
-            public void onSuccess(Integer value) {
+            public void onSuccess(Long value) {
                 Log.d("ChannelViewHolder", "getUnconsumedMessagesCount callback");
                 unconsumedMessagesCount.setText("Unread "+value.toString());
             }
         });
 
-        channel.getMessagesCount(new CallbackListener<Integer>() {
+        channel.getMessagesCount(new CallbackListener<Long>() {
             @Override
-            public void onSuccess(Integer value) {
+            public void onSuccess(Long value) {
                 Log.d("ChannelViewHolder", "getMessagesCount callback");
                 totalMessagesCount.setText("Messages "+value.toString());
             }
         });
 
-        channel.getMembersCount(new CallbackListener<Integer>() {
+        channel.getMembersCount(new CallbackListener<Long>() {
             @Override
-            public void onSuccess(Integer value) {
+            public void onSuccess(Long value) {
                 Log.d("ChannelViewHolder", "getMembersCount callback");
                 usersCount.setText("Members "+value.toString());
             }
