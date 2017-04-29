@@ -14,17 +14,17 @@ public class TwilioApplication extends Application
     private static TwilioApplication instance;
     private BasicChatClient   basicClient;
 
-    public static TwilioApplication get()
-    {
-        return instance;
-    }
-
     @Override
     public void onCreate()
     {
         super.onCreate();
         TwilioApplication.instance = this;
         basicClient = new BasicChatClient(getApplicationContext());
+    }
+
+    public static TwilioApplication get()
+    {
+        return instance;
     }
 
     public BasicChatClient getBasicClient()
