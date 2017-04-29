@@ -20,24 +20,24 @@ import com.twilio.chat.StatusListener;
 import com.twilio.chat.ErrorInfo;
 import com.twilio.chat.ChatClientListener;
 import com.twilio.chat.ChatClient;
-import com.twilio.chat.UserInfo;
+import com.twilio.chat.User;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 
-public class UserInfoActivity extends Activity
+public class UserActivity extends Activity
 {
-    private static final Logger logger = Logger.getLogger(UserInfoActivity.class);
+    private static final Logger logger = Logger.getLogger(UserActivity.class);
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
-    ChatClient       client;
-    EditText                friendlyName;
-    ImageView               avatarView;
-    Button                  save;
-    Bitmap                  bitmap;
+    ChatClient  client;
+    EditText    friendlyName;
+    ImageView   avatarView;
+    Button      save;
+    Bitmap      bitmap;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
@@ -61,7 +61,9 @@ public class UserInfoActivity extends Activity
         friendlyName = (EditText)findViewById(R.id.user_friendly_name);
         client = TwilioApplication.get().getBasicClient().getChatClient();
 
-        friendlyName.setText(client.getMyUserInfo().getFriendlyName());
+        final User user = client.getUsers().getMyUser();
+
+        friendlyName.setText(user.getFriendlyName());
         avatarView = (ImageView)findViewById(R.id.avatar);
         save = (Button)findViewById(R.id.user_info_save);
 
@@ -71,9 +73,9 @@ public class UserInfoActivity extends Activity
             @Override
             public void onClick(View v)
             {
-                if (!client.getMyUserInfo().getFriendlyName().equals(
+                if (!user.getFriendlyName().equals(
                         friendlyName.getText().toString())) {
-                    client.getMyUserInfo().setFriendlyName(
+                    user.setFriendlyName(
                         friendlyName.getText().toString(), new ToastStatusListener(
                             "Update successful for user friendlyName",
                             "Update failed for user friendlyName"));
@@ -85,7 +87,7 @@ public class UserInfoActivity extends Activity
                     } catch (JSONException ignored) {
                         // whatever?
                     }
-                    client.getMyUserInfo().setAttributes(attributes, new ToastStatusListener(
+                    user.setAttributes(attributes, new ToastStatusListener(
                         "Update successful for user attributes",
                         "Update failed for user attributes") {
                         @Override
@@ -138,7 +140,8 @@ public class UserInfoActivity extends Activity
 
     private void fillUserAvatar()
     {
-        JSONObject attributes = client.getMyUserInfo().getAttributes();
+        final User user = client.getUsers().getMyUser();
+        JSONObject attributes = user.getAttributes();
         String     avatar = (String)attributes.opt("avatar");
         if (avatar != null) {
             byte[] data = Base64.decode(avatar, Base64.NO_WRAP);
@@ -168,22 +171,27 @@ public class UserInfoActivity extends Activity
     {
         client.setListener(new ChatClientListener() {
             @Override
-            public void onChannelAdd(Channel channel)
+            public void onChannelAdded(Channel channel)
             {
             }
 
             @Override
-            public void onChannelChange(Channel channel)
+            public void onChannelUpdated(Channel channel, Channel.UpdateReason reason)
             {
             }
 
             @Override
-            public void onChannelDelete(Channel channel)
+            public void onChannelDeleted(Channel channel)
             {
             }
 
             @Override
-            public void onChannelInvite(Channel channel)
+            public void onChannelInvited(Channel channel)
+            {
+            }
+
+            @Override
+            public void onChannelJoined(Channel channel)
             {
             }
 
@@ -200,12 +208,22 @@ public class UserInfoActivity extends Activity
             }
 
             @Override
-            public void onUserInfoChange(UserInfo userInfo, UserInfo.UpdateReason reason)
+            public void onUserUpdated(User user, User.UpdateReason reason)
             {
-                if (reason == UserInfo.UpdateReason.ATTRIBUTES) {
+                if (reason == User.UpdateReason.ATTRIBUTES) {
                     fillUserAvatar();
                 }
                 TwilioApplication.get().showToast("Update successful for user attributes");
+            }
+
+            @Override
+            public void onUserSubscribed(User user)
+            {
+            }
+
+            @Override
+            public void onUserUnsubscribed(User user)
+            {
             }
 
             @Override
@@ -215,17 +233,17 @@ public class UserInfoActivity extends Activity
             }
 
             @Override
-            public void onToastNotification(String channelId, String messageId)
+            public void onNotification(String channelId, String messageId)
             {
             }
 
             @Override
-            public void onToastSubscribed()
+            public void onNotificationSubscribed()
             {
             }
 
             @Override
-            public void onToastFailed(ErrorInfo errorInfo)
+            public void onNotificationFailed(ErrorInfo errorInfo)
             {
             }
 
