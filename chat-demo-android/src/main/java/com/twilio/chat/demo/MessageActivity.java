@@ -133,8 +133,8 @@ public class MessageActivity extends Activity implements ChannelListener
                     channel = foundChannel;
                     channel.addListener(MessageActivity.this);
                     MessageActivity.this.setTitle(
-                        "Name:" + channel.getFriendlyName() + " Type:"
-                        + ((channel.getType() == ChannelType.PUBLIC) ? "Public" : "Private"));
+                        ((channel.getType() == ChannelType.PUBLIC) ? "PUB " : "PRIV ")
+                        + channel.getFriendlyName());
 
                     channel.synchronize(new CallbackListener<Channel>() {
                         @Override
