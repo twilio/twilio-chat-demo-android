@@ -182,6 +182,7 @@ public class BasicChatClient extends CallbackListener<ChatClient>
     public void onTokenWillExpire(AccessManager accessManager)
     {
         TwilioApplication.get().showToast("Token will expire in 3 minutes. Getting new token.");
+        new GetAccessTokenAsyncTask().execute(username, urlString);
     }
 
     @Override
