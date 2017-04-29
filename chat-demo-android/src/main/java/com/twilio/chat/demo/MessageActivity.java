@@ -111,7 +111,7 @@ public class MessageActivity extends Activity implements ChannelListener
         super.onResume();
         Intent intent = getIntent();
         if (intent != null) {
-            Channel channel = intent.getParcelableExtra(Constants.EXTRA_CHANNEL);
+            channel = intent.getParcelableExtra(Constants.EXTRA_CHANNEL);
             if (channel != null) {
                 setupListView(channel);
             }
