@@ -401,8 +401,8 @@ public class ChannelActivity extends Activity implements ChatClientListener
                                     }
                                 })
                             .create();
-                    incomingChannelInvite.show();
                 }
+                incomingChannelInvite.show();
             }
         });
     }
