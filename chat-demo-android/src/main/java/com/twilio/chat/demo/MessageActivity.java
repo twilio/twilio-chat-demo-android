@@ -75,7 +75,9 @@ public class MessageActivity extends Activity implements ChannelListener
                                                    "Get Attributes",
                                                    "Change Unique Name",
                                                    "Get Unique Name",
-    "Get message index 0"};
+    "Get message index 0",
+    "Set all consumed",
+    "Set none consumed"};
 
     private static final int NAME_CHANGE = 0;
     private static final int TOPIC_CHANGE = 1;
@@ -89,6 +91,9 @@ public class MessageActivity extends Activity implements ChannelListener
     private static final int SET_CHANNEL_UNIQUE_NAME = 9;
     private static final int GET_CHANNEL_UNIQUE_NAME = 10;
     private static final int GET_MESSAGE_BY_INDEX = 11;
+    private static final int SET_ALL_CONSUMED = 12;
+    private static final int SET_NONE_CONSUMED = 13;
+
 
     private static final int REMOVE = 0;
     private static final int EDIT = 1;
@@ -286,6 +291,10 @@ public class MessageActivity extends Activity implements ChannelListener
                                         TwilioApplication.get().showError(info);
                                     }
                                 });
+                    } else if (which == SET_ALL_CONSUMED) {
+                        channel.getMessages().setAllMessagesConsumed();
+                    } else if (which == SET_NONE_CONSUMED) {
+                        channel.getMessages().setNoMessagesConsumed();
                     }
                 }
             });
