@@ -63,8 +63,6 @@ public class MessageActivity extends Activity implements ChannelListener
     private ListView                 messageListView;
     private EditText                 inputText;
     private EasyAdapter<MessageItem> adapter;
-    private List<Message>            messages = new ArrayList<Message>();
-    private List<Member>             members = new ArrayList<Member>();
     private Channel                  channel;
     private static final             String[] EDIT_OPTIONS = { "Change Friendly Name",
                                                    "Change Topic",
@@ -98,7 +96,7 @@ public class MessageActivity extends Activity implements ChannelListener
     private AlertDialog            editTextDialog;
     private AlertDialog            memberListDialog;
     private AlertDialog            changeChannelTypeDialog;
-    private ArrayList<MessageItem> messageItemList;
+    private ArrayList<MessageItem> messageItemList = new ArrayList<>();
     private String                 identity;
 
     @Override
@@ -461,15 +459,15 @@ public class MessageActivity extends Activity implements ChannelListener
             messagesObject.getLastMessages(50, new CallbackListener<List<Message>>() {
                 @Override
                 public void onSuccess(List<Message> messagesArray) {
-                    List<MessageItem> items = new ArrayList<MessageItem>();
+                    messageItemList.clear();
                     Members  members = channel.getMembers();
                     if (messagesArray.size() > 0) {
                         for (int i = 0; i < messagesArray.size(); i++) {
-                            items.add(new MessageItem(messagesArray.get(i), members, identity));
+                            messageItemList.add(new MessageItem(messagesArray.get(i), members, identity));
                         }
                     }
                     adapter.getItems().clear();
-                    adapter.getItems().addAll(items);
+                    adapter.getItems().addAll(messageItemList);
                     adapter.notifyDataSetChanged();
                 }
             });
