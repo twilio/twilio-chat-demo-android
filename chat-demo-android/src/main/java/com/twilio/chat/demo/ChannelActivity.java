@@ -496,7 +496,7 @@ public class ChannelActivity extends Activity implements ChatClientListener
     @Override
     public void onUserUpdated(User user, User.UpdateReason reason)
     {
-        logger.e("Received onUserUpdated callback");
+        logger.e("Received onUserUpdated callback for "+reason.toString());
     }
 
     @Override
