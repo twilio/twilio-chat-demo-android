@@ -21,6 +21,7 @@ import com.twilio.chat.Message;
 import com.twilio.chat.Messages;
 import com.twilio.chat.ErrorInfo;
 import com.twilio.chat.Paginator;
+import com.twilio.chat.UserDescriptor;
 import com.twilio.chat.internal.Logger;
 
 import android.app.Activity;
@@ -185,6 +186,7 @@ public class MessageActivity extends Activity implements ChannelListener
                     } else if (which == TOPIC_CHANGE) {
                         showChangeTopicDialog();
                     } else if (which == LIST_MEMBERS) {
+                        // Members.getMembersList() way
                         List<Member> members = channel.getMembers().getMembersList();
                         StringBuffer name = new StringBuffer();
                         for (int i = 0; i < members.size(); i++) {
@@ -194,6 +196,14 @@ public class MessageActivity extends Activity implements ChannelListener
                             }
                         }
                         TwilioApplication.get().showToast(name.toString(), Toast.LENGTH_LONG);
+                        // Users.getChannelUserDescriptors() way - paginated
+                        TwilioApplication.get().getBasicClient().getChatClient().getUsers().getChannelUserDescriptors(channel.getSid(),
+                                new CallbackListener<Paginator<UserDescriptor>>() {
+                                    @Override
+                                    public void onSuccess(Paginator<UserDescriptor> userDescriptorPaginator) {
+                                        getUsersPage(userDescriptorPaginator);
+                                    }
+                                });
                     } else if (which == INVITE_MEMBER) {
                         showInviteMemberDialog();
                     } else if (which == ADD_MEMBER) {
@@ -235,6 +245,18 @@ public class MessageActivity extends Activity implements ChannelListener
             });
 
         builder.show();
+    }
+
+    private void getUsersPage(Paginator<UserDescriptor> userDescriptorPaginator) {
+        logger.e(userDescriptorPaginator.getItems().toString());
+        if (userDescriptorPaginator.hasNextPage()) {
+            userDescriptorPaginator.requestNextPage(new CallbackListener<Paginator<UserDescriptor>>() {
+                @Override
+                public void onSuccess(Paginator<UserDescriptor> userDescriptorPaginator) {
+                    getUsersPage(userDescriptorPaginator);
+                }
+            });
+        }
     }
 
     private void showChangeNameDialog()
