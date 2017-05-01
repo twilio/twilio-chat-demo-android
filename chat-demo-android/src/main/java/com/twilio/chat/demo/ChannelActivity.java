@@ -358,6 +358,13 @@ public class ChannelActivity extends Activity implements ChatClientListener
                 getChannelsPage(channelDescriptorPaginator);
             }
         });
+
+        channelsObject.getUserChannelsList(new CallbackListener<Paginator<ChannelDescriptor>>() {
+            @Override
+            public void onSuccess(Paginator<ChannelDescriptor> channelDescriptorPaginator) {
+                getChannelsPage(channelDescriptorPaginator);
+            }
+        });
     }
 
     private void showIncomingInvite(final Channel channel)
