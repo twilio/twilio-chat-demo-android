@@ -74,7 +74,8 @@ public class MessageActivity extends Activity implements ChannelListener
                                                    "Destroy",
                                                    "Get Attributes",
                                                    "Change Unique Name",
-                                                   "Get Unique Name" };
+                                                   "Get Unique Name",
+    "Get message index 0"};
 
     private static final int NAME_CHANGE = 0;
     private static final int TOPIC_CHANGE = 1;
@@ -87,6 +88,7 @@ public class MessageActivity extends Activity implements ChannelListener
     private static final int CHANNEL_ATTRIBUTE = 8;
     private static final int SET_CHANNEL_UNIQUE_NAME = 9;
     private static final int GET_CHANNEL_UNIQUE_NAME = 10;
+    private static final int GET_MESSAGE_BY_INDEX = 11;
 
     private static final int REMOVE = 0;
     private static final int EDIT = 1;
@@ -271,6 +273,19 @@ public class MessageActivity extends Activity implements ChannelListener
                         showChangeUniqueNameDialog();
                     } else if (which == GET_CHANNEL_UNIQUE_NAME) {
                         TwilioApplication.get().showToast(channel.getUniqueName());
+                    } else if (which == GET_MESSAGE_BY_INDEX) {
+                        channel.getMessages().getMessageByIndex(channel.getMessages().getLastConsumedMessageIndex(), new CallbackListener<Message>() {
+                                    @Override
+                                    public void onSuccess(Message message) {
+                                        TwilioApplication.get().showToast("SUCCESS GET MESSAGE BY IDX");
+                                        logger.e("MESSAGES "+message.getMessages().toString());
+                                        logger.e("MESSAGE CHANNEL "+message.getChannel().getSid());
+                                    }
+                                    @Override
+                            public void onError(ErrorInfo info) {
+                                        TwilioApplication.get().showError(info);
+                                    }
+                                });
                     }
                 }
             });
