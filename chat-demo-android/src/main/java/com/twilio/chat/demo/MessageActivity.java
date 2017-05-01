@@ -202,6 +202,18 @@ public class MessageActivity extends Activity implements ChannelListener
                             if (i + 1 < members.size()) {
                                 name.append(", ");
                             }
+                            members.get(i).getUserDescriptor(new CallbackListener<UserDescriptor>() {
+                                @Override
+                                public void onSuccess(UserDescriptor userDescriptor) {
+                                    logger.d("Got user descriptor from member: "+userDescriptor.getIdentity());
+                                }
+                            });
+                            members.get(i).getAndSubscribeUser(new CallbackListener<User>() {
+                                @Override
+                                public void onSuccess(User user) {
+                                    logger.d("Got subscribed user from member: "+user.getIdentity());
+                                }
+                            });
                         }
                         TwilioApplication.get().showToast(name.toString(), Toast.LENGTH_LONG);
                         // Users.getSubscribedUsers() everybody we subscribed to at the moment
@@ -304,6 +316,14 @@ public class MessageActivity extends Activity implements ChannelListener
 
     private void getUsersPage(Paginator<UserDescriptor> userDescriptorPaginator) {
         logger.e(userDescriptorPaginator.getItems().toString());
+        for (UserDescriptor u : userDescriptorPaginator.getItems()) {
+            u.subscribe(new CallbackListener<User>() {
+                @Override
+                public void onSuccess(User user) {
+                    logger.d("Hi I am subscribed user now "+user.getIdentity());
+                }
+            });
+        }
         if (userDescriptorPaginator.hasNextPage()) {
             userDescriptorPaginator.requestNextPage(new CallbackListener<Paginator<UserDescriptor>>() {
                 @Override
