@@ -21,7 +21,9 @@ import com.twilio.chat.Message;
 import com.twilio.chat.Messages;
 import com.twilio.chat.ErrorInfo;
 import com.twilio.chat.Paginator;
+import com.twilio.chat.User;
 import com.twilio.chat.UserDescriptor;
+import com.twilio.chat.Users;
 import com.twilio.chat.internal.Logger;
 
 import android.app.Activity;
@@ -186,6 +188,7 @@ public class MessageActivity extends Activity implements ChannelListener
                     } else if (which == TOPIC_CHANGE) {
                         showChangeTopicDialog();
                     } else if (which == LIST_MEMBERS) {
+                        Users users = TwilioApplication.get().getBasicClient().getChatClient().getUsers();
                         // Members.getMembersList() way
                         List<Member> members = channel.getMembers().getMembersList();
                         StringBuffer name = new StringBuffer();
@@ -196,14 +199,44 @@ public class MessageActivity extends Activity implements ChannelListener
                             }
                         }
                         TwilioApplication.get().showToast(name.toString(), Toast.LENGTH_LONG);
+                        // Users.getSubscribedUsers() everybody we subscribed to at the moment
+                        List<User> userList = users.getSubscribedUsers();
+                        StringBuffer name2 = new StringBuffer();
+                        for (int i = 0; i < userList.size(); i++) {
+                            name2.append(userList.get(i).getIdentity());
+                            if (i + 1 < userList.size()) {
+                                name2.append(", ");
+                            }
+                        }
+                        TwilioApplication.get().showToast("Subscribed users: "+name2.toString(), Toast.LENGTH_LONG);
+                        // Get user descriptor via identity
+                        users.getUserDescriptor(channel.getMembers().getMembersList().get(0).getIdentity(), new CallbackListener<UserDescriptor>() {
+                            @Override
+                            public void onSuccess(UserDescriptor userDescriptor) {
+                                TwilioApplication.get().showToast("Random user descriptor: "+
+                                        userDescriptor.getFriendlyName()+"/"+userDescriptor.getIdentity(), Toast.LENGTH_SHORT);
+                            }
+                        });
+
                         // Users.getChannelUserDescriptors() way - paginated
-                        TwilioApplication.get().getBasicClient().getChatClient().getUsers().getChannelUserDescriptors(channel.getSid(),
+                        users.getChannelUserDescriptors(channel.getSid(),
                                 new CallbackListener<Paginator<UserDescriptor>>() {
                                     @Override
                                     public void onSuccess(Paginator<UserDescriptor> userDescriptorPaginator) {
                                         getUsersPage(userDescriptorPaginator);
                                     }
                                 });
+
+                        // Channel.getMemberByIdentity() for finding the user in all channels
+                        List<Member> members2 = TwilioApplication.get().getBasicClient().getChatClient().getChannels().getMembersByIdentity(channel.getMembers().getMembersList().get(0).getIdentity());
+                        StringBuffer name3 = new StringBuffer();
+                        for (int i = 0; i < members2.size(); i++) {
+                            name3.append(members2.get(i).getIdentity()+" in "+members2.get(i).getChannel().getFriendlyName());
+                            if (i + 1 < members2.size()) {
+                                name3.append(", ");
+                            }
+                        }
+                        //TwilioApplication.get().showToast("Random user in all channels: "+name3.toString(), Toast.LENGTH_LONG);
                     } else if (which == INVITE_MEMBER) {
                         showInviteMemberDialog();
                     } else if (which == ADD_MEMBER) {
