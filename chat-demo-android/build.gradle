@@ -7,7 +7,7 @@ dependencies {
     compile 'com.google.firebase:firebase-messaging:10.2.0' // FCM
     compile 'com.google.android.gms:play-services-base:10.2.0'
     compile 'uk.co.ribot:easyadapter:1.5.0@aar'
-    compile 'com.twilio:chat-android:0.12.2'
+    compile 'com.twilio:chat-android:1.0.0'
     compile 'com.twilio:accessmanager-android:0.1.0'
 }
 
@@ -19,7 +19,7 @@ android {
         applicationId "com.twilio.chat.demo"
         minSdkVersion 19
         targetSdkVersion 23
-        versionName "0.9"
+        versionName "1.0"
     }
 
     lintOptions {
