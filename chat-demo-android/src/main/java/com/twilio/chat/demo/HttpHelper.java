@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import org.json.JSONObject;
+import org.json.JSONException;
 
 public abstract class HttpHelper
 {
@@ -38,9 +40,22 @@ public abstract class HttpHelper
 
         if (responseCode == HttpURLConnection.HTTP_OK) {
             InputStream is = conn.getInputStream();
-            String      accessToken = stringFromInputStream(is);
+            String      response = stringFromInputStream(is);
             is.close();
             conn.disconnect();
+
+            // Try to get access token from "token" field in the JSON format response
+            // If response cannot be parsed as JSON, use it as-is.
+
+            String accessToken = response;
+
+            try {
+                final JSONObject obj = new JSONObject(response);
+                accessToken = obj.getString("token");
+            } catch (JSONException xcp) {
+                // Do nothing
+            }
+
             return accessToken;
         } else {
             conn.disconnect();
