@@ -103,7 +103,7 @@ public class MessageViewHolder extends ItemViewHolder<MessageActivity.MessageIte
             lines.removeAllViews();
 
             for (Member member : message.getMembers().getMembersList()) {
-                if (msg.getAuthor().equals(member.getIdentity())) {
+                if (msg.getAuthor().contentEquals(member.getIdentity())) {
                     fillUserAvatar(imageView, member);
                     fillUserReachability(reachabilityView, member);
                 }
