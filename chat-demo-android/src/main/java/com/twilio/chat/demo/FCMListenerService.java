@@ -39,20 +39,7 @@ public class FCMListenerService extends FirebaseMessagingService {
         if (remoteMessage.getData().size() > 0) {
             logger.d("Data Message Body: " + remoteMessage.getData());
 
-            JSONObject obj = new JSONObject(remoteMessage.getData());
-            Bundle data = new Bundle();
-            data.putString("channel_id", obj.optString("channel_id"));
-            data.putString("message_id", obj.optString("message_id"));
-            data.putString("author", obj.optString("author"));
-            data.putString("message_sid", obj.optString("message_sid"));
-            data.putString("twi_sound", obj.optString("twi_sound"));
-            data.putString("twi_message_type", obj.optString("twi_message_type"));
-            data.putString("channel_sid", obj.optString("channel_sid"));
-            data.putString("twi_message_id", obj.optString("twi_message_id"));
-            data.putString("twi_body", obj.optString("twi_body"));
-            data.putString("channel_title", obj.optString("channel_title"));
-
-            NotificationPayload payload = new NotificationPayload(data);
+            NotificationPayload payload = new NotificationPayload(remoteMessage.getData());
 
             ChatClient client = TwilioApplication.get().getBasicClient().getChatClient();
             if (client != null) {
