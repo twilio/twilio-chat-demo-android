@@ -740,24 +740,29 @@ public class MessageActivity extends Activity implements ChannelListener
         loadAndShowMessages();
     }
 
+    private void sendMessage(final String text)
+    {
+        final Messages messagesObject = this.channel.getMessages();
+
+        messagesObject.sendMessage(text, new ToastStatusListener(
+                "Successfully sent message",
+                "Error sending message") {
+            @Override
+            public void onSuccess()
+            {
+                super.onSuccess();
+                adapter.notifyDataSetChanged();
+                inputText.setText("");
+            }
+        });
+    }
+
     private void sendMessage()
     {
         inputText = (EditText)findViewById(R.id.messageInput);
         String input = inputText.getText().toString();
         if (!input.equals("")) {
-            final Messages messagesObject = this.channel.getMessages();
-
-            messagesObject.sendMessage(input, new ToastStatusListener(
-                "Successfully sent message",
-                "Error sending message") {
-                @Override
-                public void onSuccess()
-                {
-                    super.onSuccess();
-                    adapter.notifyDataSetChanged();
-                    inputText.setText("");
-                }
-            });
+            sendMessage(input);
         }
 
         inputText.requestFocus();
