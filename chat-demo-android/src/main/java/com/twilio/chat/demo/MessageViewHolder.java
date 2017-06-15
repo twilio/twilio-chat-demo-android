@@ -166,7 +166,7 @@ public class MessageViewHolder extends ItemViewHolder<MessageActivity.MessageIte
         if (!TwilioApplication.get().getBasicClient().getChatClient().isReachabilityEnabled()) {
             reachabilityView.setImageResource(R.drawable.reachability_disabled);
         } else {
-            TwilioApplication.get().getBasicClient().getChatClient().getUsers().getAndSubscribeUser(member.getIdentity(), new CallbackListener<User>() {
+            member.getAndSubscribeUser(new CallbackListener<User>() {
                 @Override
                 public void onSuccess(User user) {
                     if (user.isOnline()) {
