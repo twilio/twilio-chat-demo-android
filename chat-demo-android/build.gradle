@@ -7,7 +7,7 @@ dependencies {
     compile 'com.google.firebase:firebase-messaging:10.2.0' // FCM
     compile 'com.google.android.gms:play-services-base:10.2.0'
     compile 'uk.co.ribot:easyadapter:1.5.0@aar'
-    compile 'com.twilio:chat-android:1.0.5-rc6'
+    compile 'com.twilio:chat-android:1.0.5'
     compile 'com.twilio:accessmanager-android:0.1.0'
 }
 
