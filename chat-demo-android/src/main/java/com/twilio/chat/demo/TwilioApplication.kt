@@ -10,7 +10,7 @@ import timber.log.Timber
 import timber.log.Timber.DebugTree
 
 class TwilioApplication : Application() {
-    var basicClient: BasicChatClient? = null
+    lateinit var basicClient: BasicChatClient
         private set
 
     override fun onCreate() {
@@ -19,7 +19,7 @@ class TwilioApplication : Application() {
         }
 
         super.onCreate()
-        TwilioApplication.instance = this
+        instance = this
         basicClient = BasicChatClient(applicationContext)
     }
 
@@ -50,10 +50,7 @@ class TwilioApplication : Application() {
     }
 
     companion object {
-        private var instance: TwilioApplication? = null
-
-        fun get(): TwilioApplication {
-            return instance!!
-        }
+        lateinit var instance: TwilioApplication
+            private set
     }
 }
