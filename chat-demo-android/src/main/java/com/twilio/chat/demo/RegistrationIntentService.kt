@@ -33,8 +33,6 @@ class RegistrationIntentService : IntentService("RegistrationIntentService") {
              */
             TwilioApplication.instance.basicClient.setFCMToken(token)
 
-            subscribeTopics(token)
-
             // You should store a boolean that indicates whether the generated token has been
             // sent to your server. If the boolean is false, send the token to your server,
             // otherwise your server should have already received the token.
@@ -49,20 +47,6 @@ class RegistrationIntentService : IntentService("RegistrationIntentService") {
         // Notify UI that registration has completed, so the progress indicator can be hidden.
         val registrationComplete = Intent(FCMPreferences.REGISTRATION_COMPLETE)
         LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete)
-    }
-
-    /**
-     * Subscribe to any GCM topics of interest, as defined by the TOPICS constant.
-
-     * @param token GCM token
-     * *
-     * @throws IOException if unable to reach the GCM PubSub service
-     */
-    @Throws(IOException::class)
-    private fun subscribeTopics(token: String) {
-        // for (String topic : TOPICS) {
-        //     FirebaseMessaging.getInstance().subscribeToTopic("/topics/"+topic);
-        // }
     }
 
     companion object {
