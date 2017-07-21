@@ -114,6 +114,13 @@ public class MessageActivity extends Activity implements ChannelListener
     }
 
     @Override
+    protected void onDestroy()
+    {
+        channel.removeListener(MessageActivity.this);
+        super.onDestroy();
+    }
+
+    @Override
     protected void onResume()
     {
         super.onResume();
