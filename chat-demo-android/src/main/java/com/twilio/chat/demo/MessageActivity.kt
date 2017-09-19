@@ -590,9 +590,9 @@ class MessageActivity : Activity(), ChannelListener {
         setupListView(channel!!)
     }
 
-    override fun onMessageUpdated(message: Message?) {
+    override fun onMessageUpdated(message: Message?, reason: Message.UpdateReason) {
         if (message != null) {
-            TwilioApplication.instance.showToast(message.sid + " changed")
+            TwilioApplication.instance.showToast(message.sid + " changed because of "+reason)
             Timber.d("Received onMessageChange for message sid|" + message.sid + "|")
         } else {
             Timber.d("Received onMessageChange")
@@ -614,9 +614,9 @@ class MessageActivity : Activity(), ChannelListener {
         }
     }
 
-    override fun onMemberUpdated(member: Member?) {
+    override fun onMemberUpdated(member: Member?, reason: Member.UpdateReason) {
         if (member != null) {
-            TwilioApplication.instance.showToast(member.identity + " changed")
+            TwilioApplication.instance.showToast(member.identity + " changed because of " + reason)
         }
     }
 
