@@ -132,7 +132,7 @@ class MessageActivity : Activity(), ChannelListener {
     private fun showChannelSettingsDialog() {
         val builder = AlertDialog.Builder(this@MessageActivity)
         builder.setTitle("Select an option")
-                .setItems(EDIT_OPTIONS) { dialog, which ->
+                .setItems(EDIT_OPTIONS) { _, which ->
                     if (which == NAME_CHANGE) {
                         showChangeNameDialog()
                     } else if (which == TOPIC_CHANGE) {
@@ -275,7 +275,7 @@ class MessageActivity : Activity(), ChannelListener {
         builder.setView(layoutInflater.inflate(R.layout.dialog_edit_friendly_name, null))
                 .setPositiveButton(
                         "Update"
-                ) { dialog, id ->
+                ) { _, _ ->
                     val friendlyName = (editTextDialog!!.findViewById(R.id.update_friendly_name) as EditText)
                             .text
                             .toString()
@@ -283,7 +283,7 @@ class MessageActivity : Activity(), ChannelListener {
                     channel!!.setFriendlyName(friendlyName, ToastStatusListener(
                             "Successfully changed name", "Error changing name"))
                 }
-                .setNegativeButton("Cancel") { dialog, id -> dialog.cancel() }
+                .setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
         editTextDialog = builder.create()
         editTextDialog!!.show()
     }
@@ -295,7 +295,7 @@ class MessageActivity : Activity(), ChannelListener {
         builder.setView(layoutInflater.inflate(R.layout.dialog_edit_channel_topic, null))
                 .setPositiveButton(
                         "Update"
-                ) { dialog, id ->
+                ) { _, _ ->
                     val topic = (editTextDialog!!.findViewById(R.id.update_topic) as EditText)
                             .text
                             .toString()
@@ -311,7 +311,7 @@ class MessageActivity : Activity(), ChannelListener {
                             "Attributes were set successfullly.",
                             "Setting attributes failed"))
                 }
-                .setNegativeButton("Cancel") { dialog, id -> dialog.cancel() }
+                .setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
         editTextDialog = builder.create()
         editTextDialog!!.show()
     }
@@ -323,7 +323,7 @@ class MessageActivity : Activity(), ChannelListener {
         builder.setView(layoutInflater.inflate(R.layout.dialog_invite_member, null))
                 .setPositiveButton(
                         "Invite"
-                ) { dialog, id ->
+                ) { _, _ ->
                     val memberName = (editTextDialog!!.findViewById(R.id.invite_member) as EditText)
                             .text
                             .toString()
@@ -334,7 +334,7 @@ class MessageActivity : Activity(), ChannelListener {
                             "Invited user to channel",
                             "Error in inviteByIdentity"))
                 }
-                .setNegativeButton("Cancel") { dialog, id -> dialog.cancel() }
+                .setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
         editTextDialog = builder.create()
         editTextDialog!!.show()
     }
@@ -346,7 +346,7 @@ class MessageActivity : Activity(), ChannelListener {
         builder.setView(layoutInflater.inflate(R.layout.dialog_add_member, null))
                 .setPositiveButton(
                         "Add"
-                ) { dialog, id ->
+                ) { _, _ ->
                     val memberName = (editTextDialog!!.findViewById(R.id.add_member) as EditText)
                             .text
                             .toString()
@@ -357,7 +357,7 @@ class MessageActivity : Activity(), ChannelListener {
                             "Successful addByIdentity",
                             "Error adding member"))
                 }
-                .setNegativeButton("Cancel") { dialog, id -> dialog.cancel() }
+                .setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
         editTextDialog = builder.create()
         editTextDialog!!.show()
     }
@@ -406,7 +406,7 @@ class MessageActivity : Activity(), ChannelListener {
         builder.setView(layoutInflater.inflate(R.layout.dialog_edit_message, null))
                 .setPositiveButton(
                         "Update"
-                ) { dialog, id ->
+                ) { _, _ ->
                     val updatedMsg = (editTextDialog!!.findViewById(R.id.update_message) as EditText)
                             .text
                             .toString()
@@ -419,7 +419,7 @@ class MessageActivity : Activity(), ChannelListener {
                         }
                     })
                 }
-                .setNegativeButton("Cancel") { dialog, id -> dialog.cancel() }
+                .setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
         editTextDialog = builder.create()
         editTextDialog!!.show()
     }
@@ -429,11 +429,11 @@ class MessageActivity : Activity(), ChannelListener {
         builder.setView(layoutInflater.inflate(R.layout.dialog_edit_message_attributes, null))
                 .setPositiveButton(
                         "Update"
-                ) { dialog, id ->
+                ) { _, _ ->
                     val updatedAttr = (editTextDialog!!.findViewById(R.id.update_attributes) as EditText)
                             .text
                             .toString()
-                    var jsonObj: JSONObject? = null
+                    var jsonObj: JSONObject?
                     try {
                         jsonObj = JSONObject(updatedAttr)
                     } catch (e: JSONException) {
@@ -455,7 +455,7 @@ class MessageActivity : Activity(), ChannelListener {
                         }
                     })
                 }
-                .setNegativeButton("Cancel") { dialog, id -> dialog.cancel() }
+                .setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
         editTextDialog = builder.create()
 
         var attr = ""
@@ -485,7 +485,7 @@ class MessageActivity : Activity(), ChannelListener {
             }
         })
 
-        inputText.setOnEditorActionListener { textView, actionId, keyEvent ->
+        inputText.setOnEditorActionListener { _, actionId, keyEvent ->
             if (actionId == EditorInfo.IME_NULL && keyEvent.action == KeyEvent.ACTION_DOWN) {
                 sendMessage()
             }
@@ -647,7 +647,7 @@ class MessageActivity : Activity(), ChannelListener {
     private fun showChangeUniqueNameDialog() {
         val builder = AlertDialog.Builder(this@MessageActivity)
         builder.setView(layoutInflater.inflate(R.layout.dialog_edit_unique_name, null))
-                .setPositiveButton("Update") { dialog, id ->
+                .setPositiveButton("Update") { _, _ ->
                     val uniqueName = (editTextDialog!!.findViewById(R.id.update_unique_name) as EditText)
                             .text
                             .toString()
