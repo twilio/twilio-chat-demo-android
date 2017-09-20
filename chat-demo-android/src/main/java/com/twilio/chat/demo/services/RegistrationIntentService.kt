@@ -1,4 +1,4 @@
-package com.twilio.chat.demo
+package com.twilio.chat.demo.services
 
 import android.app.IntentService
 import android.content.Intent
