@@ -1,4 +1,4 @@
-package com.twilio.chat.demo
+package com.twilio.chat.demo.views
 
 import org.json.JSONObject
 
@@ -22,7 +22,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
-import butterknife.BindView
 
 import uk.co.ribot.easyadapter.ItemViewHolder
 import uk.co.ribot.easyadapter.PositionInfo

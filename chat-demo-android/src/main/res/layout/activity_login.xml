@@ -9,7 +9,7 @@
     android:paddingTop="@dimen/activity_vertical_margin">
 
     <EditText
-        android:id="@+id/client_name"
+        android:id="@+id/clientNameTextBox"
         android:layout_width="fill_parent"
         android:layout_marginTop="100dp"
         android:gravity="center_horizontal"
@@ -26,14 +26,14 @@
         android:gravity="center" >
 
         <Button
-            android:id="@+id/register"
+            android:id="@+id/login"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@string/login" />
 
         <CheckBox
-            android:id="@+id/fcmcxbx"
+            android:id="@+id/fcmAvailable"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="false"

@@ -1,4 +1,4 @@
-package com.twilio.chat.demo
+package com.twilio.chat.demo.views
 
 import android.content.Context
 import android.graphics.Typeface
