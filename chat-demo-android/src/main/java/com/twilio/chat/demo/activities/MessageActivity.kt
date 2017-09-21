@@ -670,17 +670,7 @@ class MessageActivity : Activity(), ChannelListener {
         Timber.d("Received onSynchronizationChanged callback " + channel.friendlyName)
     }
 
-    class MessageItem(message: Message, members: Members, internal var currentUser: String) {
-        var message: Message
-            internal set
-        var members: Members
-            internal set
-
-        init {
-            this.message = message
-            this.members = members
-        }
-    }
+    data class MessageItem(val message: Message, val members: Members, internal var currentUser: String);
 
     companion object {
         private val MESSAGE_OPTIONS = arrayOf("Remove", "Edit", "Get Attributes", "Edit Attributes")
