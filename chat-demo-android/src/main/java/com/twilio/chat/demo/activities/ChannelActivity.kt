@@ -1,7 +1,6 @@
 package com.twilio.chat.demo.activities
 
 import java.util.ArrayList
-import java.util.Collections
 import java.util.Comparator
 import java.util.HashMap
 import java.util.Random
@@ -9,34 +8,22 @@ import java.util.Random
 import com.twilio.chat.Channel
 import com.twilio.chat.Channel.ChannelType
 import com.twilio.chat.ChannelDescriptor
-import com.twilio.chat.ChannelListener
 import com.twilio.chat.Channels
 import com.twilio.chat.CallbackListener
-import com.twilio.chat.StatusListener
 import com.twilio.chat.ChatClientListener
-import com.twilio.chat.Member
-import com.twilio.chat.Message
 import com.twilio.chat.ChatClient
 import com.twilio.chat.ErrorInfo
 import com.twilio.chat.User
 import com.twilio.chat.Paginator
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Parcelable
 import android.support.v7.widget.LinearLayoutManager
-import android.util.Log
 import android.view.*
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.ListView
-import android.widget.TextView
-import android.widget.Toast
 import com.twilio.chat.demo.*
 import com.twilio.chat.demo.views.ChannelViewHolder
 import eu.inloop.simplerecycleradapter.ItemClickListener
@@ -50,7 +37,6 @@ import timber.log.Timber
 import org.json.JSONObject
 import org.json.JSONException
 
-//@SuppressLint("InflateParams")
 class ChannelActivity : Activity(), ChatClientListener {
     private lateinit var basicClient: BasicChatClient
     private val channels = HashMap<String, ChannelModel>()
