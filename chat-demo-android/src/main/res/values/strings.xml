@@ -3,7 +3,7 @@
     <string name="client_name">Client Name</string>
     <string name="login">Log In</string>
     <string name="logout">Logout Client</string>
-    <string name="invite_participant">Invite Participant</string>
+    <string name="invite_member">Invite Member</string>
     <string name="channel_invite">Channel Invite</string>
     <string name="channel_invite_message">You got a Channel Invite. Join it?</string>
     <string name="join">Join</string>
@@ -15,15 +15,15 @@
     <string name="title_activity_message">MessageActivity</string>
     <string name="title_update_friendly_name">Enter a friendly name</string>
     <string name="title_update_topic">Enter a topic</string>
-     <string name="title_update_message">Update message</string>
+    <string name="title_update_message">Update message</string>
     <string name="title_add_channel_name">Channel Friendly Name</string>
     <string name="title_invite_member">Invite member</string>
     <string name="title_add_member">Add member</string>
-     <string name="title_search_channel_unique_name">Search Channel by Unique Name</string>
+    <string name="title_search_channel_unique_name">Search Channel by Unique Name</string>
     <string name="title_remove_member">Remove member</string>
     <string name="type_message">Type message</string>
     <string name="OK">OK</string>
-     <string name="Options">Options</string>
+    <string name="Options">Options</string>
     <string name="Create_public_channel">Create public channel</string>
     <string name="Create_private_channel">Create private channel</string>
     <string name="RegId">Reg Id:</string>
@@ -31,10 +31,15 @@
     <string name="unregister_fcm">Unregister FCM Token</string>
     <string name="Create_public_channel_withOption">Create Pub Ch with Options</string>
     <string name="Create_private_channel_withOption">Create Pri Ch with Options</string>
-     <string name="Search_channel_by_unique_name">Search channel by unique name</string>
+    <string name="Search_channel_by_unique_name">Search channel by unique name</string>
     <string name="about">About</string>
     <string name="user_info_activity">User info activity</string>
     <string name="title_update_attributes">Update message attributes</string>
     <string name="userAvatar">User avatar</string>
-
+    <string name="create">Create</string>
+    <string name="cancel">Cancel</string>
+    <string name="update">Update</string>
+    <string name="change_topic">Change Topic</string>
+    <string name="add_member">Add</string>
+    <string name="select_action">Select an option</string>
 </resources>

@@ -115,67 +115,72 @@ class ChannelActivity : Activity(), ChatClientListener {
 
     private fun showCreateChannelDialog(type: ChannelType) {
         val builder = AlertDialog.Builder(this@ChannelActivity)
-        val title = "Enter " + type.toString() + " name"
 
-        // Inflate and set the layout for the dialog
-        // Pass null as the parent view because its going in the dialog layout
-        builder.setView(layoutInflater.inflate(R.layout.dialog_add_channel, null))
-                .setTitle(title)
-                .setPositiveButton(
-                        "Create"
-                ) { _, _ ->
-                    val channelName = (createChannelDialog!!.findViewById(R.id.channel_name) as EditText)
-                            .text
-                            .toString()
-                    Timber.d("Creating channel with friendly Name|$channelName|")
-                    channelsObject!!.createChannel(channelName, type, object : CallbackListener<Channel>() {
-                        override fun onSuccess(newChannel: Channel?) {
-                            Timber.d("Successfully created a channel")
-                            if (newChannel != null) {
-                                Timber.d("Channel created with sid|" + newChannel.sid + "| and type |"
-                                        + newChannel.type.toString()
-                                        + "|")
-                                channels.put(newChannel.sid, ChannelModel(newChannel))
-                                refreshChannelList()
+        builder.setView(
+            verticalLayout {
+                textView { text = "Enter " + type.toString() + " name" }
+                val channel_name = editText {
+                    hintResource = R.string.title_add_channel_name
+                }.lparams(width = matchParent)
+                button(R.string.create) {
+                    onClick {
+                        val channelName = channel_name.text.toString()
+                        Timber.d("Creating channel with friendly Name|$channelName|")
+                        channelsObject!!.createChannel(channelName, type, object : CallbackListener<Channel>() {
+                            override fun onSuccess(newChannel: Channel?) {
+                                Timber.d("Successfully created a channel")
+                                if (newChannel != null) {
+                                    Timber.d("Channel created with sid|${newChannel.sid}| and type |${newChannel.type}|")
+                                    channels.put(newChannel.sid, ChannelModel(newChannel))
+                                    refreshChannelList()
+                                }
                             }
-                        }
 
-                        override fun onError(errorInfo: ErrorInfo?) {
-                            TwilioApplication.instance.showError("Error creating channel",
-                                    errorInfo!!)
-                        }
-                    })
+                            override fun onError(errorInfo: ErrorInfo?) {
+                                TwilioApplication.instance.showError("Error creating channel",
+                                        errorInfo!!)
+                            }
+                        })
+                    }
                 }
-                .setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
-        createChannelDialog = builder.create()
-        createChannelDialog!!.show()
+            }.view()
+        )
+        builder.setNegativeButton(R.string.cancel) { dialog, _ ->
+            dialog.cancel()
+        }
+        builder.create().show()
     }
 
     private fun showSearchChannelDialog() {
         val builder = AlertDialog.Builder(this@ChannelActivity)
-        val title = "Enter unique channel name"
 
-        // Inflate and set the layout for the dialog
-        // Pass null as the parent view because its going in the dialog layout
-        builder.setView(layoutInflater.inflate(R.layout.dialog_search_channel, null))
-                .setTitle(title)
-                .setPositiveButton("Search") { _, _ ->
-                    val channelSid = (createChannelDialog!!.findViewById(R.id.channel_name) as EditText)
-                            .text
-                            .toString()
-                    Timber.d("Searching for " + channelSid)
-                    channelsObject!!.getChannel(channelSid, object : CallbackListener<Channel>() {
-                        override fun onSuccess(channel: Channel?) {
-                            if (channel != null) {
-                                TwilioApplication.instance.showToast(channel.sid + ":" + channel.friendlyName)
-                            } else {
-                                TwilioApplication.instance.showToast("Channel not found.")
-                            }
+        builder.setView(
+                verticalLayout {
+                    textView { text = "Enter unique channel name" }
+                    val channel_name = editText {
+                        hintResource = R.string.title_add_channel_name
+                    }.lparams(width = matchParent)
+                    button(R.string.create) {
+                        onClick {
+                            val channelSid = channel_name.text.toString()
+                            Timber.d("Searching for " + channelSid)
+                            channelsObject!!.getChannel(channelSid, object : CallbackListener<Channel>() {
+                                override fun onSuccess(channel: Channel?) {
+                                    if (channel != null) {
+                                        TwilioApplication.instance.showToast("${channel.sid}: ${channel.friendlyName}")
+                                    } else {
+                                        TwilioApplication.instance.showToast("Channel not found.")
+                                    }
+                                }
+                            })
                         }
-                    })
-                }
-        createChannelDialog = builder.create()
-        createChannelDialog!!.show()
+                    }
+                }.view()
+        )
+        builder.setNegativeButton(R.string.cancel) { dialog, _ ->
+            dialog.cancel()
+        }
+        builder.create().show()
     }
 
     private fun setupListView() {

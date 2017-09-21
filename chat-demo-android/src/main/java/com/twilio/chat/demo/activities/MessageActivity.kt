@@ -27,10 +27,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
 import android.view.inputmethod.EditorInfo
-import android.widget.EditText
-import android.widget.ListView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import com.twilio.chat.demo.Constants
 import com.twilio.chat.demo.R
 import com.twilio.chat.demo.ToastStatusListener
@@ -51,6 +48,7 @@ import kotlinx.android.synthetic.main.activity_message.*
 import org.jetbrains.anko.*
 import org.jetbrains.anko.custom.ankoView
 import org.jetbrains.anko.sdk25.coroutines.onClick
+import ChatStatusListener
 
 // RecyclerView Anko
 inline fun ViewManager.recyclerView() = recyclerView(theme = 0) {}
@@ -138,120 +136,120 @@ class MessageActivity : Activity(), ChannelListener {
     private fun showChannelSettingsDialog() {
         val builder = AlertDialog.Builder(this@MessageActivity)
         builder.setTitle("Select an option")
-                .setItems(EDIT_OPTIONS) { _, which ->
-                    if (which == NAME_CHANGE) {
-                        showChangeNameDialog()
-                    } else if (which == TOPIC_CHANGE) {
-                        showChangeTopicDialog()
-                    } else if (which == LIST_MEMBERS) {
-                        val users = TwilioApplication.instance.basicClient.chatClient!!.users
-                        // Members.getMembersList() way
-                        val members = channel!!.members.membersList
-                        val name = StringBuffer()
-                        for (i in members.indices) {
-                            name.append(members[i].identity)
-                            if (i + 1 < members.size) {
-                                name.append(", ")
-                            }
-                            members[i].getUserDescriptor(object : CallbackListener<UserDescriptor>() {
-                                override fun onSuccess(userDescriptor: UserDescriptor) {
-                                    Timber.d("Got user descriptor from member: " + userDescriptor.identity)
-                                }
-                            })
-                            members[i].getAndSubscribeUser(object : CallbackListener<User>() {
-                                override fun onSuccess(user: User) {
-                                    Timber.d("Got subscribed user from member: " + user.identity)
-                                }
-                            })
+            .setItems(EDIT_OPTIONS) { _, which ->
+                if (which == NAME_CHANGE) {
+                    showChangeNameDialog()
+                } else if (which == TOPIC_CHANGE) {
+                    showChangeTopicDialog()
+                } else if (which == LIST_MEMBERS) {
+                    val users = TwilioApplication.instance.basicClient.chatClient!!.users
+                    // Members.getMembersList() way
+                    val members = channel!!.members.membersList
+                    val name = StringBuffer()
+                    for (i in members.indices) {
+                        name.append(members[i].identity)
+                        if (i + 1 < members.size) {
+                            name.append(", ")
                         }
-                        TwilioApplication.instance.showToast(name.toString(), Toast.LENGTH_LONG)
-                        // Users.getSubscribedUsers() everybody we subscribed to at the moment
-                        val userList = users.subscribedUsers
-                        val name2 = StringBuffer()
-                        for (i in userList.indices) {
-                            name2.append(userList[i].identity)
-                            if (i + 1 < userList.size) {
-                                name2.append(", ")
-                            }
-                        }
-                        TwilioApplication.instance.showToast("Subscribed users: " + name2.toString(), Toast.LENGTH_LONG)
-                        // Get user descriptor via identity
-                        users.getUserDescriptor(channel!!.members.membersList[0].identity, object : CallbackListener<UserDescriptor>() {
+                        members[i].getUserDescriptor(object : CallbackListener<UserDescriptor>() {
                             override fun onSuccess(userDescriptor: UserDescriptor) {
-                                TwilioApplication.instance.showToast("Random user descriptor: " +
-                                        userDescriptor.friendlyName + "/" + userDescriptor.identity, Toast.LENGTH_SHORT)
+                                Timber.d("Got user descriptor from member: " + userDescriptor.identity)
                             }
                         })
-
-                        // Users.getChannelUserDescriptors() way - paginated
-                        users.getChannelUserDescriptors(channel!!.sid,
-                                object : CallbackListener<Paginator<UserDescriptor>>() {
-                                    override fun onSuccess(userDescriptorPaginator: Paginator<UserDescriptor>) {
-                                        getUsersPage(userDescriptorPaginator)
-                                    }
-                                })
-
-                        // Channel.getMemberByIdentity() for finding the user in all channels
-                        val members2 = TwilioApplication.instance.basicClient.chatClient!!.channels.getMembersByIdentity(channel!!.members.membersList[0].identity)
-                        val name3 = StringBuffer()
-                        for (i in members2.indices) {
-                            name3.append(members2[i].identity + " in " + members2[i].channel.friendlyName)
-                            if (i + 1 < members2.size) {
-                                name3.append(", ")
-                            }
-                        }
-                        //TwilioApplication.get().showToast("Random user in all channels: "+name3.toString(), Toast.LENGTH_LONG);
-                    } else if (which == INVITE_MEMBER) {
-                        showInviteMemberDialog()
-                    } else if (which == ADD_MEMBER) {
-                        showAddMemberDialog()
-                    } else if (which == LEAVE) {
-                        channel!!.leave(object : ToastStatusListener(
-                                "Successfully left channel", "Error leaving channel") {
-                            override fun onSuccess() {
-                                super.onSuccess()
-                                finish()
+                        members[i].getAndSubscribeUser(object : CallbackListener<User>() {
+                            override fun onSuccess(user: User) {
+                                Timber.d("Got subscribed user from member: " + user.identity)
                             }
                         })
-                    } else if (which == REMOVE_MEMBER) {
-                        showRemoveMemberDialog()
-                    } else if (which == CHANNEL_DESTROY) {
-                        channel!!.destroy(object : ToastStatusListener(
-                                "Successfully destroyed channel", "Error destroying channel") {
-                            override fun onSuccess() {
-                                super.onSuccess()
-                                finish()
-                            }
-                        })
-                    } else if (which == CHANNEL_ATTRIBUTE) {
-                        try {
-                            TwilioApplication.instance.showToast(channel!!.attributes.toString())
-                        } catch (e: JSONException) {
-                            TwilioApplication.instance.showToast("JSON exception in channel attributes")
-                        }
-
-                    } else if (which == SET_CHANNEL_UNIQUE_NAME) {
-                        showChangeUniqueNameDialog()
-                    } else if (which == GET_CHANNEL_UNIQUE_NAME) {
-                        TwilioApplication.instance.showToast(channel!!.uniqueName)
-                    } else if (which == GET_MESSAGE_BY_INDEX) {
-                        channel!!.messages.getMessageByIndex(channel!!.messages.lastConsumedMessageIndex!!, object : CallbackListener<Message>() {
-                            override fun onSuccess(message: Message) {
-                                TwilioApplication.instance.showToast("SUCCESS GET MESSAGE BY IDX")
-                                Timber.e("MESSAGES " + message.messages.toString())
-                                Timber.e("MESSAGE CHANNEL " + message.channel.sid)
-                            }
-
-                            override fun onError(info: ErrorInfo?) {
-                                TwilioApplication.instance.showError(info!!)
-                            }
-                        })
-                    } else if (which == SET_ALL_CONSUMED) {
-                        channel!!.messages.setAllMessagesConsumed()
-                    } else if (which == SET_NONE_CONSUMED) {
-                        channel!!.messages.setNoMessagesConsumed()
                     }
+                    TwilioApplication.instance.showToast(name.toString(), Toast.LENGTH_LONG)
+                    // Users.getSubscribedUsers() everybody we subscribed to at the moment
+                    val userList = users.subscribedUsers
+                    val name2 = StringBuffer()
+                    for (i in userList.indices) {
+                        name2.append(userList[i].identity)
+                        if (i + 1 < userList.size) {
+                            name2.append(", ")
+                        }
+                    }
+                    TwilioApplication.instance.showToast("Subscribed users: " + name2.toString(), Toast.LENGTH_LONG)
+                    // Get user descriptor via identity
+                    users.getUserDescriptor(channel!!.members.membersList[0].identity, object : CallbackListener<UserDescriptor>() {
+                        override fun onSuccess(userDescriptor: UserDescriptor) {
+                            TwilioApplication.instance.showToast("Random user descriptor: " +
+                                    userDescriptor.friendlyName + "/" + userDescriptor.identity, Toast.LENGTH_SHORT)
+                        }
+                    })
+
+                    // Users.getChannelUserDescriptors() way - paginated
+                    users.getChannelUserDescriptors(channel!!.sid,
+                        object : CallbackListener<Paginator<UserDescriptor>>() {
+                            override fun onSuccess(userDescriptorPaginator: Paginator<UserDescriptor>) {
+                                getUsersPage(userDescriptorPaginator)
+                            }
+                        })
+
+                    // Channel.getMemberByIdentity() for finding the user in all channels
+                    val members2 = TwilioApplication.instance.basicClient.chatClient!!.channels.getMembersByIdentity(channel!!.members.membersList[0].identity)
+                    val name3 = StringBuffer()
+                    for (i in members2.indices) {
+                        name3.append(members2[i].identity + " in " + members2[i].channel.friendlyName)
+                        if (i + 1 < members2.size) {
+                            name3.append(", ")
+                        }
+                    }
+                    //TwilioApplication.get().showToast("Random user in all channels: "+name3.toString(), Toast.LENGTH_LONG);
+                } else if (which == INVITE_MEMBER) {
+                    showInviteMemberDialog()
+                } else if (which == ADD_MEMBER) {
+                    showAddMemberDialog()
+                } else if (which == LEAVE) {
+                    channel!!.leave(object : ToastStatusListener(
+                            "Successfully left channel", "Error leaving channel") {
+                        override fun onSuccess() {
+                            super.onSuccess()
+                            finish()
+                        }
+                    })
+                } else if (which == REMOVE_MEMBER) {
+                    showRemoveMemberDialog()
+                } else if (which == CHANNEL_DESTROY) {
+                    channel!!.destroy(object : ToastStatusListener(
+                            "Successfully destroyed channel", "Error destroying channel") {
+                        override fun onSuccess() {
+                            super.onSuccess()
+                            finish()
+                        }
+                    })
+                } else if (which == CHANNEL_ATTRIBUTE) {
+                    try {
+                        TwilioApplication.instance.showToast(channel!!.attributes.toString())
+                    } catch (e: JSONException) {
+                        TwilioApplication.instance.showToast("JSON exception in channel attributes")
+                    }
+
+                } else if (which == SET_CHANNEL_UNIQUE_NAME) {
+                    showChangeUniqueNameDialog()
+                } else if (which == GET_CHANNEL_UNIQUE_NAME) {
+                    TwilioApplication.instance.showToast(channel!!.uniqueName)
+                } else if (which == GET_MESSAGE_BY_INDEX) {
+                    channel!!.messages.getMessageByIndex(channel!!.messages.lastConsumedMessageIndex!!, object : CallbackListener<Message>() {
+                        override fun onSuccess(message: Message) {
+                            TwilioApplication.instance.showToast("SUCCESS GET MESSAGE BY IDX")
+                            Timber.e("MESSAGES " + message.messages.toString())
+                            Timber.e("MESSAGE CHANNEL " + message.channel.sid)
+                        }
+
+                        override fun onError(info: ErrorInfo?) {
+                            TwilioApplication.instance.showError(info!!)
+                        }
+                    })
+                } else if (which == SET_ALL_CONSUMED) {
+                    channel!!.messages.setAllMessagesConsumed()
+                } else if (which == SET_NONE_CONSUMED) {
+                    channel!!.messages.setNoMessagesConsumed()
                 }
+            }
 
         builder.show()
     }
@@ -275,40 +273,31 @@ class MessageActivity : Activity(), ChannelListener {
     }
 
     private fun showChangeNameDialog() {
-        val builder = AlertDialog.Builder(this@MessageActivity)
-        // Inflate and set the layout for the dialog
-        // Pass null as the parent view because its going in the dialog layout
-        builder.setView(layoutInflater.inflate(R.layout.dialog_edit_friendly_name, null))
-                .setPositiveButton(
-                        "Update"
-                ) { _, _ ->
-                    val friendlyName = (editTextDialog!!.findViewById(R.id.update_friendly_name) as EditText)
-                            .text
-                            .toString()
+        alert(R.string.title_update_friendly_name) {
+            customView {
+                val friendly_name = editText { text.append(channel!!.friendlyName) }
+                positiveButton(R.string.update) {
+                    val friendlyName = friendly_name.text.toString()
                     Timber.d(friendlyName)
                     channel!!.setFriendlyName(friendlyName, ToastStatusListener(
                             "Successfully changed name", "Error changing name"))
                 }
-                .setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
-        editTextDialog = builder.create()
-        editTextDialog!!.show()
+                negativeButton(R.string.cancel) {}
+            }
+        }.show()
     }
 
     private fun showChangeTopicDialog() {
-        val builder = AlertDialog.Builder(this@MessageActivity)
-        // Inflate and set the layout for the dialog
-        // Pass null as the parent view because its going in the dialog layout
-        builder.setView(layoutInflater.inflate(R.layout.dialog_edit_channel_topic, null))
-                .setPositiveButton(
-                        "Update"
-                ) { _, _ ->
-                    val topic = (editTextDialog!!.findViewById(R.id.update_topic) as EditText)
-                            .text
-                            .toString()
-                    Timber.d(topic)
+        alert(R.string.title_update_topic) {
+            customView {
+                val topic = editText { text.append(channel!!.attributes.toString()) }
+                positiveButton(R.string.change_topic) {
+                    val topicText = topic.text.toString()
+                    Timber.d(topicText)
+
                     val attrObj = JSONObject()
                     try {
-                        attrObj.put("Topic", topic)
+                        attrObj.put("Topic", topicText)
                     } catch (ignored: JSONException) {
                         // whatever
                     }
@@ -317,78 +306,139 @@ class MessageActivity : Activity(), ChannelListener {
                             "Attributes were set successfullly.",
                             "Setting attributes failed"))
                 }
-                .setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
-        editTextDialog = builder.create()
-        editTextDialog!!.show()
+                negativeButton(R.string.cancel) {}
+            }
+        }.show()
     }
 
     private fun showInviteMemberDialog() {
-        val builder = AlertDialog.Builder(this@MessageActivity)
-        // Inflate and set the layout for the dialog
-        // Pass null as the parent view because its going in the dialog layout
-        builder.setView(layoutInflater.inflate(R.layout.dialog_invite_member, null))
-                .setPositiveButton(
-                        "Invite"
-                ) { _, _ ->
-                    val memberName = (editTextDialog!!.findViewById(R.id.invite_member) as EditText)
-                            .text
-                            .toString()
+        alert(R.string.title_invite_member) {
+            customView {
+                val member = editText { hint = "Enter user id" }
+                positiveButton(R.string.invite_member) {
+                    val memberName = member.text.toString()
                     Timber.d(memberName)
-
-                    val membersObject = channel!!.members
-                    membersObject.inviteByIdentity(memberName, ToastStatusListener(
+                    channel!!.members.inviteByIdentity(memberName, ToastStatusListener(
                             "Invited user to channel",
                             "Error in inviteByIdentity"))
                 }
-                .setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
-        editTextDialog = builder.create()
-        editTextDialog!!.show()
+                negativeButton(R.string.cancel) {}
+            }
+        }.show()
     }
 
     private fun showAddMemberDialog() {
-        val builder = AlertDialog.Builder(this@MessageActivity)
-        // Inflate and set the layout for the dialog
-        // Pass null as the parent view because its going in the dialog layout
-        builder.setView(layoutInflater.inflate(R.layout.dialog_add_member, null))
-                .setPositiveButton(
-                        "Add"
-                ) { _, _ ->
-                    val memberName = (editTextDialog!!.findViewById(R.id.add_member) as EditText)
-                            .text
-                            .toString()
+        alert(R.string.title_add_member) {
+            customView {
+                val member = editText { hint = "Enter user id" }
+                positiveButton(R.string.invite_member) {
+                    val memberName = member.text.toString()
                     Timber.d(memberName)
-
-                    val membersObject = channel!!.members
-                    membersObject.addByIdentity(memberName, ToastStatusListener(
+                    channel!!.members.addByIdentity(memberName, ToastStatusListener(
                             "Successful addByIdentity",
                             "Error adding member"))
                 }
-                .setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
-        editTextDialog = builder.create()
-        editTextDialog!!.show()
+                negativeButton(R.string.cancel) {}
+            }
+        }.show()
     }
 
     private fun showRemoveMemberDialog() {
-        val membersObject = channel!!.members
-        val members = membersObject.membersList
-        val convertView = layoutInflater.inflate(R.layout.member_list, null)
-        val memberListDialog = AlertDialog.Builder(this@MessageActivity)
-                .setView(convertView)
-                .setTitle("Remove members")
-                .create()
-        val lv = convertView.findViewById(R.id.listView1) as ListView
-        val adapterMember = EasyAdapter(
-                this@MessageActivity, MemberViewHolder::class.java, members, object : MemberViewHolder.OnMemberClickListener {
-                    override fun onMemberClicked(member: Member) {
-                        membersObject.remove(member, ToastStatusListener(
-                                "Successful removeMember operation",
-                                "Error in removeMember operation"))
-                        memberListDialog.dismiss()
+        val builder = AlertDialog.Builder(this@MessageActivity)
+        builder.setView(
+            verticalLayout {
+                textView { textResource = R.string.title_remove_member }
+                val view = recyclerView {}.lparams(width = dip(250), height = matchParent)
+            }.view()
+        )
+
+//        view.adapter = SimpleRecyclerAdapter<Member>()
+//
+//
+//        val membersObject = channel!!.members
+//        val members = membersObject.membersList
+//        val convertView = layoutInflater.inflate(R.layout.member_list, null)
+//        val memberListDialog = AlertDialog.Builder(this@MessageActivity)
+//                .setView(convertView)
+//                .setTitle("Remove members")
+//                .create()
+//        val lv = convertView.findViewById(R.id.listView1) as ListView
+//        val adapterMember = SimpleRecyclerAdapter<Member>(
+//                this@MessageActivity, MemberViewHolder::class.java, members, object : MemberViewHolder.OnMemberClickListener {
+//                    override fun onMemberClicked(member: Member) {
+//                        membersObject.remove(member, ToastStatusListener(
+//                                "Successful removeMember operation",
+//                                "Error in removeMember operation"))
+//                        memberListDialog.dismiss()
+//                    }
+//                })
+//        lv.adapter = adapterMember
+//        memberListDialog.show()
+//        memberListDialog.window!!.setLayout(800, 600)
+    }
+
+    private fun showUpdateMessageDialog(message: Message) {
+        alert(R.string.title_update_message) {
+            customView {
+                val messageText = editText { text.append(message.messageBody) }
+                positiveButton(R.string.update) {
+                    val text = messageText.text.toString()
+                    Timber.d(text)
+                    message.updateMessageBody(text, object : ToastStatusListener(
+                            "Success updating message",
+                            "Error updating message") {
+                        override fun onSuccess() {
+                            super.onSuccess()
+                            // @todo only need to update one message body
+                            loadAndShowMessages()
+                        }
+                    })
+                }
+                negativeButton(R.string.cancel) {}
+            }
+        }.show()
+    }
+
+    private fun showUpdateMessageAttributesDialog(message: Message) {
+        alert(R.string.title_update_attributes) {
+            customView {
+                val messageAttrText = editText { text.append(message.attributes.toString()) }
+                positiveButton(R.string.update) {
+                    val text = messageAttrText.text.toString()
+                    Timber.d(text)
+                    try {
+                        JSONObject(text).apply {
+                            message.setAttributes(this, object : ToastStatusListener(
+                                    "Success updating message attributes",
+                                    "Error updating message attributes") {
+                                override fun onSuccess() {
+                                    super.onSuccess()
+                                    // @todo only need to update one message
+                                    loadAndShowMessages()
+                                }
+                            })
+                        }
+                    } catch (e: JSONException) {
+                        Timber.e("Invalid JSON attributes entered, using old value")
                     }
-                })
-        lv.adapter = adapterMember
-        memberListDialog.show()
-        memberListDialog.window!!.setLayout(800, 600)
+                }
+                negativeButton(R.string.cancel) {}
+            }
+        }.show()
+    }
+
+    private fun showChangeUniqueNameDialog() {
+        alert("Update channel unique name") {
+            customView {
+                val uniqueNameText = editText { text.append(channel!!.uniqueName) }
+                positiveButton(R.string.update) {
+                    val uniqueName = uniqueNameText.text.toString()
+                    Timber.d(uniqueName)
+                    channel!!.setUniqueName(uniqueName, ChatStatusListener());
+                }
+                negativeButton(R.string.cancel) {}
+            }
+        }.show()
     }
 
     private fun loadAndShowMessages() {
@@ -402,81 +452,11 @@ class MessageActivity : Activity(), ChannelListener {
                         messageItemList.add(MessageItem(messagesArray[i], members, identity))
                     }
                 }
-                adapter!!.items.clear()
-                adapter!!.items.addAll(messageItemList)
-                adapter!!.notifyDataSetChanged()
+                adapter.clear()
+                adapter.addItems(messageItemList)
+                adapter.notifyDataSetChanged()
             }
         })
-    }
-
-    private fun showUpdateMessageDialog(message: Message) {
-        val builder = AlertDialog.Builder(this@MessageActivity)
-        builder.setView(layoutInflater.inflate(R.layout.dialog_edit_message, null))
-                .setPositiveButton(
-                        "Update"
-                ) { _, _ ->
-                    val updatedMsg = (editTextDialog!!.findViewById(R.id.update_message) as EditText)
-                            .text
-                            .toString()
-                    message.updateMessageBody(updatedMsg, object : ToastStatusListener(
-                            "Success updating message",
-                            "Error updating message") {
-                        override fun onSuccess() {
-                            super.onSuccess()
-                            loadAndShowMessages()// @todo only need to update one message body
-                        }
-                    })
-                }
-                .setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
-        editTextDialog = builder.create()
-        editTextDialog!!.show()
-    }
-
-    private fun showUpdateMessageAttributesDialog(message: Message) {
-        val builder = AlertDialog.Builder(this@MessageActivity)
-        builder.setView(layoutInflater.inflate(R.layout.dialog_edit_message_attributes, null))
-                .setPositiveButton(
-                        "Update"
-                ) { _, _ ->
-                    val updatedAttr = (editTextDialog!!.findViewById(R.id.update_attributes) as EditText)
-                            .text
-                            .toString()
-                    var jsonObj: JSONObject?
-                    try {
-                        jsonObj = JSONObject(updatedAttr)
-                    } catch (e: JSONException) {
-                        Timber.e("Invalid JSON attributes entered, using old value")
-                        try {
-                            jsonObj = message.attributes
-                        } catch (ex: JSONException) {
-                            jsonObj = null
-                        }
-
-                    }
-
-                    message.setAttributes(jsonObj, object : ToastStatusListener(
-                            "Success updating message attributes",
-                            "Error updating message attributes") {
-                        override fun onSuccess() {
-                            super.onSuccess()
-                            loadAndShowMessages()// @todo only need to update one message
-                        }
-                    })
-                }
-                .setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
-        editTextDialog = builder.create()
-
-        var attr = ""
-        try {
-            attr = message.attributes.toString()
-        } catch (e: JSONException) {
-        }
-
-        editTextDialog!!.create() // Force creation of sub-view hierarchy
-        (editTextDialog!!.findViewById(R.id.update_attributes) as EditText)
-                .setText(attr)
-
-        editTextDialog!!.show()
     }
 
     private fun setupInput() {
@@ -684,30 +664,6 @@ class MessageActivity : Activity(), ChannelListener {
             typingIndc.text = null
             Timber.d(member.identity + " ended typing")
         }
-    }
-
-    private fun showChangeUniqueNameDialog() {
-        val builder = AlertDialog.Builder(this@MessageActivity)
-        builder.setView(layoutInflater.inflate(R.layout.dialog_edit_unique_name, null))
-                .setPositiveButton("Update") { _, _ ->
-                    val uniqueName = (editTextDialog!!.findViewById(R.id.update_unique_name) as EditText)
-                            .text
-                            .toString()
-                    Timber.d(uniqueName)
-                    channel!!.setUniqueName(uniqueName, object : StatusListener() {
-                        override fun onError(errorInfo: ErrorInfo?) {
-                            TwilioApplication.instance.showError(errorInfo!!)
-                            TwilioApplication.instance.logErrorInfo(
-                                    "Error changing channel uniqueName", errorInfo)
-                        }
-
-                        override fun onSuccess() {
-                            Timber.d("Successfully changed channel uniqueName")
-                        }
-                    })
-                }
-        editTextDialog = builder.create()
-        editTextDialog!!.show()
     }
 
     override fun onSynchronizationChanged(channel: Channel) {
