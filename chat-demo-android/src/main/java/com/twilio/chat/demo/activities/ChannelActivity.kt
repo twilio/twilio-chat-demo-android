@@ -273,7 +273,7 @@ class ChannelActivity : Activity(), ChatClientListener {
     }
 
     private fun showIncomingInvite(channel: Channel) {
-        handler.post {
+        doAsync {
             if (incomingChannelInvite == null) {
                 incomingChannelInvite = AlertDialog.Builder(this@ChannelActivity)
                         .setTitle(R.string.channel_invite)
@@ -394,7 +394,5 @@ class ChannelActivity : Activity(), ChatClientListener {
     companion object {
         private val CHANNEL_OPTIONS = arrayOf("Join")
         private val JOIN = 0
-
-        private val handler = Handler()
     }
 }
