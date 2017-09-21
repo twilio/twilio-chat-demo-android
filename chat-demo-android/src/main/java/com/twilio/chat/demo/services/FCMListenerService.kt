@@ -17,6 +17,10 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.twilio.chat.ChatClient
 import com.twilio.chat.NotificationPayload
+import com.twilio.chat.demo.Constants
+import com.twilio.chat.demo.R
+import com.twilio.chat.demo.TwilioApplication
+import com.twilio.chat.demo.activities.MessageActivity
 
 import org.json.JSONObject
 

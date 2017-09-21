@@ -36,6 +36,8 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
 import android.preference.PreferenceManager
+import com.twilio.chat.demo.TwilioApplication
+import com.twilio.chat.demo.services.RegistrationIntentService
 import kotlinx.android.synthetic.main.activity_login.*
 
 import timber.log.Timber
