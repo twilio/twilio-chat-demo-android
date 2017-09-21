@@ -18,6 +18,7 @@ import com.twilio.chat.UserDescriptor
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
@@ -34,6 +35,7 @@ import com.twilio.chat.demo.Constants
 import com.twilio.chat.demo.R
 import com.twilio.chat.demo.ToastStatusListener
 import com.twilio.chat.demo.TwilioApplication
+import com.twilio.chat.demo.services.MediaService
 import com.twilio.chat.demo.views.MemberViewHolder
 import com.twilio.chat.demo.views.MessageViewHolder
 import eu.inloop.simplerecycleradapter.ItemClickListener
@@ -479,7 +481,7 @@ class MessageActivity : Activity(), ChannelListener {
 
     private fun setupInput() {
         // Setup our input methods. Enter key on the keyboard or pushing the send button
-        val inputText = findViewById(R.id.messageInput) as EditText
+        val inputText = find<EditText>(R.id.messageInput)
         inputText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
 
@@ -498,7 +500,18 @@ class MessageActivity : Activity(), ChannelListener {
             true
         }
 
-        findViewById(R.id.sendButton).setOnClickListener { sendMessage() }
+        find<ImageButton>(R.id.sendButton).apply {
+            setOnClickListener { sendMessage() }
+
+            setOnLongClickListener {
+                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "*/*"
+                }
+                this@MessageActivity.startActivityForResult(intent, FILE_REQUEST)
+                true
+            }
+        }
     }
 
     private inner class CustomMessageComparator : Comparator<Message> {
@@ -601,6 +614,18 @@ class MessageActivity : Activity(), ChannelListener {
         }
 
         messageInput.requestFocus()
+    }
+
+    /// Send media message
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == FILE_REQUEST && resultCode == Activity.RESULT_OK) {
+            Timber.d("Uri: ${data?.data}")
+
+//            startService<MediaService>(
+//                MediaService.EXTRA_ACTION to MediaService.EXTRA_ACTION_UPLOAD,
+//                MediaService.EXTRA_MEDIA_URI to data?.data.toString(),
+//                MediaService.EXTRA_CHANNEL to channel)
+        }
     }
 
     override fun onMessageAdded(message: Message) {
@@ -720,10 +745,11 @@ class MessageActivity : Activity(), ChannelListener {
         private val SET_ALL_CONSUMED = 12
         private val SET_NONE_CONSUMED = 13
 
-
         private val REMOVE = 0
         private val EDIT = 1
         private val GET_ATTRIBUTES = 2
         private val SET_ATTRIBUTES = 3
+
+        private val FILE_REQUEST = 1000;
     }
 }
