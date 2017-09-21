@@ -37,7 +37,6 @@ class ChannelActivity : Activity(), ChatClientListener {
     private lateinit var basicClient: BasicChatClient
     private val channels = HashMap<String, ChannelModel>()
     private lateinit var adapter: SimpleRecyclerAdapter<ChannelModel>
-    private var channelsObject: Channels? = null
     private var incomingChannelInvite: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -122,7 +121,7 @@ class ChannelActivity : Activity(), ChatClientListener {
                     onClick {
                         val channelName = channel_name.text.toString()
                         Timber.d("Creating channel with friendly Name|$channelName|")
-                        channelsObject!!.createChannel(channelName, type, object : CallbackListener<Channel>() {
+                        basicClient.chatClient?.channels?.createChannel(channelName, type, object : CallbackListener<Channel>() {
                             override fun onSuccess(newChannel: Channel?) {
                                 Timber.d("Successfully created a channel")
                                 if (newChannel != null) {
@@ -160,7 +159,7 @@ class ChannelActivity : Activity(), ChatClientListener {
                         onClick {
                             val channelSid = channel_name.text.toString()
                             Timber.d("Searching for " + channelSid)
-                            channelsObject!!.getChannel(channelSid, object : CallbackListener<Channel>() {
+                            basicClient.chatClient?.channels?.getChannel(channelSid, object : CallbackListener<Channel>() {
                                 override fun onSuccess(channel: Channel?) {
                                     if (channel != null) {
                                         TwilioApplication.instance.showToast("${channel.sid}: ${channel.friendlyName}")
@@ -246,10 +245,11 @@ class ChannelActivity : Activity(), ChatClientListener {
         } else {
             // Get subscribed channels last - so their status will overwrite whatever we received
             // from public list. Ugly workaround for now.
-            channelsObject = basicClient.chatClient?.channels
-            val ch = channelsObject!!.subscribedChannels
-            for (channel in ch) {
-                channels.put(channel.sid, ChannelModel(channel))
+            val chans = basicClient.chatClient?.channels?.subscribedChannels
+            if (chans != null) {
+                for (channel in chans) {
+                    channels.put(channel.sid, ChannelModel(channel))
+                }
             }
             refreshChannelList()
         }
@@ -257,19 +257,15 @@ class ChannelActivity : Activity(), ChatClientListener {
 
     // Initialize channels with channel list
     private fun getChannels() {
-        if (basicClient.chatClient == null) return
-
-        channelsObject = basicClient.chatClient?.channels
-
         channels.clear()
 
-        channelsObject!!.getPublicChannelsList(object : CallbackListener<Paginator<ChannelDescriptor>>() {
+        basicClient.chatClient?.channels?.getPublicChannelsList(object : CallbackListener<Paginator<ChannelDescriptor>>() {
             override fun onSuccess(channelDescriptorPaginator: Paginator<ChannelDescriptor>) {
                 getChannelsPage(channelDescriptorPaginator)
             }
         })
 
-        channelsObject!!.getUserChannelsList(object : CallbackListener<Paginator<ChannelDescriptor>>() {
+        basicClient.chatClient?.channels?.getUserChannelsList(object : CallbackListener<Paginator<ChannelDescriptor>>() {
             override fun onSuccess(channelDescriptorPaginator: Paginator<ChannelDescriptor>) {
                 getChannelsPage(channelDescriptorPaginator)
             }
