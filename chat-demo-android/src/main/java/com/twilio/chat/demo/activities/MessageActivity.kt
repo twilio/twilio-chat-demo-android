@@ -1,70 +1,76 @@
 package com.twilio.chat.demo.activities
 
-import java.lang.reflect.Array
 import java.util.ArrayList
-import java.util.Arrays
-import java.util.Collections
 import java.util.Comparator
-import java.util.HashMap
 
 import com.twilio.chat.Channel
 import com.twilio.chat.Channel.ChannelType
 import com.twilio.chat.ChannelListener
-import com.twilio.chat.Channels
 import com.twilio.chat.StatusListener
 import com.twilio.chat.CallbackListener
 import com.twilio.chat.Member
 import com.twilio.chat.Members
 import com.twilio.chat.Message
-import com.twilio.chat.Messages
 import com.twilio.chat.ErrorInfo
 import com.twilio.chat.Paginator
 import com.twilio.chat.User
 import com.twilio.chat.UserDescriptor
-import com.twilio.chat.Users
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.DialogInterface
-import android.content.Intent
-import android.database.DataSetObserver
 import android.graphics.Color
 import android.os.Bundle
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.Gravity
-import android.view.KeyEvent
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewTreeObserver
+import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
-import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
+import com.twilio.chat.demo.Constants
+import com.twilio.chat.demo.R
+import com.twilio.chat.demo.ToastStatusListener
+import com.twilio.chat.demo.TwilioApplication
 import com.twilio.chat.demo.views.MemberViewHolder
 import com.twilio.chat.demo.views.MessageViewHolder
+import eu.inloop.simplerecycleradapter.ItemClickListener
+import eu.inloop.simplerecycleradapter.ItemLongClickListener
+import eu.inloop.simplerecycleradapter.SettableViewHolder
+import eu.inloop.simplerecycleradapter.SimpleRecyclerAdapter
 
 import org.json.JSONException
 import org.json.JSONObject
 
 import timber.log.Timber
-import uk.co.ribot.easyadapter.EasyAdapter
 import kotlinx.android.synthetic.main.activity_message.*
 
+// RecyclerView Anko
+inline fun ViewManager.recyclerView() = recyclerView(theme = 0) {}
+
+inline fun ViewManager.recyclerView(init: RecyclerView.() -> Unit): RecyclerView {
+    return ankoView({ RecyclerView(it) }, theme = 0, init = init)
+}
+
+inline fun ViewManager.recyclerView(theme: Int = 0) = recyclerView(theme) {}
+
+inline fun ViewManager.recyclerView(theme: Int = 0, init: RecyclerView.() -> Unit): RecyclerView {
+    return ankoView({ RecyclerView(it) }, theme, init)
+}
+// End RecyclerView Anko
+
 class MessageActivity : Activity(), ChannelListener {
-    private var adapter: EasyAdapter<MessageItem>? = null
+    private lateinit var adapter: SimpleRecyclerAdapter<MessageItem>
     private var channel: Channel? = null
 
-    private var editTextDialog: AlertDialog? = null
     private val messageItemList = ArrayList<MessageItem>()
     private lateinit var identity: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_message)
         createUI()
     }
 
@@ -85,7 +91,6 @@ class MessageActivity : Activity(), ChannelListener {
     }
 
     private fun createUI() {
-        setContentView(R.layout.activity_message)
         if (intent != null) {
             val basicClient = TwilioApplication.instance.basicClient
             identity = basicClient.chatClient!!.myIdentity
@@ -99,14 +104,14 @@ class MessageActivity : Activity(), ChannelListener {
 
                     setupListView(channel!!)
 
-                    message_list_view.transcriptMode = ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL
-                    message_list_view.isStackFromBottom = true
-                    adapter!!.registerDataSetObserver(object : DataSetObserver() {
-                        override fun onChanged() {
-                            super.onChanged()
-                            message_list_view.setSelection(adapter!!.count - 1)
-                        }
-                    })
+//                    message_list_view.transcriptMode = ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL
+//                    message_list_view.isStackFromBottom = true
+//                    adapter.registerDataSetObserver(object : DataSetObserver() {
+//                        override fun onChanged() {
+//                            super.onChanged()
+//                            message_list_view.setSelection(adapter.count - 1)
+//                        }
+//                    })
                     setupInput()
                 }
             })
@@ -508,53 +513,64 @@ class MessageActivity : Activity(), ChannelListener {
     private fun setupListView(channel: Channel) {
         val messagesObject = channel.messages
 
-        message_list_view.viewTreeObserver.addOnScrollChangedListener {
-            if (message_list_view.lastVisiblePosition >= 0 && message_list_view.lastVisiblePosition < adapter!!.count) {
-                val item = adapter!!.getItem(message_list_view.lastVisiblePosition)
-                if (item != null && messagesObject != null)
-                    messagesObject.advanceLastConsumedMessageIndex(
-                            item.message.messageIndex)
-            }
-        }
+//        message_list_view.viewTreeObserver.addOnScrollChangedListener {
+//            if (message_list_view.lastVisiblePosition >= 0 && message_list_view.lastVisiblePosition < adapter!!.count) {
+//                val item = adapter.getItem(message_list_view.lastVisiblePosition)
+//                if (item != null && messagesObject != null)
+//                    messagesObject.advanceLastConsumedMessageIndex(
+//                            item.message.messageIndex)
+//            }
+//        }
 
-        adapter = EasyAdapter<MessageItem>(
-                this@MessageActivity,
-                MessageViewHolder::class.java,
-                object : MessageViewHolder.OnMessageClickListener {
-                    override fun onMessageClicked(message: MessageItem) {
-                        val builder = AlertDialog.Builder(this@MessageActivity)
-                        builder.setTitle("Select an option")
-                                .setItems(MESSAGE_OPTIONS) { dialog, which ->
-                                    if (which == REMOVE) {
-                                        dialog.cancel()
-                                        messagesObject!!.removeMessage(
-                                                message.message, object : ToastStatusListener(
-                                                "Successfully removed message. It should be GONE!!",
-                                                "Error removing message") {
-                                            override fun onSuccess() {
-                                                super.onSuccess()
-                                                messageItemList.remove(message)
-                                                adapter!!.notifyDataSetChanged()
-                                            }
-                                        })
-                                    } else if (which == EDIT) {
-                                        showUpdateMessageDialog(message.message)
-                                    } else if (which == GET_ATTRIBUTES) {
-                                        var attr = ""
-                                        try {
-                                            attr = message.message.attributes.toString()
-                                        } catch (e: JSONException) {
+        adapter = SimpleRecyclerAdapter<MessageItem>(
+            ItemClickListener { message: MessageItem, viewHolder, view ->
+                (viewHolder as MessageViewHolder).toggleDateVisibility()
+            },
+            object : SimpleRecyclerAdapter.CreateViewHolder<MessageItem>() {
+                override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SettableViewHolder<MessageItem> {
+                    return MessageViewHolder(this@MessageActivity, parent);
+                }
+            })
+        adapter.setLongClickListener(
+                ItemLongClickListener { message: MessageItem, viewHolder, view ->
+                    val builder = AlertDialog.Builder(this@MessageActivity)
+                    builder.setTitle(R.string.select_action)
+                            .setItems(MESSAGE_OPTIONS) { dialog, which ->
+                                if (which == REMOVE) {
+                                    dialog.cancel()
+                                    messagesObject!!.removeMessage(
+                                            message.message, object : ToastStatusListener(
+                                            "Successfully removed message. It should be GONE!!",
+                                            "Error removing message") {
+                                        override fun onSuccess() {
+                                            super.onSuccess()
+                                            messageItemList.remove(message)
+                                            adapter!!.notifyDataSetChanged()
                                         }
-
-                                        TwilioApplication.instance.showToast(attr)
-                                    } else if (which == SET_ATTRIBUTES) {
-                                        showUpdateMessageAttributesDialog(message.message)
+                                    })
+                                } else if (which == EDIT) {
+                                    showUpdateMessageDialog(message.message)
+                                } else if (which == GET_ATTRIBUTES) {
+                                    var attr = ""
+                                    try {
+                                        attr = message.message.attributes.toString()
+                                    } catch (e: JSONException) {
                                     }
+
+                                    TwilioApplication.instance.showToast(attr)
+                                } else if (which == SET_ATTRIBUTES) {
+                                    showUpdateMessageAttributesDialog(message.message)
                                 }
-                        builder.show()
-                    }
-                })
+                            }
+                    builder.show()
+                    true
+                }
+        )
+
         message_list_view.adapter = adapter
+        message_list_view.layoutManager = LinearLayoutManager(this).apply {
+            orientation = LinearLayoutManager.VERTICAL
+        }
 
         loadAndShowMessages()
     }

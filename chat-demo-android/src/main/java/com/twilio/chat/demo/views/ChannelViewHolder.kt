@@ -1,5 +1,6 @@
 package com.twilio.chat.demo.views
 
+import android.content.Context
 import com.twilio.chat.demo.ChannelModel
 import com.twilio.chat.Channel.ChannelStatus
 import com.twilio.chat.Channel.ChannelType
@@ -7,34 +8,28 @@ import com.twilio.chat.CallbackListener
 
 import android.graphics.Color
 import android.util.Log
-import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
+import butterknife.bindView
 import com.twilio.chat.demo.R
-import uk.co.ribot.easyadapter.ItemViewHolder
-import uk.co.ribot.easyadapter.PositionInfo
-import uk.co.ribot.easyadapter.annotations.LayoutId
-import uk.co.ribot.easyadapter.annotations.ViewId
-import kotlinx.android.synthetic.main.channel_item_layout.*
+import eu.inloop.simplerecycleradapter.SettableViewHolder
+import timber.log.Timber
 
-@LayoutId(R.layout.channel_item_layout)
-class ChannelViewHolder(internal var view: View) : ItemViewHolder<ChannelModel>(view) {
+class ChannelViewHolder : SettableViewHolder<ChannelModel> {
     val friendlyName: TextView by bindView(R.id.channel_friendly_name)
-//    internal @BindView(R.id.channel_friendly_name) lateinit var
-//    internal @BindView(R.id.channel_sid) lateinit var channelSid: TextView
-//    internal @BindView(R.id.channel_updated_date) lateinit var updatedDate: TextView
-//    internal @BindView(R.id.channel_created_date) lateinit var createdDate: TextView
-//    internal @BindView(R.id.channel_users_count) lateinit var usersCount: TextView
-//    internal @BindView(R.id.channel_total_messages_count) lateinit var totalMessagesCount: TextView
-//    internal @BindView(R.id.channel_unconsumed_messages_count) lateinit var unconsumedMessagesCount: TextView
+    val channelSid: TextView by bindView(R.id.channel_sid)
+    val updatedDate: TextView by bindView(R.id.channel_updated_date)
+    val createdDate: TextView by bindView(R.id.channel_created_date)
+    val usersCount: TextView by bindView(R.id.channel_users_count)
+    val totalMessagesCount: TextView by bindView(R.id.channel_total_messages_count)
+    val unconsumedMessagesCount: TextView by bindView(R.id.channel_unconsumed_messages_count)
 
-    override fun onSetListeners() {
-        view.setOnClickListener {
-            val listener = getListener(OnChannelClickListener::class.java)
-            listener?.onChannelClicked(item)
-        }
-    }
+    constructor(context: Context, parent: ViewGroup)
+        : super(context, R.layout.channel_item_layout, parent)
+    {}
 
-    override fun onSetValues(channel: ChannelModel, arg1: PositionInfo) {
+    override fun setData(channel: ChannelModel) {
+        Timber.w("setData for ${channel.friendlyName} sid|${channel.sid}|")
         friendlyName.text = channel.friendlyName
         channelSid.text = channel.sid
 
@@ -69,7 +64,7 @@ class ChannelViewHolder(internal var view: View) : ItemViewHolder<ChannelModel>(
             }
         })
 
-        view.setBackgroundColor(
+        itemView.setBackgroundColor(
             if (channel.status == ChannelStatus.JOINED) {
                 if (channel.type == ChannelType.PRIVATE)
                     Color.BLUE
@@ -82,9 +77,5 @@ class ChannelViewHolder(internal var view: View) : ItemViewHolder<ChannelModel>(
                     Color.GRAY
             }
         )
-    }
-
-    interface OnChannelClickListener {
-        fun onChannelClicked(channel: ChannelModel)
     }
 }

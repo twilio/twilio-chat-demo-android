@@ -1,11 +1,9 @@
 package com.twilio.chat.demo.activities
 
 import java.util.ArrayList
-import java.util.Arrays
 import java.util.Collections
 import java.util.Comparator
 import java.util.HashMap
-import java.util.HashSet
 import java.util.Random
 
 import com.twilio.chat.Channel
@@ -31,11 +29,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Parcelable
+import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuItem
+import android.view.*
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ListView
@@ -43,20 +39,21 @@ import android.widget.TextView
 import android.widget.Toast
 import com.twilio.chat.demo.*
 import com.twilio.chat.demo.views.ChannelViewHolder
+import eu.inloop.simplerecycleradapter.ItemClickListener
+import eu.inloop.simplerecycleradapter.SettableViewHolder
+import eu.inloop.simplerecycleradapter.SimpleRecyclerAdapter
 import kotlinx.android.synthetic.main.activity_channel.*
 
 import timber.log.Timber
-import uk.co.ribot.easyadapter.EasyAdapter
 import org.json.JSONObject
 import org.json.JSONException
 
-@SuppressLint("InflateParams")
+//@SuppressLint("InflateParams")
 class ChannelActivity : Activity(), ChatClientListener {
     private lateinit var basicClient: BasicChatClient
     private val channels = HashMap<String, ChannelModel>()
     private val adapterContents = ArrayList<ChannelModel>()
-    private var adapter: EasyAdapter<ChannelModel>? = null
-    private var createChannelDialog: AlertDialog? = null
+    private lateinit var adapter: SimpleRecyclerAdapter<ChannelModel>
     private var channelsObject: Channels? = null
     private var incomingChannelInvite: AlertDialog? = null
 
@@ -195,63 +192,69 @@ class ChannelActivity : Activity(), ChatClientListener {
     }
 
     private fun setupListView() {
-        adapter = EasyAdapter(
-                this,
-                ChannelViewHolder::class.java,
-                adapterContents,
-                object : ChannelViewHolder.OnChannelClickListener {
-                    override fun onChannelClicked(channel: ChannelModel) {
-                        if (channel.status == Channel.ChannelStatus.JOINED) {
-                            Handler().postDelayed({
-                                channel.getChannel(object : CallbackListener<Channel>() {
-                                    override fun onSuccess(chan: Channel) {
-                                        val i = Intent(this@ChannelActivity, MessageActivity::class.java)
-                                        i.putExtra(Constants.EXTRA_CHANNEL, chan as Parcelable)
-                                        i.putExtra(Constants.EXTRA_CHANNEL_SID, chan.sid)
-                                        startActivity(i)
-                                    }
-                                })
-                            }, 0)
-                            return
-                        }
-                        val builder = AlertDialog.Builder(this@ChannelActivity)
-                        builder.setTitle("Select an option")
-                                .setItems(CHANNEL_OPTIONS) { dialog, which ->
-                                    if (which == JOIN) {
-                                        dialog.cancel()
-                                        channel.join(
-                                                object : ToastStatusListener("Successfully joined channel",
-                                                        "Failed to join channel") {
-                                                    override fun onSuccess() {
-                                                        super.onSuccess()
-                                                        refreshChannelList()
-                                                    }
-                                                })
-                                    }
+        adapter = SimpleRecyclerAdapter(
+                ItemClickListener { channel: ChannelModel, viewHolder, view ->
+                    if (channel.status == Channel.ChannelStatus.JOINED) {
+                        Handler().postDelayed({
+                            channel.getChannel(object : CallbackListener<Channel>() {
+                                override fun onSuccess(chan: Channel) {
+                                    val i = Intent(this@ChannelActivity, MessageActivity::class.java)
+                                    i.putExtra(Constants.EXTRA_CHANNEL, chan as Parcelable)
+                                    i.putExtra(Constants.EXTRA_CHANNEL_SID, chan.sid)
+                                    startActivity(i)
                                 }
-                        builder.show()
+                            })
+                        }, 0)
+                        return@ItemClickListener
                     }
-                })
+                    val builder = AlertDialog.Builder(this@ChannelActivity)
+                    builder.setTitle("Select an option")
+                            .setItems(CHANNEL_OPTIONS) { dialog, which ->
+                                if (which == JOIN) {
+                                    dialog.cancel()
+                                    channel.join(
+                                            object : ToastStatusListener("Successfully joined channel",
+                                                    "Failed to join channel") {
+                                                override fun onSuccess() {
+                                                    super.onSuccess()
+                                                    refreshChannelList()
+                                                }
+                                            })
+                                }
+                            }
+                    builder.show()
+                },
+                object : SimpleRecyclerAdapter.CreateViewHolder<ChannelModel>() {
+                    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SettableViewHolder<ChannelModel> {
+                        return ChannelViewHolder(this@ChannelActivity, parent);
+                    }
+                },
+                adapterContents)
 
         channel_list.adapter = adapter
+        channel_list.layoutManager = LinearLayoutManager(this).apply {
+            orientation = LinearLayoutManager.VERTICAL
+        }
     }
 
     private fun refreshChannelList() {
         adapterContents.clear()
         adapterContents.addAll(channels.values)
         Collections.sort(adapterContents, CustomChannelComparator())
-        adapter!!.notifyDataSetChanged()
+
+        adapter.addItems(adapterContents)
+        adapter.notifyDataSetChanged()
     }
 
     private fun getChannelsPage(paginator: Paginator<ChannelDescriptor>) {
         for (cd in paginator.items) {
-            Timber.e("Adding channel descriptor for sid|" + cd.sid + "| friendlyName " + cd.friendlyName)
+            Timber.e("Adding channel descriptor for sid|${cd.sid}| friendlyName ${cd.friendlyName}")
             channels.put(cd.sid, ChannelModel(cd))
         }
         refreshChannelList()
 
-        Log.e("HASNEXTPAGE", paginator.items.size.toString())
-        Log.e("HASNEXTPAGE", if (paginator.hasNextPage()) "YES" else "NO")
+//        Log.e("HASNEXTPAGE", paginator.items.size.toString())
+//        Log.e("HASNEXTPAGE", if (paginator.hasNextPage()) "YES" else "NO")
 
         if (paginator.hasNextPage()) {
             paginator.requestNextPage(object : CallbackListener<Paginator<ChannelDescriptor>>() {
