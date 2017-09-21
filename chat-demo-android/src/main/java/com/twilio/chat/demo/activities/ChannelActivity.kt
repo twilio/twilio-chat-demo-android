@@ -43,6 +43,8 @@ import eu.inloop.simplerecycleradapter.ItemClickListener
 import eu.inloop.simplerecycleradapter.SettableViewHolder
 import eu.inloop.simplerecycleradapter.SimpleRecyclerAdapter
 import kotlinx.android.synthetic.main.activity_channel.*
+import org.jetbrains.anko.*
+import org.jetbrains.anko.sdk25.coroutines.onClick
 
 import timber.log.Timber
 import org.json.JSONObject

@@ -46,6 +46,9 @@ import org.json.JSONObject
 
 import timber.log.Timber
 import kotlinx.android.synthetic.main.activity_message.*
+import org.jetbrains.anko.*
+import org.jetbrains.anko.custom.ankoView
+import org.jetbrains.anko.sdk25.coroutines.onClick
 
 // RecyclerView Anko
 inline fun ViewManager.recyclerView() = recyclerView(theme = 0) {}
