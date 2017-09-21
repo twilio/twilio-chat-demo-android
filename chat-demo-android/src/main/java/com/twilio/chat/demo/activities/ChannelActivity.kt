@@ -195,7 +195,7 @@ class ChannelActivity : Activity(), ChatClientListener {
                         return@ItemClickListener
                     }
                     val builder = AlertDialog.Builder(this@ChannelActivity)
-                    builder.setTitle("Select an option")
+                    builder.setTitle(R.string.select_action)
                             .setItems(CHANNEL_OPTIONS) { dialog, which ->
                                 if (which == JOIN) {
                                     dialog.cancel()
@@ -232,9 +232,6 @@ class ChannelActivity : Activity(), ChatClientListener {
             channels.put(cd.sid, ChannelModel(cd))
         }
         refreshChannelList()
-
-//        Log.e("HASNEXTPAGE", paginator.items.size.toString())
-//        Log.e("HASNEXTPAGE", if (paginator.hasNextPage()) "YES" else "NO")
 
         if (paginator.hasNextPage()) {
             paginator.requestNextPage(object : CallbackListener<Paginator<ChannelDescriptor>>() {
