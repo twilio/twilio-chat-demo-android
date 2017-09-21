@@ -10,9 +10,9 @@ import android.graphics.Color
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.TextView
-import butterknife.bindView
 import com.twilio.chat.demo.R
 import eu.inloop.simplerecycleradapter.SettableViewHolder
+import kotterknife.bindView
 import timber.log.Timber
 
 class ChannelViewHolder : SettableViewHolder<ChannelModel> {

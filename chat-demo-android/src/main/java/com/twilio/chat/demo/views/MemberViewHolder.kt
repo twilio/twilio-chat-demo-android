@@ -5,7 +5,7 @@ import com.twilio.chat.Member
 
 import android.view.View
 import android.widget.TextView
-import butterknife.bindView
+import kotterknife.bindView
 import eu.inloop.simplerecycleradapter.SettableViewHolder
 
 //@LayoutId(R.layout.member_item_layout)

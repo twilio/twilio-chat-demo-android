@@ -19,7 +19,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
-import butterknife.bindView
+import kotterknife.bindView
 import com.twilio.chat.demo.TwilioApplication
 import com.twilio.chat.demo.activities.MessageActivity
 import eu.inloop.simplerecycleradapter.SettableViewHolder
