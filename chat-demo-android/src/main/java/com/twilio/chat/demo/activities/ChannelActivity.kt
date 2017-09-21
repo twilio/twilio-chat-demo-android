@@ -40,7 +40,6 @@ import org.json.JSONException
 class ChannelActivity : Activity(), ChatClientListener {
     private lateinit var basicClient: BasicChatClient
     private val channels = HashMap<String, ChannelModel>()
-    private val adapterContents = ArrayList<ChannelModel>()
     private lateinit var adapter: SimpleRecyclerAdapter<ChannelModel>
     private var channelsObject: Channels? = null
     private var incomingChannelInvite: AlertDialog? = null
@@ -181,7 +180,7 @@ class ChannelActivity : Activity(), ChatClientListener {
 
     private fun setupListView() {
         adapter = SimpleRecyclerAdapter(
-                ItemClickListener { channel: ChannelModel, viewHolder, view ->
+                ItemClickListener { channel: ChannelModel, _, _ ->
                     if (channel.status == Channel.ChannelStatus.JOINED) {
                         Handler().postDelayed({
                             channel.getChannel(object : CallbackListener<Channel>() {
@@ -216,8 +215,7 @@ class ChannelActivity : Activity(), ChatClientListener {
                     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SettableViewHolder<ChannelModel> {
                         return ChannelViewHolder(this@ChannelActivity, parent);
                     }
-                },
-                adapterContents)
+                })
 
         channel_list.adapter = adapter
         channel_list.layoutManager = LinearLayoutManager(this).apply {
@@ -226,11 +224,8 @@ class ChannelActivity : Activity(), ChatClientListener {
     }
 
     private fun refreshChannelList() {
-        adapterContents.clear()
-        adapterContents.addAll(channels.values)
-        Collections.sort(adapterContents, CustomChannelComparator())
-
-        adapter.addItems(adapterContents)
+        adapter.clear()
+        adapter.addItems(channels.values.sortedWith(CustomChannelComparator()))
         adapter.notifyDataSetChanged()
     }
 
