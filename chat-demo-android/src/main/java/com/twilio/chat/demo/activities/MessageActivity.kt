@@ -570,60 +570,56 @@ class MessageActivity : Activity(), ChannelListener {
 
     override fun onMessageUpdated(message: Message?, reason: Message.UpdateReason) {
         if (message != null) {
-            TwilioApplication.instance.showToast(message.sid + " changed because of "+reason)
-            Timber.d("Received onMessageChange for message sid|" + message.sid + "|")
+            TwilioApplication.instance.showToast("onMessageUpdated for ${message.sid}, changed because of ${reason}")
         } else {
-            Timber.d("Received onMessageChange")
+            Timber.d("Received onMessageUpdated")
         }
     }
 
     override fun onMessageDeleted(message: Message?) {
         if (message != null) {
-            TwilioApplication.instance.showToast(message.sid + " deleted")
-            Timber.d("Received onMessageDelete for message sid|" + message.sid + "|")
+            TwilioApplication.instance.showToast("onMessageDeleted for ${message.sid}")
         } else {
-            Timber.d("Received onMessageDelete.")
+            Timber.d("Received onMessageDeleted.")
         }
     }
 
     override fun onMemberAdded(member: Member?) {
         if (member != null) {
-            TwilioApplication.instance.showToast(member.identity + " joined")
+            TwilioApplication.instance.showToast("${member.identity} joined")
         }
     }
 
     override fun onMemberUpdated(member: Member?, reason: Member.UpdateReason) {
         if (member != null) {
-            TwilioApplication.instance.showToast(member.identity + " changed because of " + reason)
+            TwilioApplication.instance.showToast("${member.identity} changed because of ${reason}")
         }
     }
 
     override fun onMemberDeleted(member: Member?) {
         if (member != null) {
-            TwilioApplication.instance.showToast(member.identity + " deleted")
+            TwilioApplication.instance.showToast("${member.identity} deleted")
         }
     }
 
     override fun onTypingStarted(member: Member?) {
         if (member != null) {
-            val typingIndc = findViewById(R.id.typingIndicator) as TextView
-            val text = member.identity + " is typing ....."
-            typingIndc.text = text
-            typingIndc.setTextColor(Color.RED)
+            val text = "${member.identity} is typing ..."
+            typingIndicator.text = text
+            typingIndicator.setTextColor(Color.RED)
             Timber.d(text)
         }
     }
 
     override fun onTypingEnded(member: Member?) {
         if (member != null) {
-            val typingIndc = findViewById(R.id.typingIndicator) as TextView
-            typingIndc.text = null
-            Timber.d(member.identity + " ended typing")
+            typingIndicator.text = null
+            Timber.d("${member.identity} has ended typing")
         }
     }
 
     override fun onSynchronizationChanged(channel: Channel) {
-        Timber.d("Received onSynchronizationChanged callback " + channel.friendlyName)
+        Timber.d("Received onSynchronizationChanged callback for ${channel.friendlyName}")
     }
 
     data class MessageItem(val message: Message, val members: Members, internal var currentUser: String);
