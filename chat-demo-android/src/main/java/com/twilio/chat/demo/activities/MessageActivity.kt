@@ -486,7 +486,7 @@ class MessageActivity : Activity(), ChannelListener {
 //        }
 
         adapter = SimpleRecyclerAdapter<MessageItem>(
-            ItemClickListener { message: MessageItem, viewHolder, view ->
+            ItemClickListener { _: MessageItem, viewHolder, _ ->
                 (viewHolder as MessageViewHolder).toggleDateVisibility()
             },
             object : SimpleRecyclerAdapter.CreateViewHolder<MessageItem>() {
@@ -495,7 +495,7 @@ class MessageActivity : Activity(), ChannelListener {
                 }
             })
         adapter.setLongClickListener(
-                ItemLongClickListener { message: MessageItem, viewHolder, view ->
+                ItemLongClickListener { message: MessageItem, _, _ ->
                     val builder = AlertDialog.Builder(this@MessageActivity)
                     builder.setTitle(R.string.select_action)
                             .setItems(MESSAGE_OPTIONS) { dialog, which ->
