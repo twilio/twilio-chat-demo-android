@@ -30,7 +30,6 @@ import android.view.inputmethod.EditorInfo
 import android.widget.*
 import com.twilio.chat.demo.Constants
 import com.twilio.chat.demo.R
-import com.twilio.chat.demo.ToastStatusListener
 import com.twilio.chat.demo.TwilioApplication
 import com.twilio.chat.demo.services.MediaService
 import com.twilio.chat.demo.views.MemberViewHolder
@@ -49,6 +48,8 @@ import org.jetbrains.anko.*
 import org.jetbrains.anko.custom.ankoView
 import org.jetbrains.anko.sdk25.coroutines.onClick
 import ChatStatusListener
+import ChatCallbackListener
+import ToastStatusListener
 
 // RecyclerView Anko
 inline fun ViewManager.recyclerView() = recyclerView(theme = 0) {}
@@ -84,7 +85,6 @@ class MessageActivity : Activity(), ChannelListener {
 
     override fun onResume() {
         super.onResume()
-        val intent = intent
         if (intent != null) {
             channel = intent.getParcelableExtra<Channel>(Constants.EXTRA_CHANNEL)
             if (channel != null) {
@@ -99,13 +99,12 @@ class MessageActivity : Activity(), ChannelListener {
             identity = basicClient.chatClient!!.myIdentity
             val channelSid = intent.getStringExtra(Constants.EXTRA_CHANNEL_SID)
             val channelsObject = basicClient.chatClient!!.channels
-            channelsObject.getChannel(channelSid, object : CallbackListener<Channel>() {
-                override fun onSuccess(foundChannel: Channel) {
-                    channel = foundChannel
-                    channel!!.addListener(this@MessageActivity)
-                    this@MessageActivity.title = (if (channel!!.type == ChannelType.PUBLIC) "PUB " else "PRIV ") + channel!!.friendlyName
+            channelsObject.getChannel(channelSid, ChatCallbackListener<Channel>() {
+                channel = it
+                channel!!.addListener(this@MessageActivity)
+                this@MessageActivity.title = (if (channel!!.type == ChannelType.PUBLIC) "PUB " else "PRIV ") + channel!!.friendlyName
 
-                    setupListView(channel!!)
+                setupListView(channel!!)
 
 //                    message_list_view.transcriptMode = ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL
 //                    message_list_view.isStackFromBottom = true
@@ -115,8 +114,7 @@ class MessageActivity : Activity(), ChannelListener {
 //                            message_list_view.setSelection(adapter.count - 1)
 //                        }
 //                    })
-                    setupInput()
-                }
+                setupInput()
             })
         }
     }
@@ -151,15 +149,11 @@ class MessageActivity : Activity(), ChannelListener {
                         if (i + 1 < members.size) {
                             name.append(", ")
                         }
-                        members[i].getUserDescriptor(object : CallbackListener<UserDescriptor>() {
-                            override fun onSuccess(userDescriptor: UserDescriptor) {
-                                Timber.d("Got user descriptor from member: " + userDescriptor.identity)
-                            }
+                        members[i].getUserDescriptor(ChatCallbackListener<UserDescriptor>() {
+                            Timber.d("Got user descriptor from member: ${it.identity}")
                         })
-                        members[i].getAndSubscribeUser(object : CallbackListener<User>() {
-                            override fun onSuccess(user: User) {
-                                Timber.d("Got subscribed user from member: " + user.identity)
-                            }
+                        members[i].getAndSubscribeUser(ChatCallbackListener<User>() {
+                            Timber.d("Got subscribed user from member: ${it.identity}")
                         })
                     }
                     TwilioApplication.instance.showToast(name.toString(), Toast.LENGTH_LONG)
@@ -172,13 +166,11 @@ class MessageActivity : Activity(), ChannelListener {
                             name2.append(", ")
                         }
                     }
-                    TwilioApplication.instance.showToast("Subscribed users: " + name2.toString(), Toast.LENGTH_LONG)
+                    TwilioApplication.instance.showToast("Subscribed users: ${name2.toString()}", Toast.LENGTH_LONG)
+
                     // Get user descriptor via identity
-                    users.getUserDescriptor(channel!!.members.membersList[0].identity, object : CallbackListener<UserDescriptor>() {
-                        override fun onSuccess(userDescriptor: UserDescriptor) {
-                            TwilioApplication.instance.showToast("Random user descriptor: " +
-                                    userDescriptor.friendlyName + "/" + userDescriptor.identity, Toast.LENGTH_SHORT)
-                        }
+                    users.getUserDescriptor(channel!!.members.membersList[0].identity, ChatCallbackListener<UserDescriptor>() {
+                        TwilioApplication.instance.showToast("Random user descriptor: ${it.friendlyName}/${it.identity}", Toast.LENGTH_SHORT)
                     })
 
                     // Users.getChannelUserDescriptors() way - paginated
@@ -204,22 +196,16 @@ class MessageActivity : Activity(), ChannelListener {
                 } else if (which == ADD_MEMBER) {
                     showAddMemberDialog()
                 } else if (which == LEAVE) {
-                    channel!!.leave(object : ToastStatusListener(
+                    channel!!.leave(ToastStatusListener(
                             "Successfully left channel", "Error leaving channel") {
-                        override fun onSuccess() {
-                            super.onSuccess()
-                            finish()
-                        }
+                        finish()
                     })
                 } else if (which == REMOVE_MEMBER) {
                     showRemoveMemberDialog()
                 } else if (which == CHANNEL_DESTROY) {
-                    channel!!.destroy(object : ToastStatusListener(
+                    channel!!.destroy(ToastStatusListener(
                             "Successfully destroyed channel", "Error destroying channel") {
-                        override fun onSuccess() {
-                            super.onSuccess()
-                            finish()
-                        }
+                        finish()
                     })
                 } else if (which == CHANNEL_ATTRIBUTE) {
                     try {
@@ -233,16 +219,10 @@ class MessageActivity : Activity(), ChannelListener {
                 } else if (which == GET_CHANNEL_UNIQUE_NAME) {
                     TwilioApplication.instance.showToast(channel!!.uniqueName)
                 } else if (which == GET_MESSAGE_BY_INDEX) {
-                    channel!!.messages.getMessageByIndex(channel!!.messages.lastConsumedMessageIndex!!, object : CallbackListener<Message>() {
-                        override fun onSuccess(message: Message) {
-                            TwilioApplication.instance.showToast("SUCCESS GET MESSAGE BY IDX")
-                            Timber.e("MESSAGES " + message.messages.toString())
-                            Timber.e("MESSAGE CHANNEL " + message.channel.sid)
-                        }
-
-                        override fun onError(info: ErrorInfo?) {
-                            TwilioApplication.instance.showError(info!!)
-                        }
+                    channel!!.messages.getMessageByIndex(channel!!.messages.lastConsumedMessageIndex!!, ChatCallbackListener<Message>() {
+                        TwilioApplication.instance.showToast("SUCCESS GET MESSAGE BY IDX")
+                        Timber.e("MESSAGES " + it.messages.toString())
+                        Timber.e("MESSAGE CHANNEL " + it.channel.sid)
                     })
                 } else if (which == SET_ALL_CONSUMED) {
                     channel!!.messages.setAllMessagesConsumed()
@@ -255,19 +235,14 @@ class MessageActivity : Activity(), ChannelListener {
     }
 
     private fun getUsersPage(userDescriptorPaginator: Paginator<UserDescriptor>) {
-        Timber.e(userDescriptorPaginator.items.toString())
         for (u in userDescriptorPaginator.items) {
-            u.subscribe(object : CallbackListener<User>() {
-                override fun onSuccess(user: User) {
-                    Timber.d("Hi I am subscribed user now " + user.identity)
-                }
+            u.subscribe(ChatCallbackListener<User>() {
+                Timber.d("${it.identity} is a subscribed user now")
             })
         }
         if (userDescriptorPaginator.hasNextPage()) {
-            userDescriptorPaginator.requestNextPage(object : CallbackListener<Paginator<UserDescriptor>>() {
-                override fun onSuccess(userDescriptorPaginator: Paginator<UserDescriptor>) {
-                    getUsersPage(userDescriptorPaginator)
-                }
+            userDescriptorPaginator.requestNextPage(ChatCallbackListener<Paginator<UserDescriptor>>() {
+                getUsersPage(it)
             })
         }
     }
@@ -384,14 +359,11 @@ class MessageActivity : Activity(), ChannelListener {
                 positiveButton(R.string.update) {
                     val text = messageText.text.toString()
                     Timber.d(text)
-                    message.updateMessageBody(text, object : ToastStatusListener(
+                    message.updateMessageBody(text, ToastStatusListener(
                             "Success updating message",
                             "Error updating message") {
-                        override fun onSuccess() {
-                            super.onSuccess()
-                            // @todo only need to update one message body
-                            loadAndShowMessages()
-                        }
+                        // @todo only need to update one message body
+                        loadAndShowMessages()
                     })
                 }
                 negativeButton(R.string.cancel) {}
@@ -408,14 +380,11 @@ class MessageActivity : Activity(), ChannelListener {
                     Timber.d(text)
                     try {
                         JSONObject(text).apply {
-                            message.setAttributes(this, object : ToastStatusListener(
+                            message.setAttributes(this, ToastStatusListener(
                                     "Success updating message attributes",
                                     "Error updating message attributes") {
-                                override fun onSuccess() {
-                                    super.onSuccess()
-                                    // @todo only need to update one message
-                                    loadAndShowMessages()
-                                }
+                                // @todo only need to update one message
+                                loadAndShowMessages()
                             })
                         }
                     } catch (e: JSONException) {
@@ -443,19 +412,17 @@ class MessageActivity : Activity(), ChannelListener {
 
     private fun loadAndShowMessages() {
         val messagesObject = channel!!.messages
-        messagesObject?.getLastMessages(50, object : CallbackListener<List<Message>>() {
-            override fun onSuccess(messagesArray: List<Message>) {
-                messageItemList.clear()
-                val members = channel!!.members
-                if (messagesArray.size > 0) {
-                    for (i in messagesArray.indices) {
-                        messageItemList.add(MessageItem(messagesArray[i], members, identity))
-                    }
+        messagesObject?.getLastMessages(50, ChatCallbackListener<List<Message>>() {
+            messageItemList.clear()
+            val members = channel!!.members
+            if (it.isNotEmpty()) {
+                for (i in it.indices) {
+                    messageItemList.add(MessageItem(it[i], members, identity))
                 }
-                adapter.clear()
-                adapter.addItems(messageItemList)
-                adapter.notifyDataSetChanged()
             }
+            adapter.clear()
+            adapter.addItems(messageItemList)
+            adapter.notifyDataSetChanged()
         })
     }
 
@@ -535,14 +502,11 @@ class MessageActivity : Activity(), ChannelListener {
                                 if (which == REMOVE) {
                                     dialog.cancel()
                                     messagesObject!!.removeMessage(
-                                            message.message, object : ToastStatusListener(
+                                            message.message, ToastStatusListener(
                                             "Successfully removed message. It should be GONE!!",
                                             "Error removing message") {
-                                        override fun onSuccess() {
-                                            super.onSuccess()
-                                            messageItemList.remove(message)
-                                            adapter!!.notifyDataSetChanged()
-                                        }
+                                        messageItemList.remove(message)
+                                        adapter.notifyDataSetChanged()
                                     })
                                 } else if (which == EDIT) {
                                     showUpdateMessageDialog(message.message)
@@ -572,18 +536,10 @@ class MessageActivity : Activity(), ChannelListener {
     }
 
     private fun sendMessage(text: String) {
-        val messagesObject = this.channel!!.messages
-
-        messagesObject.sendMessage(Message.options().withBody(text), object : CallbackListener<Message>() {
-            override fun onSuccess(msg: Message ?) {
-                TwilioApplication.instance.showToast("Successfully sent message");
-                adapter!!.notifyDataSetChanged()
-                messageInput.setText("")
-            }
-
-            override fun onError(errorInfo: ErrorInfo?) {
-                TwilioApplication.instance.showError(errorInfo!!);
-            }
+        channel!!.messages.sendMessage(Message.options().withBody(text), ChatCallbackListener<Message>() {
+            TwilioApplication.instance.showToast("Successfully sent message");
+            adapter.notifyDataSetChanged()
+            messageInput.setText("")
         })
     }
 
