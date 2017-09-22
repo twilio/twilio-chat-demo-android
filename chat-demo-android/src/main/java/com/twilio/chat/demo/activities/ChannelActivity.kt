@@ -31,13 +31,16 @@ import org.jetbrains.anko.sdk25.coroutines.onClick
 import timber.log.Timber
 import org.json.JSONObject
 import org.json.JSONException
+import ChatCallbackListener
 import ToastStatusListener
+import android.content.DialogInterface
+import org.jetbrains.anko.custom.customView
 
 class ChannelActivity : Activity(), ChatClientListener {
     private lateinit var basicClient: BasicChatClient
     private val channels = HashMap<String, ChannelModel>()
     private lateinit var adapter: SimpleRecyclerAdapter<ChannelModel>
-    private var incomingChannelInvite: AlertDialog? = null
+    private var incomingChannelInvite: DialogInterface? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -109,73 +112,53 @@ class ChannelActivity : Activity(), ChatClientListener {
     }
 
     private fun showCreateChannelDialog(type: ChannelType) {
-        val builder = AlertDialog.Builder(this@ChannelActivity)
-
-        builder.setView(
-            verticalLayout {
-                textView { text = "Enter ${type} name" }
-                val channel_name = editText {
-                    hintResource = R.string.title_add_channel_name
-                }.lparams(width = matchParent)
-                button(R.string.create) {
-                    onClick {
+        alert(R.string.title_add_channel) {
+            customView {
+                verticalLayout {
+                    textView {
+                        text = "Enter ${type} name"
+                        padding = dip(10)
+                    }.lparams(width = matchParent)
+                    val channel_name = editText { padding = dip(10) }.lparams(width = matchParent)
+                    positiveButton(R.string.create) {
                         val channelName = channel_name.text.toString()
                         Timber.d("Creating channel with friendly Name|$channelName|")
-                        basicClient.chatClient?.channels?.createChannel(channelName, type, object : CallbackListener<Channel>() {
-                            override fun onSuccess(newChannel: Channel?) {
-                                Timber.d("Successfully created a channel")
-                                if (newChannel != null) {
-                                    Timber.d("Channel created with sid|${newChannel.sid}| and type |${newChannel.type}|")
-                                    channels.put(newChannel.sid, ChannelModel(newChannel))
-                                    refreshChannelList()
-                                }
-                            }
-
-                            override fun onError(errorInfo: ErrorInfo?) {
-                                TwilioApplication.instance.showError("Error creating channel",
-                                        errorInfo!!)
-                            }
+                        basicClient.chatClient?.channels?.createChannel(channelName, type, ChatCallbackListener<Channel>() {
+                            Timber.d("Channel created with sid|${it.sid}| and type ${it.type}")
+                            channels.put(it.sid, ChannelModel(it))
+                            refreshChannelList()
                         })
                     }
+                    negativeButton(R.string.cancel) {}
                 }
-            }.view()
-        )
-        builder.setNegativeButton(R.string.cancel) { dialog, _ ->
-            dialog.cancel()
-        }
-        builder.create().show()
+            }
+        }.show()
     }
 
     private fun showSearchChannelDialog() {
-        val builder = AlertDialog.Builder(this@ChannelActivity)
-
-        builder.setView(
+        alert(R.string.title_find_channel) {
+            customView {
                 verticalLayout {
-                    textView { text = "Enter unique channel name" }
-                    val channel_name = editText {
-                        hintResource = R.string.title_add_channel_name
+                    textView {
+                        text = "Enter unique channel name"
+                        padding = dip(10)
                     }.lparams(width = matchParent)
-                    button(R.string.create) {
-                        onClick {
-                            val channelSid = channel_name.text.toString()
-                            Timber.d("Searching for " + channelSid)
-                            basicClient.chatClient?.channels?.getChannel(channelSid, object : CallbackListener<Channel>() {
-                                override fun onSuccess(channel: Channel?) {
-                                    if (channel != null) {
-                                        TwilioApplication.instance.showToast("${channel.sid}: ${channel.friendlyName}")
-                                    } else {
-                                        TwilioApplication.instance.showToast("Channel not found.")
-                                    }
-                                }
-                            })
-                        }
+                    val channel_name = editText { padding = dip(10) }.lparams(width = matchParent)
+                    positiveButton(R.string.search) {
+                        val channelSid = channel_name.text.toString()
+                        Timber.d("Searching for ${channelSid}")
+                        basicClient.chatClient?.channels?.getChannel(channelSid, ChatCallbackListener<Channel?>() {
+                            if (it != null) {
+                                TwilioApplication.instance.showToast("${it.sid}: ${it.friendlyName}")
+                            } else {
+                                TwilioApplication.instance.showToast("Channel not found.")
+                            }
+                        })
                     }
-                }.view()
-        )
-        builder.setNegativeButton(R.string.cancel) { dialog, _ ->
-            dialog.cancel()
-        }
-        builder.create().show()
+                    negativeButton(R.string.cancel) {}
+                }
+            }
+        }.show()
     }
 
     private fun setupListView() {
@@ -183,30 +166,26 @@ class ChannelActivity : Activity(), ChatClientListener {
                 ItemClickListener { channel: ChannelModel, _, _ ->
                     if (channel.status == Channel.ChannelStatus.JOINED) {
                         Handler().postDelayed({
-                            channel.getChannel(object : CallbackListener<Channel>() {
-                                override fun onSuccess(chan: Channel) {
-                                    val i = Intent(this@ChannelActivity, MessageActivity::class.java)
-                                    i.putExtra(Constants.EXTRA_CHANNEL, chan as Parcelable)
-                                    i.putExtra(Constants.EXTRA_CHANNEL_SID, chan.sid)
-                                    startActivity(i)
-                                }
+                            channel.getChannel(ChatCallbackListener<Channel>() {
+                                startActivity<MessageActivity>(
+                                    Constants.EXTRA_CHANNEL to it,
+                                    Constants.EXTRA_CHANNEL_SID to it.sid
+                                )
                             })
                         }, 0)
                         return@ItemClickListener
                     }
-                    val builder = AlertDialog.Builder(this@ChannelActivity)
-                    builder.setTitle(R.string.select_action)
-                            .setItems(CHANNEL_OPTIONS) { dialog, which ->
-                                if (which == JOIN) {
-                                    dialog.cancel()
-                                    channel.join(
-                                            ToastStatusListener("Successfully joined channel",
-                                                    "Failed to join channel") {
-                                                refreshChannelList()
-                                            })
-                                }
-                            }
-                    builder.show()
+                    alert(R.string.select_action) {
+                        positiveButton("Join") { dialog ->
+                            channel.join(
+                                    ToastStatusListener("Successfully joined channel",
+                                            "Failed to join channel") {
+                                        refreshChannelList()
+                                    })
+                            dialog.cancel()
+                        }
+                        negativeButton(R.string.cancel) {}
+                    }.show()
                 },
                 object : SimpleRecyclerAdapter.CreateViewHolder<ChannelModel>() {
                     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SettableViewHolder<ChannelModel> {
@@ -272,31 +251,25 @@ class ChannelActivity : Activity(), ChatClientListener {
     private fun showIncomingInvite(channel: Channel) {
         doAsync {
             if (incomingChannelInvite == null) {
-                incomingChannelInvite = AlertDialog.Builder(this@ChannelActivity)
-                        .setTitle(R.string.channel_invite)
-                        .setMessage(R.string.channel_invite_message)
-                        .setPositiveButton(
-                                R.string.join
-                        ) { _, _ ->
-                            channel.join(ToastStatusListener(
-                                    "Successfully joined channel",
-                                    "Failed to join channel") {
-                                channels.put(channel.sid, ChannelModel(channel))
-                                refreshChannelList()
-                            })
-                            incomingChannelInvite = null
-                        }
-                        .setNegativeButton(
-                                R.string.decline
-                        ) { _, _ ->
-                            channel.declineInvitation(ToastStatusListener(
-                                    "Successfully declined channel invite",
-                                    "Failed to decline channel invite"))
-                            incomingChannelInvite = null
-                        }
-                        .create()
+                incomingChannelInvite = alert(R.string.channel_invite, R.string.channel_invite_message) {
+                    positiveButton(R.string.join) {
+                        channel.join(ToastStatusListener(
+                                "Successfully joined channel",
+                                "Failed to join channel") {
+                            channels.put(channel.sid, ChannelModel(channel))
+                            refreshChannelList()
+                        })
+//                        incomingChannelInvite = null
+                    }
+                    negativeButton(R.string.decline) {
+                        channel.declineInvitation(ToastStatusListener(
+                                "Successfully declined channel invite",
+                                "Failed to decline channel invite"))
+//                        incomingChannelInvite = null
+                    }
+                }.build()
             }
-            incomingChannelInvite!!.show()
+//            incomingChannelInvite!!.show()
         }
     }
 

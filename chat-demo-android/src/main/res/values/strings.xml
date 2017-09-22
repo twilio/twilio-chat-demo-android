@@ -42,4 +42,7 @@
     <string name="change_topic">Change Topic</string>
     <string name="add_member">Add</string>
     <string name="select_action">Select an option</string>
+    <string name="title_add_channel">Create channel</string>
+    <string name="title_find_channel">Find channel</string>
+    <string name="search">Search</string>
 </resources>

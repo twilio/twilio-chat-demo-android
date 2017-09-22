@@ -132,14 +132,11 @@ class MessageActivity : Activity(), ChannelListener {
     }
 
     private fun showChannelSettingsDialog() {
-        val builder = AlertDialog.Builder(this@MessageActivity)
-        builder.setTitle("Select an option")
-            .setItems(EDIT_OPTIONS) { _, which ->
-                if (which == NAME_CHANGE) {
-                    showChangeNameDialog()
-                } else if (which == TOPIC_CHANGE) {
-                    showChangeTopicDialog()
-                } else if (which == LIST_MEMBERS) {
+        selector("Select an option", EDIT_OPTIONS) { _, which ->
+            when (which) {
+                NAME_CHANGE -> showChangeNameDialog()
+                TOPIC_CHANGE -> showChangeTopicDialog()
+                LIST_MEMBERS -> {
                     val users = TwilioApplication.instance.basicClient.chatClient!!.users
                     // Members.getMembersList() way
                     val members = channel!!.members.membersList
@@ -175,11 +172,11 @@ class MessageActivity : Activity(), ChannelListener {
 
                     // Users.getChannelUserDescriptors() way - paginated
                     users.getChannelUserDescriptors(channel!!.sid,
-                        object : CallbackListener<Paginator<UserDescriptor>>() {
-                            override fun onSuccess(userDescriptorPaginator: Paginator<UserDescriptor>) {
-                                getUsersPage(userDescriptorPaginator)
-                            }
-                        })
+                            object : CallbackListener<Paginator<UserDescriptor>>() {
+                                override fun onSuccess(userDescriptorPaginator: Paginator<UserDescriptor>) {
+                                    getUsersPage(userDescriptorPaginator)
+                                }
+                            })
 
                     // Channel.getMemberByIdentity() for finding the user in all channels
                     val members2 = TwilioApplication.instance.basicClient.chatClient!!.channels.getMembersByIdentity(channel!!.members.membersList[0].identity)
@@ -191,47 +188,34 @@ class MessageActivity : Activity(), ChannelListener {
                         }
                     }
                     //TwilioApplication.get().showToast("Random user in all channels: "+name3.toString(), Toast.LENGTH_LONG);
-                } else if (which == INVITE_MEMBER) {
-                    showInviteMemberDialog()
-                } else if (which == ADD_MEMBER) {
-                    showAddMemberDialog()
-                } else if (which == LEAVE) {
-                    channel!!.leave(ToastStatusListener(
+                }
+                INVITE_MEMBER -> showInviteMemberDialog()
+                ADD_MEMBER -> showAddMemberDialog()
+                REMOVE_MEMBER -> showRemoveMemberDialog()
+                LEAVE -> channel!!.leave(ToastStatusListener(
                             "Successfully left channel", "Error leaving channel") {
                         finish()
                     })
-                } else if (which == REMOVE_MEMBER) {
-                    showRemoveMemberDialog()
-                } else if (which == CHANNEL_DESTROY) {
-                    channel!!.destroy(ToastStatusListener(
-                            "Successfully destroyed channel", "Error destroying channel") {
+                CHANNEL_DESTROY -> channel!!.destroy(ToastStatusListener(
+                        "Successfully destroyed channel", "Error destroying channel") {
                         finish()
                     })
-                } else if (which == CHANNEL_ATTRIBUTE) {
-                    try {
+                CHANNEL_ATTRIBUTE -> try {
                         TwilioApplication.instance.showToast(channel!!.attributes.toString())
                     } catch (e: JSONException) {
                         TwilioApplication.instance.showToast("JSON exception in channel attributes")
                     }
-
-                } else if (which == SET_CHANNEL_UNIQUE_NAME) {
-                    showChangeUniqueNameDialog()
-                } else if (which == GET_CHANNEL_UNIQUE_NAME) {
-                    TwilioApplication.instance.showToast(channel!!.uniqueName)
-                } else if (which == GET_MESSAGE_BY_INDEX) {
-                    channel!!.messages.getMessageByIndex(channel!!.messages.lastConsumedMessageIndex!!, ChatCallbackListener<Message>() {
+                SET_CHANNEL_UNIQUE_NAME -> showChangeUniqueNameDialog()
+                GET_CHANNEL_UNIQUE_NAME -> TwilioApplication.instance.showToast(channel!!.uniqueName)
+                GET_MESSAGE_BY_INDEX -> channel!!.messages.getMessageByIndex(channel!!.messages.lastConsumedMessageIndex!!, ChatCallbackListener<Message>() {
                         TwilioApplication.instance.showToast("SUCCESS GET MESSAGE BY IDX")
-                        Timber.e("MESSAGES " + it.messages.toString())
-                        Timber.e("MESSAGE CHANNEL " + it.channel.sid)
+                        Timber.e("MESSAGES ${it.messages.toString()}")
+                        Timber.e("MESSAGE CHANNEL ${it.channel.sid}")
                     })
-                } else if (which == SET_ALL_CONSUMED) {
-                    channel!!.messages.setAllMessagesConsumed()
-                } else if (which == SET_NONE_CONSUMED) {
-                    channel!!.messages.setNoMessagesConsumed()
-                }
+                SET_ALL_CONSUMED -> channel!!.messages.setAllMessagesConsumed()
+                SET_NONE_CONSUMED -> channel!!.messages.setNoMessagesConsumed()
             }
-
-        builder.show()
+        }
     }
 
     private fun getUsersPage(userDescriptorPaginator: Paginator<UserDescriptor>) {
@@ -319,37 +303,32 @@ class MessageActivity : Activity(), ChannelListener {
     }
 
     private fun showRemoveMemberDialog() {
-        val builder = AlertDialog.Builder(this@MessageActivity)
-        builder.setView(
-            verticalLayout {
-                textView { textResource = R.string.title_remove_member }
-                val view = recyclerView {}.lparams(width = dip(250), height = matchParent)
-            }.view()
-        )
+        alert("Remove members") {
+            customView {
+                verticalLayout {
+                    val view = recyclerView {}.lparams(width = dip(250), height = matchParent)
+                    negativeButton(R.string.cancel) {}
 
-//        view.adapter = SimpleRecyclerAdapter<Member>()
-//
-//
-//        val membersObject = channel!!.members
-//        val members = membersObject.membersList
-//        val convertView = layoutInflater.inflate(R.layout.member_list, null)
-//        val memberListDialog = AlertDialog.Builder(this@MessageActivity)
-//                .setView(convertView)
-//                .setTitle("Remove members")
-//                .create()
-//        val lv = convertView.findViewById(R.id.listView1) as ListView
-//        val adapterMember = SimpleRecyclerAdapter<Member>(
-//                this@MessageActivity, MemberViewHolder::class.java, members, object : MemberViewHolder.OnMemberClickListener {
-//                    override fun onMemberClicked(member: Member) {
-//                        membersObject.remove(member, ToastStatusListener(
-//                                "Successful removeMember operation",
-//                                "Error in removeMember operation"))
-//                        memberListDialog.dismiss()
-//                    }
-//                })
-//        lv.adapter = adapterMember
-//        memberListDialog.show()
-//        memberListDialog.window!!.setLayout(800, 600)
+                    view.adapter = SimpleRecyclerAdapter<Member>(
+                            ItemClickListener { member: Member, _, _ ->
+                                channel!!.members.remove(member, ToastStatusListener(
+                                        "Successful removeMember operation",
+                                        "Error in removeMember operation"))
+                                // @todo update memberList here
+                            },
+                            object : SimpleRecyclerAdapter.CreateViewHolder<Member>() {
+                                override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SettableViewHolder<Member> {
+                                    return MemberViewHolder(this@MessageActivity, parent)
+                                }
+                            },
+                            channel!!.members.membersList)
+
+                    view.layoutManager = LinearLayoutManager(this@MessageActivity).apply {
+                        orientation = LinearLayoutManager.VERTICAL
+                    }
+                }
+            }
+        }.show()
     }
 
     private fun showUpdateMessageDialog(message: Message) {
@@ -496,33 +475,31 @@ class MessageActivity : Activity(), ChannelListener {
             })
         adapter.setLongClickListener(
                 ItemLongClickListener { message: MessageItem, _, _ ->
-                    val builder = AlertDialog.Builder(this@MessageActivity)
-                    builder.setTitle(R.string.select_action)
-                            .setItems(MESSAGE_OPTIONS) { dialog, which ->
-                                if (which == REMOVE) {
-                                    dialog.cancel()
-                                    messagesObject!!.removeMessage(
-                                            message.message, ToastStatusListener(
-                                            "Successfully removed message. It should be GONE!!",
-                                            "Error removing message") {
-                                        messageItemList.remove(message)
-                                        adapter.notifyDataSetChanged()
-                                    })
-                                } else if (which == EDIT) {
-                                    showUpdateMessageDialog(message.message)
-                                } else if (which == GET_ATTRIBUTES) {
-                                    var attr = ""
-                                    try {
-                                        attr = message.message.attributes.toString()
-                                    } catch (e: JSONException) {
-                                    }
-
-                                    TwilioApplication.instance.showToast(attr)
-                                } else if (which == SET_ATTRIBUTES) {
-                                    showUpdateMessageAttributesDialog(message.message)
-                                }
+                    selector("Select an option", MESSAGE_OPTIONS) { dialog, which ->
+                        when (which) {
+                            REMOVE -> {
+                                dialog.cancel()
+                                messagesObject!!.removeMessage(
+                                        message.message, ToastStatusListener(
+                                        "Successfully removed message. It should be GONE!!",
+                                        "Error removing message") {
+                                    messageItemList.remove(message)
+                                    adapter.notifyDataSetChanged()
+                                })
                             }
-                    builder.show()
+                            EDIT -> showUpdateMessageDialog(message.message)
+                            GET_ATTRIBUTES -> {
+                                var attr = ""
+                                try {
+                                    attr = message.message.attributes.toString()
+                                } catch (e: JSONException) {
+                                }
+
+                                TwilioApplication.instance.showToast(attr)
+                            }
+                            SET_ATTRIBUTES -> showUpdateMessageAttributesDialog(message.message)
+                        }
+                    }
                     true
                 }
         )
@@ -625,8 +602,8 @@ class MessageActivity : Activity(), ChannelListener {
     data class MessageItem(val message: Message, val members: Members, internal var currentUser: String);
 
     companion object {
-        private val MESSAGE_OPTIONS = arrayOf("Remove", "Edit", "Get Attributes", "Edit Attributes")
-        private val EDIT_OPTIONS = arrayOf("Change Friendly Name", "Change Topic", "List Members", "Invite Member", "Add Member", "Remove Member", "Leave", "Destroy", "Get Attributes", "Change Unique Name", "Get Unique Name", "Get message index 0", "Set all consumed", "Set none consumed")
+        private val MESSAGE_OPTIONS = listOf("Remove", "Edit", "Get Attributes", "Edit Attributes")
+        private val EDIT_OPTIONS = listOf("Change Friendly Name", "Change Topic", "List Members", "Invite Member", "Add Member", "Remove Member", "Leave", "Destroy", "Get Attributes", "Change Unique Name", "Get Unique Name", "Get message index 0", "Set all consumed", "Set none consumed")
 
         private val NAME_CHANGE = 0
         private val TOPIC_CHANGE = 1

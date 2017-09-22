@@ -39,6 +39,7 @@ import android.preference.PreferenceManager
 import com.twilio.chat.demo.TwilioApplication
 import com.twilio.chat.demo.services.RegistrationIntentService
 import kotlinx.android.synthetic.main.activity_login.*
+import org.jetbrains.anko.alert
 
 import timber.log.Timber
 
@@ -89,13 +90,9 @@ class LoginActivity : Activity(), LoginListener {
     }
 
     private fun showAboutDialog() {
-        val builder = AlertDialog.Builder(this@LoginActivity)
-        builder.setTitle("About")
-                .setMessage("Version: " + ChatClient.getSdkVersion())
-                .setPositiveButton("OK") { dialog, _ -> dialog.cancel() }
-
-        val aboutDialog = builder.create()
-        aboutDialog.show()
+        alert("Version: ${ChatClient.getSdkVersion()}", "About") {
+            positiveButton("OK") { dialog -> dialog.cancel() }
+        }.show()
     }
 
     override fun onLoginStarted() {
