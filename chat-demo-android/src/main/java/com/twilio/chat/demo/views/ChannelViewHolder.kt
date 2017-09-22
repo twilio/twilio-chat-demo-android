@@ -5,7 +5,6 @@ import com.twilio.chat.demo.ChannelModel
 import com.twilio.chat.Channel.ChannelStatus
 import com.twilio.chat.Channel.ChannelType
 import com.twilio.chat.CallbackListener
-
 import android.graphics.Color
 import android.util.Log
 import android.view.ViewGroup

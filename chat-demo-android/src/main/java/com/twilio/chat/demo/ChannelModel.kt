@@ -1,7 +1,6 @@
 package com.twilio.chat.demo
 
 import java.util.Date
-
 import com.twilio.chat.Channel
 import com.twilio.chat.Channel.ChannelStatus
 import com.twilio.chat.Channel.ChannelType

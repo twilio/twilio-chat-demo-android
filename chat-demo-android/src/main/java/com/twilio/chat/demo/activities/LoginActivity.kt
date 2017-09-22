@@ -1,45 +1,23 @@
 package com.twilio.chat.demo.activities
 
-import java.io.IOException
-import java.net.URLEncoder
-
 import com.google.android.gms.common.ConnectionResult
-
 import com.google.android.gms.common.GoogleApiAvailability
-import com.twilio.chat.StatusListener
-import com.twilio.chat.ErrorInfo
-
 import com.twilio.chat.ChatClient
 import com.twilio.chat.demo.BasicChatClient.LoginListener
 import com.twilio.chat.demo.R
 import com.twilio.chat.demo.BuildConfig
-
 import android.net.Uri
-import android.provider.Settings.Secure
-import android.support.v4.content.LocalBroadcastManager
 import android.app.Activity
-import android.app.AlertDialog
 import android.app.ProgressDialog
-import android.content.DialogInterface
-import android.content.Intent
-import android.content.SharedPreferences
-import android.content.IntentFilter
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.os.AsyncTask
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.EditText
 import android.widget.Toast
 import android.preference.PreferenceManager
 import com.twilio.chat.demo.TwilioApplication
 import com.twilio.chat.demo.services.RegistrationIntentService
 import kotlinx.android.synthetic.main.activity_login.*
-import org.jetbrains.anko.alert
+import org.jetbrains.anko.*
 
 import timber.log.Timber
 

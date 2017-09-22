@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
-import com.twilio.chat.CallbackListener
 import com.twilio.chat.Channel
 import com.twilio.chat.Message
 import com.twilio.chat.ProgressListener
@@ -17,7 +16,6 @@ import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.newSingleThreadContext
 import timber.log.Timber
-import java.io.ByteArrayOutputStream
 
 class MediaService : IntentService(MediaService::class.java.simpleName) {
 
