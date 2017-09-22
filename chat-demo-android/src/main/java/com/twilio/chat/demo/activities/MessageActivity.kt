@@ -254,16 +254,16 @@ class MessageActivity : Activity(), ChannelListener {
                     val topicText = topic.text.toString()
                     Timber.d(topicText)
 
-                    val attrObj = JSONObject()
-                    try {
-                        attrObj.put("Topic", topicText)
+                    try { // @todo Get attributes to update
+                        JSONObject().apply {
+                            put("Topic", topicText)
+                            channel!!.setAttributes(this, ToastStatusListener(
+                                    "Attributes were set successfullly.",
+                                    "Setting attributes failed"))
+                        }
                     } catch (ignored: JSONException) {
                         // whatever
                     }
-
-                    channel!!.setAttributes(attrObj, ToastStatusListener(
-                            "Attributes were set successfullly.",
-                            "Setting attributes failed"))
                 }
                 negativeButton(R.string.cancel) {}
             }
@@ -487,13 +487,11 @@ class MessageActivity : Activity(), ChannelListener {
                             }
                             EDIT -> showUpdateMessageDialog(message.message)
                             GET_ATTRIBUTES -> {
-                                var attr = ""
                                 try {
-                                    attr = message.message.attributes.toString()
+                                    TwilioApplication.instance.showToast(message.message.attributes.toString())
                                 } catch (e: JSONException) {
+                                    TwilioApplication.instance.showToast("Error parsing message attributes")
                                 }
-
-                                TwilioApplication.instance.showToast(attr)
                             }
                             SET_ATTRIBUTES -> showUpdateMessageAttributesDialog(message.message)
                         }
