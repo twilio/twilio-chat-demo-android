@@ -18,13 +18,26 @@ class ChatCallbackListener<T>(val fail: ErrorCallback = {},
     }
 }
 
-class ChatStatusListener(val fail: ErrorCallback = {},
-                         val success: SuccessStatus = {}) : StatusListener() {
+open class ChatStatusListener(val fail: ErrorCallback = {},
+                              val success: SuccessStatus = {}) : StatusListener() {
 
     override fun onSuccess() = success()
 
     override fun onError(err: ErrorInfo) {
         TwilioApplication.instance.showError(err)
         fail(err)
+    }
+}
+
+
+/**
+ * Status listener that shows a toast with operation results.
+ */
+class ToastStatusListener(val okText: String, val errorText: String, fail: ErrorCallback = {},
+                          success: SuccessStatus = {}) : ChatStatusListener(fail, success) {
+
+    override fun onSuccess() {
+        TwilioApplication.instance.showToast(okText)
+        success()
     }
 }

@@ -22,7 +22,7 @@ import com.twilio.chat.ChatClientListener
 import com.twilio.chat.ChatClient
 import com.twilio.chat.User
 import com.twilio.chat.demo.R
-import com.twilio.chat.demo.ToastStatusListener
+import ToastStatusListener
 import com.twilio.chat.demo.TwilioApplication
 
 import org.json.JSONException
@@ -79,13 +79,10 @@ class UserActivity : Activity() {
                     // whatever?
                 }
 
-                user.setAttributes(attributes, object : ToastStatusListener(
+                user.setAttributes(attributes, ToastStatusListener(
                         "Update successful for user attributes",
                         "Update failed for user attributes") {
-                    override fun onSuccess() {
-                        super.onSuccess()
-                        fillUserAvatar()
-                    }
+                    fillUserAvatar()
                 })
             }
         }

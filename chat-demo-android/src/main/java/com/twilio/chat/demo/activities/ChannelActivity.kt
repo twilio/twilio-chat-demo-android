@@ -1,21 +1,17 @@
 package com.twilio.chat.demo.activities
 
-import java.util.ArrayList
 import java.util.Comparator
 import java.util.HashMap
 import java.util.Random
-
 import com.twilio.chat.Channel
 import com.twilio.chat.Channel.ChannelType
 import com.twilio.chat.ChannelDescriptor
-import com.twilio.chat.Channels
 import com.twilio.chat.CallbackListener
 import com.twilio.chat.ChatClientListener
 import com.twilio.chat.ChatClient
 import com.twilio.chat.ErrorInfo
 import com.twilio.chat.User
 import com.twilio.chat.Paginator
-
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
@@ -32,10 +28,10 @@ import eu.inloop.simplerecycleradapter.SimpleRecyclerAdapter
 import kotlinx.android.synthetic.main.activity_channel.*
 import org.jetbrains.anko.*
 import org.jetbrains.anko.sdk25.coroutines.onClick
-
 import timber.log.Timber
 import org.json.JSONObject
 import org.json.JSONException
+import ToastStatusListener
 
 class ChannelActivity : Activity(), ChatClientListener {
     private lateinit var basicClient: BasicChatClient
@@ -118,7 +114,7 @@ class ChannelActivity : Activity(), ChatClientListener {
 
         builder.setView(
             verticalLayout {
-                textView { text = "Enter " + type.toString() + " name" }
+                textView { text = "Enter ${type} name" }
                 val channel_name = editText {
                     hintResource = R.string.title_add_channel_name
                 }.lparams(width = matchParent)
@@ -205,12 +201,9 @@ class ChannelActivity : Activity(), ChatClientListener {
                                 if (which == JOIN) {
                                     dialog.cancel()
                                     channel.join(
-                                            object : ToastStatusListener("Successfully joined channel",
+                                            ToastStatusListener("Successfully joined channel",
                                                     "Failed to join channel") {
-                                                override fun onSuccess() {
-                                                    super.onSuccess()
-                                                    refreshChannelList()
-                                                }
+                                                refreshChannelList()
                                             })
                                 }
                             }
@@ -292,27 +285,20 @@ class ChannelActivity : Activity(), ChatClientListener {
                         .setPositiveButton(
                                 R.string.join
                         ) { _, _ ->
-                            channel.join(object : ToastStatusListener(
+                            channel.join(ToastStatusListener(
                                     "Successfully joined channel",
                                     "Failed to join channel") {
-                                override fun onSuccess() {
-                                    super.onSuccess()
-                                    channels.put(channel.sid, ChannelModel(channel))
-                                    refreshChannelList()
-                                }
+                                channels.put(channel.sid, ChannelModel(channel))
+                                refreshChannelList()
                             })
                             incomingChannelInvite = null
                         }
                         .setNegativeButton(
                                 R.string.decline
                         ) { _, _ ->
-                            channel.declineInvitation(object : ToastStatusListener(
+                            channel.declineInvitation(ToastStatusListener(
                                     "Successfully declined channel invite",
-                                    "Failed to decline channel invite") {
-                                override fun onSuccess() {
-                                    super.onSuccess()
-                                }
-                            })
+                                    "Failed to decline channel invite"))
                             incomingChannelInvite = null
                         }
                         .create()

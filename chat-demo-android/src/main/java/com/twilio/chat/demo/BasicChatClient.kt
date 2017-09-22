@@ -1,28 +1,15 @@
 package com.twilio.chat.demo
 
-import java.util.Arrays
-
 import com.twilio.accessmanager.AccessManager
-
-import com.twilio.chat.Channel
-import com.twilio.chat.StatusListener
 import com.twilio.chat.CallbackListener
-import com.twilio.chat.ChatClientListener
 import com.twilio.chat.ChatClient
 import com.twilio.chat.ErrorInfo
-import com.twilio.chat.User
 import com.twilio.chat.internal.HandlerUtil
-
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.os.AsyncTask
 import android.os.Handler
-import android.os.Looper
-import android.util.Log
-import android.widget.Toast
-
 import timber.log.Timber
+import ToastStatusListener
 
 class BasicChatClient(private val context: Context) : CallbackListener<ChatClient>(), AccessManager.Listener, AccessManager.TokenUpdateListener {
     private var accessToken: String? = null
