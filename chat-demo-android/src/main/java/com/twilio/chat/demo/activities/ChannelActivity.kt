@@ -275,7 +275,7 @@ class ChannelActivity : Activity(), ChatClientListener {
 
     private inner class CustomChannelComparator : Comparator<ChannelModel> {
         override fun compare(lhs: ChannelModel, rhs: ChannelModel): Int {
-            return lhs.friendlyName!!.compareTo(rhs.friendlyName!!)
+            return lhs.friendlyName.compareTo(rhs.friendlyName)
         }
     }
 

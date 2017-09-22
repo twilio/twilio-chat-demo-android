@@ -21,39 +21,39 @@ class ChannelModel {
         channelDescriptor = channel_
     }
 
-    val friendlyName: String?
+    val friendlyName: String
         get() {
             if (channel != null) return channel!!.friendlyName
             if (channelDescriptor != null) return channelDescriptor!!.friendlyName
-            return null
+            throw IllegalStateException("Invalid state")
         }
 
-    val sid: String?
+    val sid: String
         get() {
             if (channel != null) return channel!!.sid
             if (channelDescriptor != null) return channelDescriptor!!.sid
-            return null
+            throw IllegalStateException("Invalid state")
         }
 
     val dateUpdatedAsDate: Date?
         get() {
             if (channel != null) return channel!!.dateUpdatedAsDate
             if (channelDescriptor != null) return channelDescriptor!!.dateUpdated
-            return null
+            throw IllegalStateException("Invalid state")
         }
 
     val dateCreatedAsDate: Date?
         get() {
             if (channel != null) return channel!!.dateCreatedAsDate
             if (channelDescriptor != null) return channelDescriptor!!.dateCreated
-            return null
+            throw IllegalStateException("Invalid state")
         }
 
-    val status: ChannelStatus?
+    val status: ChannelStatus
         get() {
             if (channel != null) return channel!!.status
             if (channelDescriptor != null) return channelDescriptor!!.status
-            return null
+            throw IllegalStateException("Invalid state")
         }
 
     fun getUnconsumedMessagesCount(listener: CallbackListener<Long>) {

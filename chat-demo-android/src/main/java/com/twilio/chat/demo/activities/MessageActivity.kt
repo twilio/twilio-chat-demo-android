@@ -453,10 +453,10 @@ class MessageActivity : Activity(), ChannelListener {
 
     private fun setupListView(channel: Channel) {
 //        message_list_view.viewTreeObserver.addOnScrollChangedListener {
-//            if (message_list_view.lastVisiblePosition >= 0 && message_list_view.lastVisiblePosition < adapter!!.count) {
+//            if (message_list_view.lastVisiblePosition >= 0 && message_list_view.lastVisiblePosition < adapter.itemCount) {
 //                val item = adapter.getItem(message_list_view.lastVisiblePosition)
 //                if (item != null && messagesObject != null)
-//                    messagesObject.advanceLastConsumedMessageIndex(
+//                    channel.messages.advanceLastConsumedMessageIndex(
 //                            item.message.messageIndex)
 //            }
 //        }
@@ -477,7 +477,7 @@ class MessageActivity : Activity(), ChannelListener {
                         when (which) {
                             REMOVE -> {
                                 dialog.cancel()
-                                channel.messages!!.removeMessage(
+                                channel.messages.removeMessage(
                                         message.message, ToastStatusListener(
                                         "Successfully removed message. It should be GONE!!",
                                         "Error removing message") {
