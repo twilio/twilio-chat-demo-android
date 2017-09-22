@@ -390,8 +390,7 @@ class MessageActivity : Activity(), ChannelListener {
     }
 
     private fun loadAndShowMessages() {
-        val messagesObject = channel!!.messages
-        messagesObject?.getLastMessages(50, ChatCallbackListener<List<Message>>() {
+        channel!!.messages?.getLastMessages(50, ChatCallbackListener<List<Message>>() {
             messageItemList.clear()
             val members = channel!!.members
             if (it.isNotEmpty()) {
@@ -453,8 +452,6 @@ class MessageActivity : Activity(), ChannelListener {
     }
 
     private fun setupListView(channel: Channel) {
-        val messagesObject = channel.messages
-
 //        message_list_view.viewTreeObserver.addOnScrollChangedListener {
 //            if (message_list_view.lastVisiblePosition >= 0 && message_list_view.lastVisiblePosition < adapter!!.count) {
 //                val item = adapter.getItem(message_list_view.lastVisiblePosition)
@@ -473,13 +470,14 @@ class MessageActivity : Activity(), ChannelListener {
                     return MessageViewHolder(this@MessageActivity, parent);
                 }
             })
+
         adapter.setLongClickListener(
                 ItemLongClickListener { message: MessageItem, _, _ ->
                     selector("Select an option", MESSAGE_OPTIONS) { dialog, which ->
                         when (which) {
                             REMOVE -> {
                                 dialog.cancel()
-                                messagesObject!!.removeMessage(
+                                channel.messages!!.removeMessage(
                                         message.message, ToastStatusListener(
                                         "Successfully removed message. It should be GONE!!",
                                         "Error removing message") {
