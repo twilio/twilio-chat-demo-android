@@ -49,8 +49,7 @@ class LoginActivity : Activity(), LoginListener {
         if (checkPlayServices()) {
             fcmAvailable.isChecked = true
             // Start IntentService to register this application with GCM.
-            val intent = Intent(this, RegistrationIntentService::class.java)
-            startService(intent)
+            startService<RegistrationIntentService>()
         }
     }
 
@@ -80,8 +79,7 @@ class LoginActivity : Activity(), LoginListener {
 
     override fun onLoginFinished() {
         progressDialog?.dismiss()
-        val intent = Intent(this, ChannelActivity::class.java)
-        startActivity(intent)
+        startActivity<ChannelActivity>()
     }
 
     override fun onLoginError(errorMessage: String) {

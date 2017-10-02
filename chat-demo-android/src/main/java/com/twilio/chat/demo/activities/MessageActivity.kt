@@ -530,15 +530,20 @@ class MessageActivity : Activity(), ChannelListener {
         if (requestCode == FILE_REQUEST && resultCode == Activity.RESULT_OK) {
             Timber.d("Uri: ${data?.data}")
 
-//            startService<MediaService>(
-//                MediaService.EXTRA_ACTION to MediaService.EXTRA_ACTION_UPLOAD,
-//                MediaService.EXTRA_MEDIA_URI to data?.data.toString(),
-//                MediaService.EXTRA_CHANNEL to channel)
+            startService<MediaService>(
+                MediaService.EXTRA_ACTION to MediaService.EXTRA_ACTION_UPLOAD,
+                MediaService.EXTRA_CHANNEL to channel as Parcelable,
+                MediaService.EXTRA_MEDIA_URI to data?.data.toString())
         }
     }
 
     override fun onMessageAdded(message: Message) {
         setupListView(channel!!)
+
+        startService<MediaService>(
+            MediaService.EXTRA_ACTION to MediaService.EXTRA_ACTION_DOWNLOAD,
+            MediaService.EXTRA_CHANNEL to channel as Parcelable,
+            MediaService.EXTRA_MESSAGE_INDEX to message.messageIndex)
     }
 
     override fun onMessageUpdated(message: Message?, reason: Message.UpdateReason) {
