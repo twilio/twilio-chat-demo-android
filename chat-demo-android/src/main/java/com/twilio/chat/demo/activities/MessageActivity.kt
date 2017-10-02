@@ -605,8 +605,12 @@ class MessageActivity : Activity(), ChannelListener {
 
     companion object {
         private val MESSAGE_OPTIONS = listOf("Remove", "Edit", "Get Attributes", "Edit Attributes")
-        private val EDIT_OPTIONS = listOf("Change Friendly Name", "Change Topic", "List Members", "Invite Member", "Add Member", "Remove Member", "Leave", "Destroy", "Get Attributes", "Change Unique Name", "Get Unique Name", "Get message index 0", "Set all consumed", "Set none consumed")
+        private val REMOVE = 0
+        private val EDIT = 1
+        private val GET_ATTRIBUTES = 2
+        private val SET_ATTRIBUTES = 3
 
+        private val EDIT_OPTIONS = listOf("Change Friendly Name", "Change Topic", "List Members", "Invite Member", "Add Member", "Remove Member", "Leave", "Destroy", "Get Attributes", "Change Unique Name", "Get Unique Name", "Get message index 0", "Set all consumed", "Set none consumed")
         private val NAME_CHANGE = 0
         private val TOPIC_CHANGE = 1
         private val LIST_MEMBERS = 2
@@ -621,11 +625,6 @@ class MessageActivity : Activity(), ChannelListener {
         private val GET_MESSAGE_BY_INDEX = 11
         private val SET_ALL_CONSUMED = 12
         private val SET_NONE_CONSUMED = 13
-
-        private val REMOVE = 0
-        private val EDIT = 1
-        private val GET_ATTRIBUTES = 2
-        private val SET_ATTRIBUTES = 3
 
         private val FILE_REQUEST = 1000;
     }
