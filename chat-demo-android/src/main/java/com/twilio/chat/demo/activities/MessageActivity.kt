@@ -50,6 +50,7 @@ import org.jetbrains.anko.sdk25.coroutines.onClick
 import ChatStatusListener
 import ChatCallbackListener
 import ToastStatusListener
+import android.os.Parcelable
 
 // RecyclerView Anko
 inline fun ViewManager.recyclerView() = recyclerView(theme = 0) {}
@@ -406,26 +407,26 @@ class MessageActivity : Activity(), ChannelListener {
 
     private fun setupInput() {
         // Setup our input methods. Enter key on the keyboard or pushing the send button
-        val inputText = find<EditText>(R.id.messageInput)
-        inputText.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable) {
-                if (channel != null) {
-                    channel!!.typing()
+        messageInput.apply {
+            addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
+                override fun afterTextChanged(s: Editable) {
+                    if (channel != null) {
+                        channel!!.typing()
+                    }
                 }
-            }
-        })
+            })
 
-        inputText.setOnEditorActionListener { _, actionId, keyEvent ->
-            if (actionId == EditorInfo.IME_NULL && keyEvent.action == KeyEvent.ACTION_DOWN) {
-                sendMessage()
+            setOnEditorActionListener { _, actionId, keyEvent ->
+                if (actionId == EditorInfo.IME_NULL && keyEvent.action == KeyEvent.ACTION_DOWN) {
+                    sendMessage()
+                }
+                true
             }
-            true
         }
 
-        find<ImageButton>(R.id.sendButton).apply {
+        sendButton.apply {
             setOnClickListener { sendMessage() }
 
             setOnLongClickListener {
