@@ -99,8 +99,7 @@ class MediaService : IntentService(MediaService::class.java.simpleName) {
                 Timber.d("Media received - sid: ${media.sid}, name: ${media.fileName}, type: ${media.type}, size: ${media.size}")
 
                 try {
-
-                    val outStream = openFileOutput(media.fileName, Context.MODE_PRIVATE)
+                    val outStream = openFileOutput(media.sid, Context.MODE_PRIVATE)
 
                     media.download(outStream, ChatStatusListener { Timber.d("Download completed") }, object : ProgressListener() {
                         override fun onStarted() = Timber.d("Start media download")
