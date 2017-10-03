@@ -1,4 +1,4 @@
-package com.twilio.chat.demo
+package com.twilio.chat.demo.activities
 
 import java.lang.reflect.Array
 import java.util.ArrayList
@@ -45,22 +45,21 @@ import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
+import com.twilio.chat.demo.views.MemberViewHolder
+import com.twilio.chat.demo.views.MessageViewHolder
 
 import org.json.JSONException
 import org.json.JSONObject
 
 import timber.log.Timber
 import uk.co.ribot.easyadapter.EasyAdapter
+import kotlinx.android.synthetic.main.activity_message.*
 
 class MessageActivity : Activity(), ChannelListener {
-    private var messageListView: ListView? = null
-    private var inputText: EditText? = null
     private var adapter: EasyAdapter<MessageItem>? = null
     private var channel: Channel? = null
 
     private var editTextDialog: AlertDialog? = null
-    private val memberListDialog: AlertDialog? = null
-    private val changeChannelTypeDialog: AlertDialog? = null
     private val messageItemList = ArrayList<MessageItem>()
     private lateinit var identity: String
 
@@ -100,17 +99,14 @@ class MessageActivity : Activity(), ChannelListener {
 
                     setupListView(channel!!)
 
-                    messageListView = findViewById(R.id.message_list_view) as ListView
-                    if (messageListView != null) {
-                        messageListView!!.transcriptMode = ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL
-                        messageListView!!.isStackFromBottom = true
-                        adapter!!.registerDataSetObserver(object : DataSetObserver() {
-                            override fun onChanged() {
-                                super.onChanged()
-                                messageListView!!.setSelection(adapter!!.count - 1)
-                            }
-                        })
-                    }
+                    message_list_view.transcriptMode = ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL
+                    message_list_view.isStackFromBottom = true
+                    adapter!!.registerDataSetObserver(object : DataSetObserver() {
+                        override fun onChanged() {
+                            super.onChanged()
+                            message_list_view.setSelection(adapter!!.count - 1)
+                        }
+                    })
                     setupInput()
                 }
             })
@@ -372,12 +368,14 @@ class MessageActivity : Activity(), ChannelListener {
                 .create()
         val lv = convertView.findViewById(R.id.listView1) as ListView
         val adapterMember = EasyAdapter(
-                this@MessageActivity, MemberViewHolder::class.java, members, MemberViewHolder.OnMemberClickListener { member ->
-            membersObject.remove(member, ToastStatusListener(
-                    "Successful removeMember operation",
-                    "Error in removeMember operation"))
-            memberListDialog.dismiss()
-        })
+                this@MessageActivity, MemberViewHolder::class.java, members, object : MemberViewHolder.OnMemberClickListener {
+                    override fun onMemberClicked(member: Member) {
+                        membersObject.remove(member, ToastStatusListener(
+                                "Successful removeMember operation",
+                                "Error in removeMember operation"))
+                        memberListDialog.dismiss()
+                    }
+                })
         lv.adapter = adapterMember
         memberListDialog.show()
         memberListDialog.window!!.setLayout(800, 600)
@@ -508,12 +506,11 @@ class MessageActivity : Activity(), ChannelListener {
     }
 
     private fun setupListView(channel: Channel) {
-        messageListView = findViewById(R.id.message_list_view) as ListView
         val messagesObject = channel.messages
 
-        messageListView!!.viewTreeObserver.addOnScrollChangedListener {
-            if (messageListView!!.lastVisiblePosition >= 0 && messageListView!!.lastVisiblePosition < adapter!!.count) {
-                val item = adapter!!.getItem(messageListView!!.lastVisiblePosition)
+        message_list_view.viewTreeObserver.addOnScrollChangedListener {
+            if (message_list_view.lastVisiblePosition >= 0 && message_list_view.lastVisiblePosition < adapter!!.count) {
+                val item = adapter!!.getItem(message_list_view.lastVisiblePosition)
                 if (item != null && messagesObject != null)
                     messagesObject.advanceLastConsumedMessageIndex(
                             item.message.messageIndex)
@@ -557,7 +554,7 @@ class MessageActivity : Activity(), ChannelListener {
                         builder.show()
                     }
                 })
-        messageListView!!.adapter = adapter
+        message_list_view.adapter = adapter
 
         loadAndShowMessages()
     }
@@ -565,25 +562,26 @@ class MessageActivity : Activity(), ChannelListener {
     private fun sendMessage(text: String) {
         val messagesObject = this.channel!!.messages
 
-        messagesObject.sendMessage(text, object : ToastStatusListener(
-                "Successfully sent message",
-                "Error sending message") {
-            override fun onSuccess() {
-                super.onSuccess()
+        messagesObject.sendMessage(Message.options().withBody(text), object : CallbackListener<Message>() {
+            override fun onSuccess(msg: Message ?) {
+                TwilioApplication.instance.showToast("Successfully sent message");
                 adapter!!.notifyDataSetChanged()
-                inputText!!.setText("")
+                messageInput.setText("")
+            }
+
+            override fun onError(errorInfo: ErrorInfo?) {
+                TwilioApplication.instance.showError(errorInfo!!);
             }
         })
     }
 
     private fun sendMessage() {
-        inputText = findViewById(R.id.messageInput) as EditText
-        val input = inputText!!.text.toString()
+        val input = messageInput.text.toString()
         if (input != "") {
             sendMessage(input)
         }
 
-        inputText!!.requestFocus()
+        messageInput.requestFocus()
     }
 
     override fun onMessageAdded(message: Message) {

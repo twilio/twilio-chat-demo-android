@@ -1,4 +1,4 @@
-package com.twilio.chat.demo
+package com.twilio.chat.demo.activities
 
 import java.util.ArrayList
 import java.util.Arrays
@@ -41,8 +41,9 @@ import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
-import butterknife.BindView
-import butterknife.ButterKnife
+import com.twilio.chat.demo.*
+import com.twilio.chat.demo.views.ChannelViewHolder
+import kotlinx.android.synthetic.main.activity_channel.*
 
 import timber.log.Timber
 import uk.co.ribot.easyadapter.EasyAdapter
@@ -51,9 +52,6 @@ import org.json.JSONException
 
 @SuppressLint("InflateParams")
 class ChannelActivity : Activity(), ChatClientListener {
-
-    private @BindView(R.id.channel_list) lateinit var listView: ListView
-
     private lateinit var basicClient: BasicChatClient
     private val channels = HashMap<String, ChannelModel>()
     private val adapterContents = ArrayList<ChannelModel>()
@@ -65,7 +63,7 @@ class ChannelActivity : Activity(), ChatClientListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_channel)
-        ButterKnife.bind(this)
+
         basicClient = TwilioApplication.instance.basicClient
         basicClient.chatClient?.setListener(this@ChannelActivity)
         setupListView()
@@ -201,39 +199,41 @@ class ChannelActivity : Activity(), ChatClientListener {
                 this,
                 ChannelViewHolder::class.java,
                 adapterContents,
-                ChannelViewHolder.OnChannelClickListener { channel ->
-                    if (channel.status == Channel.ChannelStatus.JOINED) {
-                        Handler().postDelayed({
-                            channel.getChannel(object : CallbackListener<Channel>() {
-                                override fun onSuccess(chan: Channel) {
-                                    val i = Intent(this@ChannelActivity, MessageActivity::class.java)
-                                    i.putExtra(Constants.EXTRA_CHANNEL, chan as Parcelable)
-                                    i.putExtra(Constants.EXTRA_CHANNEL_SID, chan.sid)
-                                    startActivity(i)
+                object : ChannelViewHolder.OnChannelClickListener {
+                    override fun onChannelClicked(channel: ChannelModel) {
+                        if (channel.status == Channel.ChannelStatus.JOINED) {
+                            Handler().postDelayed({
+                                channel.getChannel(object : CallbackListener<Channel>() {
+                                    override fun onSuccess(chan: Channel) {
+                                        val i = Intent(this@ChannelActivity, MessageActivity::class.java)
+                                        i.putExtra(Constants.EXTRA_CHANNEL, chan as Parcelable)
+                                        i.putExtra(Constants.EXTRA_CHANNEL_SID, chan.sid)
+                                        startActivity(i)
+                                    }
+                                })
+                            }, 0)
+                            return
+                        }
+                        val builder = AlertDialog.Builder(this@ChannelActivity)
+                        builder.setTitle("Select an option")
+                                .setItems(CHANNEL_OPTIONS) { dialog, which ->
+                                    if (which == JOIN) {
+                                        dialog.cancel()
+                                        channel.join(
+                                                object : ToastStatusListener("Successfully joined channel",
+                                                        "Failed to join channel") {
+                                                    override fun onSuccess() {
+                                                        super.onSuccess()
+                                                        refreshChannelList()
+                                                    }
+                                                })
+                                    }
                                 }
-                            })
-                        }, 0)
-                        return@OnChannelClickListener
+                        builder.show()
                     }
-                    val builder = AlertDialog.Builder(this@ChannelActivity)
-                    builder.setTitle("Select an option")
-                            .setItems(CHANNEL_OPTIONS) { dialog, which ->
-                                if (which == JOIN) {
-                                    dialog.cancel()
-                                    channel.join(
-                                            object : ToastStatusListener("Successfully joined channel",
-                                                    "Failed to join channel") {
-                                                override fun onSuccess() {
-                                                    super.onSuccess()
-                                                    refreshChannelList()
-                                                }
-                                            })
-                                }
-                            }
-                    builder.show()
                 })
 
-        listView.adapter = adapter
+        channel_list.adapter = adapter
     }
 
     private fun refreshChannelList() {
@@ -332,7 +332,7 @@ class ChannelActivity : Activity(), ChatClientListener {
 
     private inner class CustomChannelComparator : Comparator<ChannelModel> {
         override fun compare(lhs: ChannelModel, rhs: ChannelModel): Int {
-            return lhs.friendlyName.compareTo(rhs.friendlyName)
+            return lhs.friendlyName!!.compareTo(rhs.friendlyName!!)
         }
     }
 

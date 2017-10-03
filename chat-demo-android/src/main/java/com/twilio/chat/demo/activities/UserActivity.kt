@@ -1,4 +1,4 @@
-package com.twilio.chat.demo
+package com.twilio.chat.demo.activities
 
 import android.app.Activity
 import android.content.Intent
@@ -13,8 +13,6 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
-import butterknife.BindView
-import butterknife.ButterKnife
 
 import com.twilio.chat.Channel
 import com.twilio.chat.Channels
@@ -30,13 +28,14 @@ import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 
 import timber.log.Timber
+import kotlinx.android.synthetic.main.activity_user_info.*
 
 class UserActivity : Activity() {
 
     internal var client: ChatClient? = null
-    internal @BindView(R.id.user_friendly_name) lateinit var friendlyName: EditText
-    internal @BindView(R.id.avatar)             lateinit var avatarView: ImageView
-    internal @BindView(R.id.user_info_save)     lateinit var save: Button
+//    internal @BindView(R.id.user_friendly_name) lateinit var friendlyName: EditText
+//    internal @BindView(R.id.avatar)             lateinit var avatarView: ImageView
+//    internal @BindView(R.id.user_info_save)     lateinit var save: Button
     internal var bitmap: Bitmap? = null
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -52,7 +51,6 @@ class UserActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_info)
-        ButterKnife.bind(this)
 
         client = TwilioApplication.instance.basicClient.chatClient
 
@@ -60,13 +58,13 @@ class UserActivity : Activity() {
 
         if (user == null) return
 
-        friendlyName.setText(user.friendlyName)
+        user_friendly_name.setText(user.friendlyName)
 
         Timber.i("message client initialized")
-        save.setOnClickListener {
-            if (user.friendlyName != friendlyName.text.toString()) {
+        user_info_save.setOnClickListener {
+            if (user.friendlyName != user_friendly_name.text.toString()) {
                 user.setFriendlyName(
-                        friendlyName.text.toString(), ToastStatusListener(
+                        user_friendly_name.text.toString(), ToastStatusListener(
                         "Update successful for user friendlyName",
                         "Update failed for user friendlyName"))
             }
@@ -90,7 +88,7 @@ class UserActivity : Activity() {
         }
 
         fillUserAvatar()
-        avatarView.setOnClickListener { dispatchTakePictureIntent() }
+        avatar.setOnClickListener { dispatchTakePictureIntent() }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
@@ -98,7 +96,7 @@ class UserActivity : Activity() {
             val extras = data.extras
             val imageBitmap = extras.get("data") as Bitmap
             bitmap = getResizedBitmap(imageBitmap, 96)
-            avatarView.setImageBitmap(bitmap)
+            avatar.setImageBitmap(bitmap)
         }
     }
 
@@ -119,11 +117,11 @@ class UserActivity : Activity() {
     private fun fillUserAvatar() {
         val user = client?.users?.myUser
         val attributes = user?.attributes
-        val avatar = attributes?.opt("avatar") as String?
-        if (avatar != null) {
-            val data = Base64.decode(avatar, Base64.NO_WRAP)
+        val ava = attributes?.opt("avatar") as String?
+        if (ava != null) {
+            val data = Base64.decode(ava, Base64.NO_WRAP)
             bitmap = BitmapFactory.decodeByteArray(data, 0, data.size)
-            avatarView.setImageBitmap(bitmap)
+            avatar.setImageBitmap(bitmap)
         }
     }
 
@@ -156,8 +154,7 @@ class UserActivity : Activity() {
             override fun onChannelJoined(channel: Channel) {}
 
             override fun onError(error: ErrorInfo) {
-                TwilioApplication.instance.showError(error)
-                TwilioApplication.instance.logErrorInfo("Error listening for userInfoChange", error)
+                TwilioApplication.instance.showError("Error listening for userInfoChange", error)
             }
 
             override fun onChannelSynchronizationChange(channel: Channel) {}
