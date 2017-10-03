@@ -40,7 +40,6 @@ class ChannelActivity : Activity(), ChatClientListener {
     private lateinit var basicClient: BasicChatClient
     private val channels = HashMap<String, ChannelModel>()
     private lateinit var adapter: SimpleRecyclerAdapter<ChannelModel>
-    private var incomingChannelInvite: DialogInterface? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -248,9 +247,13 @@ class ChannelActivity : Activity(), ChatClientListener {
     }
 
     private fun showIncomingInvite(channel: Channel) {
-        doAsync {
-            if (incomingChannelInvite == null) {
-                incomingChannelInvite = alert(R.string.channel_invite, R.string.channel_invite_message) {
+        alert(R.string.channel_invite_message, R.string.channel_invite) {
+            customView {
+                verticalLayout {
+                    textView {
+                        text = "You are invited to channel ${channel.friendlyName} |${channel.sid}|"
+                        padding = dip(10)
+                    }.lparams(width = matchParent)
                     positiveButton(R.string.join) {
                         channel.join(ToastStatusListener(
                                 "Successfully joined channel",
@@ -258,18 +261,15 @@ class ChannelActivity : Activity(), ChatClientListener {
                             channels.put(channel.sid, ChannelModel(channel))
                             refreshChannelList()
                         })
-//                        incomingChannelInvite = null
                     }
                     negativeButton(R.string.decline) {
                         channel.declineInvitation(ToastStatusListener(
                                 "Successfully declined channel invite",
                                 "Failed to decline channel invite"))
-//                        incomingChannelInvite = null
                     }
-                }.build()
+                }
             }
-//            incomingChannelInvite!!.show()
-        }
+        }.show()
     }
 
     private inner class CustomChannelComparator : Comparator<ChannelModel> {
