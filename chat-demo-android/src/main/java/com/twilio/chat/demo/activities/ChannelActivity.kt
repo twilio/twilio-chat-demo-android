@@ -92,13 +92,12 @@ class ChannelActivity : Activity(), ChatClientListener {
         val typ = if (type == ChannelType.PRIVATE) "Priv" else "Pub"
 
         val builder = basicClient.chatClient?.channels?.channelBuilder()
-        if (builder == null) return
 
-        builder.withFriendlyName(typ + "_TestChannelF_" + value)
-                .withUniqueName(typ + "_TestChannelU_" + value)
-                .withType(type)
-                .withAttributes(attrs)
-                .build(object : CallbackListener<Channel>() {
+        builder?.withFriendlyName("${typ}_TestChannelF_${value}")
+               ?.withUniqueName("${typ}_TestChannelU_${value}")
+               ?.withType(type)
+               ?.withAttributes(attrs)
+               ?.build(object : CallbackListener<Channel>() {
                     override fun onSuccess(newChannel: Channel) {
                         Timber.d("Successfully created a channel with options.")
                         channels.put(newChannel.sid, ChannelModel(newChannel))
