@@ -84,7 +84,7 @@ class ChannelActivity : Activity(), ChatClientListener {
 
         val attrs = JSONObject()
         try {
-            attrs.put("topic", "testing channel creation with options " + value)
+            attrs.put("topic", "testing channel creation with options ${value}")
         } catch (xcp: JSONException) {
             Timber.e("JSON exception", xcp)
         }
@@ -284,27 +284,25 @@ class ChannelActivity : Activity(), ChatClientListener {
     //=============================================================
 
     override fun onChannelJoined(channel: Channel) {
-        Timber.d("Received onChannelJoined callback for channel |" + channel.friendlyName + "|")
+        Timber.d("Received onChannelJoined callback for channel |${channel.friendlyName}|")
         channels.put(channel.sid, ChannelModel(channel))
         refreshChannelList()
     }
 
     override fun onChannelAdded(channel: Channel) {
-        Timber.d("Received onChannelAdd callback for channel |" + channel.friendlyName + "|")
+        Timber.d("Received onChannelAdded callback for channel |${channel.friendlyName}|")
         channels.put(channel.sid, ChannelModel(channel))
         refreshChannelList()
     }
 
     override fun onChannelUpdated(channel: Channel, reason: Channel.UpdateReason) {
-        Timber.d("Received onChannelChange callback for channel |" + channel.friendlyName
-                + "| with reason " + reason.toString())
+        Timber.d("Received onChannelUpdated callback for channel |${channel.friendlyName}| with reason ${reason}")
         channels.put(channel.sid, ChannelModel(channel))
         refreshChannelList()
     }
 
     override fun onChannelDeleted(channel: Channel) {
-        Timber.d("Received onChannelDelete callback for channel |" + channel.friendlyName
-                + "|")
+        Timber.d("Received onChannelDeleted callback for channel |${channel.friendlyName} |")
         channels.remove(channel.sid)
         refreshChannelList()
     }
@@ -316,18 +314,16 @@ class ChannelActivity : Activity(), ChatClientListener {
     }
 
     override fun onChannelSynchronizationChange(channel: Channel) {
-        Timber.e("Received onChannelSynchronizationChange callback for channel |"
-                + channel.friendlyName
-                + "| with new status " + channel.status.toString())
+        Timber.e("Received onChannelSynchronizationChange callback for channel |${channel.friendlyName}| with new status ${channel.status}")
         refreshChannelList()
     }
 
     override fun onClientSynchronization(status: ChatClient.SynchronizationStatus) {
-        Timber.e("Received onClientSynchronization callback " + status.toString())
+        Timber.e("Received onClientSynchronization callback ${status}")
     }
 
     override fun onUserUpdated(user: User, reason: User.UpdateReason) {
-        Timber.e("Received onUserUpdated callback for " + reason.toString())
+        Timber.e("Received onUserUpdated callback for ${reason}")
     }
 
     override fun onUserSubscribed(user: User) {
@@ -358,7 +354,7 @@ class ChannelActivity : Activity(), ChatClientListener {
     }
 
     override fun onConnectionStateChange(connectionState: ChatClient.ConnectionState) {
-        TwilioApplication.instance.showToast("Transport state changed to " + connectionState.toString())
+        TwilioApplication.instance.showToast("Transport state changed to ${connectionState}")
     }
 
     companion object {
