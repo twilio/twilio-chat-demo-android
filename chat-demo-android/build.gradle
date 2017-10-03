@@ -1,18 +1,33 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android-extensions'
 
 def ACCESS_TOKEN_SERVICE_URL = project.hasProperty('ACCESS_TOKEN_SERVICE_URL') ? "\""+project.getProperty('ACCESS_TOKEN_SERVICE_URL')+"\"" : "\"http://example.com/token\""
 
 dependencies {
-    compile 'com.android.support:support-v4:23.3.0+'
-    compile 'com.google.firebase:firebase-messaging:10.2.0' // FCM
-    compile 'com.google.android.gms:play-services-base:10.2.0'
-    compile 'uk.co.ribot:easyadapter:1.5.0@aar'
-    compile 'com.twilio:chat-android:1.0.9'
+    // compile 'com.android.support:support-v4:25.3.1'
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:design:25.3.1'
+
+    compile 'com.google.firebase:firebase-messaging:11.4.0' // FCM
+    compile 'com.google.android.gms:play-services-base:11.4.0'
+
+    compile 'com.jakewharton.timber:timber:4.5.1'
+    compile 'com.jakewharton:kotterknife:0.1.0-SNAPSHOT'
+    compile 'eu.inloop:simplerecycleradapter:0.3.4'
+    // compile 'com.android.support.constraint:constraint-layout:1.0.2'
+
+    compile 'com.twilio:chat-android:2.0.0'
     compile 'com.twilio:accessmanager-android:0.1.0'
+
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.18'
+    compile "org.jetbrains.anko:anko:$anko_version"
 }
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion 25
     buildToolsVersion "25.0.2"
 
     defaultConfig {
@@ -47,3 +62,7 @@ tasks.withType(JavaCompile) {
 }
 
 apply plugin: 'com.google.gms.google-services'
+repositories {
+    mavenCentral()
+    google()
+}
