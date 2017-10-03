@@ -335,17 +335,14 @@ class ChannelActivity : Activity(), ChatClientListener {
     }
 
     override fun onNotification(channelId: String, messageId: String) {
-        Timber.d("Received new push notification")
         TwilioApplication.instance.showToast("Received new push notification")
     }
 
     override fun onNotificationSubscribed() {
-        Timber.d("Subscribed to push notifications")
         TwilioApplication.instance.showToast("Subscribed to push notifications")
     }
 
     override fun onNotificationFailed(errorInfo: ErrorInfo) {
-        Timber.d("Failed to subscribe to push notifications")
         TwilioApplication.instance.showError("Failed to subscribe to push notifications", errorInfo)
     }
 
