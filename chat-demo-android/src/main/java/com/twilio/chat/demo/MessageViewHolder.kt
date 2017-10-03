@@ -22,6 +22,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import butterknife.BindView
 
 import uk.co.ribot.easyadapter.ItemViewHolder
 import uk.co.ribot.easyadapter.PositionInfo
@@ -31,26 +32,13 @@ import uk.co.ribot.easyadapter.annotations.ViewId
 @LayoutId(R.layout.message_item_layout)
 class MessageViewHolder(internal var view: View) : ItemViewHolder<MessageActivity.MessageItem>(view) {
 
-    @ViewId(R.id.avatar)
-    internal var imageView: ImageView? = null
-
-    @ViewId(R.id.reachability)
-    internal var reachabilityView: ImageView? = null
-
-    @ViewId(R.id.body)
-    internal var body: TextView? = null
-
-    @ViewId(R.id.author)
-    internal var author: TextView? = null
-
-    @ViewId(R.id.date)
-    internal var date: TextView? = null
-
-    @ViewId(R.id.consumptionHorizonIdentities)
-    internal var identities: RelativeLayout? = null
-
-    @ViewId(R.id.consumptionHorizonLines)
-    internal var lines: LinearLayout? = null
+    internal @BindView(R.id.avatar)       lateinit var imageView: ImageView
+    internal @BindView(R.id.reachability) lateinit var reachabilityView: ImageView
+    internal @BindView(R.id.body)         lateinit var body: TextView
+    internal @BindView(R.id.author)       lateinit var author: TextView
+    internal @BindView(R.id.date)         lateinit var date: TextView
+    internal @BindView(R.id.consumptionHorizonIdentities) lateinit var identities: RelativeLayout
+    internal @BindView(R.id.consumptionHorizonLines)      lateinit var lines: LinearLayout
 
     override fun onSetListeners() {
         view.setOnLongClickListener(View.OnLongClickListener {
@@ -69,12 +57,12 @@ class MessageViewHolder(internal var view: View) : ItemViewHolder<MessageActivit
         if (message != null) {
             val msg = message.message
 
-            author!!.text = msg.author
-            body!!.text = msg.messageBody
-            date!!.text = msg.timeStamp
+            author.text = msg.author
+            body.text = msg.messageBody
+            date.text = msg.timeStamp
 
-            identities!!.removeAllViews()
-            lines!!.removeAllViews()
+            identities.removeAllViews()
+            lines.removeAllViews()
 
             for (member in message.members.membersList) {
                 if (msg.author.contentEquals(member.identity)) {

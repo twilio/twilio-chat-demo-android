@@ -41,6 +41,8 @@ import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
+import butterknife.BindView
+import butterknife.ButterKnife
 
 import timber.log.Timber
 import uk.co.ribot.easyadapter.EasyAdapter
@@ -50,8 +52,9 @@ import org.json.JSONException
 @SuppressLint("InflateParams")
 class ChannelActivity : Activity(), ChatClientListener {
 
-    private var listView: ListView? = null
-    private var basicClient: BasicChatClient? = null
+    private @BindView(R.id.channel_list) lateinit var listView: ListView
+
+    private lateinit var basicClient: BasicChatClient
     private val channels = HashMap<String, ChannelModel>()
     private val adapterContents = ArrayList<ChannelModel>()
     private var adapter: EasyAdapter<ChannelModel>? = null
@@ -62,6 +65,7 @@ class ChannelActivity : Activity(), ChatClientListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_channel)
+        ButterKnife.bind(this)
         basicClient = TwilioApplication.instance.basicClient
         basicClient.chatClient?.setListener(this@ChannelActivity)
         setupListView()

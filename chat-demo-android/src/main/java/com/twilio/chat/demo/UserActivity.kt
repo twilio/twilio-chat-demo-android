@@ -13,6 +13,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
+import butterknife.BindView
+import butterknife.ButterKnife
 
 import com.twilio.chat.Channel
 import com.twilio.chat.Channels
@@ -31,10 +33,10 @@ import timber.log.Timber
 
 class UserActivity : Activity() {
 
-    internal var client: ChatClient
-    internal var friendlyName: EditText
-    internal var avatarView: ImageView
-    internal var save: Button
+    internal var client: ChatClient? = null
+    internal @BindView(R.id.user_friendly_name) lateinit var friendlyName: EditText
+    internal @BindView(R.id.avatar)             lateinit var avatarView: ImageView
+    internal @BindView(R.id.user_info_save)     lateinit var save: Button
     internal var bitmap: Bitmap? = null
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -50,7 +52,8 @@ class UserActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_info)
-        friendlyName = findViewById(R.id.user_friendly_name) as EditText
+        ButterKnife.bind(this)
+
         client = TwilioApplication.instance.basicClient.chatClient
 
         val user = client?.users?.myUser
@@ -58,8 +61,6 @@ class UserActivity : Activity() {
         if (user == null) return
 
         friendlyName.setText(user.friendlyName)
-        avatarView = findViewById(R.id.avatar) as ImageView
-        save = findViewById(R.id.user_info_save) as Button
 
         Timber.i("message client initialized")
         save.setOnClickListener {

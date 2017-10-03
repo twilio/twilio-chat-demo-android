@@ -5,6 +5,7 @@ import com.twilio.chat.Member
 
 import android.view.View
 import android.widget.TextView
+import butterknife.BindView
 import uk.co.ribot.easyadapter.ItemViewHolder
 import uk.co.ribot.easyadapter.PositionInfo
 import uk.co.ribot.easyadapter.annotations.LayoutId
@@ -12,11 +13,8 @@ import uk.co.ribot.easyadapter.annotations.ViewId
 
 @LayoutId(R.layout.member_item_layout)
 class MemberViewHolder(internal var view: View) : ItemViewHolder<Member>(view) {
-    @ViewId(R.id.identity)
-    internal var memberIdentity: TextView? = null
-
-    @ViewId(R.id.member_sid)
-    internal var memberSid: TextView? = null
+    internal @BindView(R.id.identity) lateinit var memberIdentity: TextView
+    internal @BindView(R.id.member_sid) lateinit var memberSid: TextView
 
     override fun onSetListeners() {
         view.setOnClickListener {
@@ -30,6 +28,6 @@ class MemberViewHolder(internal var view: View) : ItemViewHolder<Member>(view) {
     }
 
     override fun onSetValues(member: Member, arg1: PositionInfo) {
-        this.memberIdentity!!.text = member.identity
+        memberIdentity.text = member.identity
     }
 }

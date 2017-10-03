@@ -9,6 +9,8 @@ import android.graphics.Color
 import android.util.Log
 import android.view.View
 import android.widget.TextView
+import butterknife.BindView
+import butterknife.ButterKnife
 import uk.co.ribot.easyadapter.ItemViewHolder
 import uk.co.ribot.easyadapter.PositionInfo
 import uk.co.ribot.easyadapter.annotations.LayoutId
@@ -16,26 +18,13 @@ import uk.co.ribot.easyadapter.annotations.ViewId
 
 @LayoutId(R.layout.channel_item_layout)
 class ChannelViewHolder(internal var view: View) : ItemViewHolder<ChannelModel>(view) {
-    @ViewId(R.id.channel_friendly_name)
-    internal var friendlyName: TextView? = null
-
-    @ViewId(R.id.channel_sid)
-    internal var channelSid: TextView? = null
-
-    @ViewId(R.id.channel_updated_date)
-    internal var updatedDate: TextView? = null
-
-    @ViewId(R.id.channel_created_date)
-    internal var createdDate: TextView? = null
-
-    @ViewId(R.id.channel_users_count)
-    internal var usersCount: TextView? = null
-
-    @ViewId(R.id.channel_total_messages_count)
-    internal var totalMessagesCount: TextView? = null
-
-    @ViewId(R.id.channel_unconsumed_messages_count)
-    internal var unconsumedMessagesCount: TextView? = null
+    internal @BindView(R.id.channel_friendly_name) lateinit var friendlyName: TextView
+    internal @BindView(R.id.channel_sid) lateinit var channelSid: TextView
+    internal @BindView(R.id.channel_updated_date) lateinit var updatedDate: TextView
+    internal @BindView(R.id.channel_created_date) lateinit var createdDate: TextView
+    internal @BindView(R.id.channel_users_count) lateinit var usersCount: TextView
+    internal @BindView(R.id.channel_total_messages_count) lateinit var totalMessagesCount: TextView
+    internal @BindView(R.id.channel_unconsumed_messages_count) lateinit var unconsumedMessagesCount: TextView
 
     override fun onSetListeners() {
         view.setOnClickListener {

@@ -36,20 +36,22 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
 import android.preference.PreferenceManager
+import butterknife.BindView
+import butterknife.ButterKnife
 
 import timber.log.Timber
 
 class LoginActivity : Activity(), LoginListener {
     private var progressDialog: ProgressDialog? = null
-    private var login: Button? = null
-    private var clientNameTextBox: EditText? = null
-
+    private @BindView(R.id.register) lateinit var login: Button
+    private @BindView(R.id.client_name) lateinit var clientNameTextBox: EditText
     // FCM
-    private var fcmAvailable: CheckBox? = null
+    private @BindView(R.id.fcmcxbx) lateinit var fcmAvailable: CheckBox
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+        ButterKnife.bind(this)
 
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val userName = sharedPreferences.getString("userName", DEFAULT_CLIENT_NAME)
