@@ -1,8 +1,7 @@
 package com.twilio.chat.demo.services
 
-import android.content.Intent
 import com.google.firebase.iid.FirebaseInstanceIdService
-
+import org.jetbrains.anko.startService
 import timber.log.Timber
 
 class FCMInstanceIDService : FirebaseInstanceIdService() {
@@ -15,7 +14,6 @@ class FCMInstanceIDService : FirebaseInstanceIdService() {
         Timber.e("onTokenRefresh")
 
         // Fetch updated Instance ID token and notify our app's server of any changes.
-        val intent = Intent(this, RegistrationIntentService::class.java)
-        startService(intent)
+        startService<RegistrationIntentService>()
     }
 }
