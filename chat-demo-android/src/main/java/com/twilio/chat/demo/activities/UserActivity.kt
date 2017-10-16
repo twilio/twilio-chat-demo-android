@@ -8,15 +8,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Base64
 import android.view.Menu
-import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.Toast
-
 import com.twilio.chat.Channel
-import com.twilio.chat.Channels
-import com.twilio.chat.StatusListener
 import com.twilio.chat.ErrorInfo
 import com.twilio.chat.ChatClientListener
 import com.twilio.chat.ChatClient
@@ -24,12 +16,9 @@ import com.twilio.chat.User
 import com.twilio.chat.demo.R
 import ToastStatusListener
 import com.twilio.chat.demo.TwilioApplication
-
 import org.json.JSONException
 import org.json.JSONObject
-
 import java.io.ByteArrayOutputStream
-
 import timber.log.Timber
 import kotlinx.android.synthetic.main.activity_user_info.*
 

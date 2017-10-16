@@ -3,26 +3,18 @@ package com.twilio.chat.demo.services
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
-import android.os.Bundle
-import android.os.IBinder
 import android.support.v4.app.NotificationCompat
-
 import com.google.firebase.messaging.FirebaseMessagingService
-
 import com.google.firebase.messaging.RemoteMessage
-import com.twilio.chat.ChatClient
 import com.twilio.chat.NotificationPayload
 import com.twilio.chat.demo.Constants
 import com.twilio.chat.demo.R
 import com.twilio.chat.demo.TwilioApplication
 import com.twilio.chat.demo.activities.MessageActivity
-
-import org.json.JSONObject
 
 import timber.log.Timber
 

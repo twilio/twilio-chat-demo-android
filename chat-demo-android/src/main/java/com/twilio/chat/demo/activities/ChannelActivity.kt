@@ -13,11 +13,9 @@ import com.twilio.chat.ErrorInfo
 import com.twilio.chat.User
 import com.twilio.chat.Paginator
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
-import android.os.Parcelable
 import android.support.v7.widget.LinearLayoutManager
 import android.view.*
 import com.twilio.chat.demo.*
@@ -27,14 +25,11 @@ import eu.inloop.simplerecycleradapter.SettableViewHolder
 import eu.inloop.simplerecycleradapter.SimpleRecyclerAdapter
 import kotlinx.android.synthetic.main.activity_channel.*
 import org.jetbrains.anko.*
-import org.jetbrains.anko.sdk25.coroutines.onClick
 import timber.log.Timber
 import org.json.JSONObject
 import org.json.JSONException
 import ChatCallbackListener
 import ToastStatusListener
-import android.content.DialogInterface
-import org.jetbrains.anko.custom.customView
 
 class ChannelActivity : Activity(), ChatClientListener {
     private lateinit var basicClient: BasicChatClient

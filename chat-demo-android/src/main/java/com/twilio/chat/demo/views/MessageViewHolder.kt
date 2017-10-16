@@ -1,18 +1,13 @@
 package com.twilio.chat.demo.views
 
 import android.content.Context
-import org.json.JSONObject
-
 import com.twilio.chat.CallbackListener
 import com.twilio.chat.Member
 import com.twilio.chat.User
 import com.twilio.chat.demo.R
-
 import android.graphics.BitmapFactory
 import android.graphics.Color
-
 import android.util.Base64
-import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView

@@ -3,8 +3,6 @@ package com.twilio.chat.demo.views
 import android.content.Context
 import com.twilio.chat.demo.R
 import com.twilio.chat.Member
-
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import kotterknife.bindView

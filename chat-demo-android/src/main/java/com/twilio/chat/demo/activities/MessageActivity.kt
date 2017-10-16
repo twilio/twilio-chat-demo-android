@@ -2,22 +2,17 @@ package com.twilio.chat.demo.activities
 
 import java.util.ArrayList
 import java.util.Comparator
-
 import com.twilio.chat.Channel
 import com.twilio.chat.Channel.ChannelType
 import com.twilio.chat.ChannelListener
-import com.twilio.chat.StatusListener
 import com.twilio.chat.CallbackListener
 import com.twilio.chat.Member
 import com.twilio.chat.Members
 import com.twilio.chat.Message
-import com.twilio.chat.ErrorInfo
 import com.twilio.chat.Paginator
 import com.twilio.chat.User
 import com.twilio.chat.UserDescriptor
-
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -38,15 +33,12 @@ import eu.inloop.simplerecycleradapter.ItemClickListener
 import eu.inloop.simplerecycleradapter.ItemLongClickListener
 import eu.inloop.simplerecycleradapter.SettableViewHolder
 import eu.inloop.simplerecycleradapter.SimpleRecyclerAdapter
-
 import org.json.JSONException
 import org.json.JSONObject
-
 import timber.log.Timber
 import kotlinx.android.synthetic.main.activity_message.*
 import org.jetbrains.anko.*
 import org.jetbrains.anko.custom.ankoView
-import org.jetbrains.anko.sdk25.coroutines.onClick
 import ChatStatusListener
 import ChatCallbackListener
 import ToastStatusListener
