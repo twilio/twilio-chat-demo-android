@@ -7,23 +7,23 @@ import android.support.v4.content.LocalBroadcastManager
 import com.google.firebase.iid.FirebaseInstanceId
 import com.twilio.chat.demo.FCMPreferences
 import com.twilio.chat.demo.TwilioApplication
-import timber.log.Timber
+import org.jetbrains.anko.*
 
 /**
  * Registration intent handles receiving and updating the FCM token lifecycle events.
  */
-class RegistrationIntentService : IntentService("RegistrationIntentService") {
+class RegistrationIntentService : IntentService("RegistrationIntentService"), AnkoLogger {
     init {
-        Timber.i("Started")
+        info { "Started" }
     }
 
     override fun onHandleIntent(intent: Intent?) {
-        Timber.i("onHandleIntent")
+        info { "onHandleIntent" }
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
 
         try {
             val token = FirebaseInstanceId.getInstance().token
-            Timber.i("FCM Registration Token: " + token!!)
+            info { "FCM Registration Token: ${token!!}" }
 
             /**
              * Persist registration to Twilio servers.
@@ -35,7 +35,7 @@ class RegistrationIntentService : IntentService("RegistrationIntentService") {
             // otherwise your server should have already received the token.
             sharedPreferences.edit().putBoolean(FCMPreferences.SENT_TOKEN_TO_SERVER, true).apply()
         } catch (e: Exception) {
-            Timber.e("Failed to complete token refresh", e)
+            error { "Failed to complete token refresh: $e" }
             // If an exception happens while fetching the new token or updating our registration
             // data, this ensures that we'll attempt the update at a later time.
             sharedPreferences.edit().putBoolean(FCMPreferences.SENT_TOKEN_TO_SERVER, false).apply()

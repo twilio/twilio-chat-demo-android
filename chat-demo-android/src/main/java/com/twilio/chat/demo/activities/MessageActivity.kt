@@ -35,7 +35,6 @@ import eu.inloop.simplerecycleradapter.SettableViewHolder
 import eu.inloop.simplerecycleradapter.SimpleRecyclerAdapter
 import org.json.JSONException
 import org.json.JSONObject
-import timber.log.Timber
 import kotlinx.android.synthetic.main.activity_message.*
 import org.jetbrains.anko.*
 import org.jetbrains.anko.custom.ankoView
@@ -58,7 +57,7 @@ inline fun ViewManager.recyclerView(theme: Int = 0, init: RecyclerView.() -> Uni
 }
 // End RecyclerView Anko
 
-class MessageActivity : Activity(), ChannelListener {
+class MessageActivity : Activity(), ChannelListener, AnkoLogger {
     private lateinit var adapter: SimpleRecyclerAdapter<MessageItem>
     private var channel: Channel? = null
 
@@ -140,10 +139,10 @@ class MessageActivity : Activity(), ChannelListener {
                             name.append(", ")
                         }
                         members[i].getUserDescriptor(ChatCallbackListener<UserDescriptor>() {
-                            Timber.d("Got user descriptor from member: ${it.identity}")
+                            debug { "Got user descriptor from member: ${it.identity}" }
                         })
                         members[i].getAndSubscribeUser(ChatCallbackListener<User>() {
-                            Timber.d("Got subscribed user from member: ${it.identity}")
+                            debug { "Got subscribed user from member: ${it.identity}" }
                         })
                     }
                     TwilioApplication.instance.showToast(name.toString(), Toast.LENGTH_LONG)
@@ -202,8 +201,7 @@ class MessageActivity : Activity(), ChannelListener {
                 GET_CHANNEL_UNIQUE_NAME -> TwilioApplication.instance.showToast(channel!!.uniqueName)
                 GET_MESSAGE_BY_INDEX -> channel!!.messages.getMessageByIndex(channel!!.messages.lastConsumedMessageIndex!!, ChatCallbackListener<Message>() {
                         TwilioApplication.instance.showToast("SUCCESS GET MESSAGE BY IDX")
-                        Timber.e("MESSAGES ${it.messages.toString()}")
-                        Timber.e("MESSAGE CHANNEL ${it.channel.sid}")
+                        error { "MESSAGES ${it.messages.toString()}, CHANNEL ${it.channel.sid}" }
                     })
                 SET_ALL_CONSUMED -> channel!!.messages.setAllMessagesConsumed()
                 SET_NONE_CONSUMED -> channel!!.messages.setNoMessagesConsumed()
@@ -214,7 +212,7 @@ class MessageActivity : Activity(), ChannelListener {
     private fun getUsersPage(userDescriptorPaginator: Paginator<UserDescriptor>) {
         for (u in userDescriptorPaginator.items) {
             u.subscribe(ChatCallbackListener<User>() {
-                Timber.d("${it.identity} is a subscribed user now")
+                debug { "${it.identity} is a subscribed user now" }
             })
         }
         if (userDescriptorPaginator.hasNextPage()) {
@@ -230,7 +228,7 @@ class MessageActivity : Activity(), ChannelListener {
                 val friendly_name = editText { text.append(channel!!.friendlyName) }
                 positiveButton(R.string.update) {
                     val friendlyName = friendly_name.text.toString()
-                    Timber.d(friendlyName)
+                    debug { friendlyName }
                     channel!!.setFriendlyName(friendlyName, ToastStatusListener(
                             "Successfully changed name", "Error changing name"))
                 }
@@ -245,7 +243,7 @@ class MessageActivity : Activity(), ChannelListener {
                 val topic = editText { text.append(channel!!.attributes.toString()) }
                 positiveButton(R.string.change_topic) {
                     val topicText = topic.text.toString()
-                    Timber.d(topicText)
+                    debug { topicText }
 
                     try { // @todo Get attributes to update
                         JSONObject().apply {
@@ -269,7 +267,7 @@ class MessageActivity : Activity(), ChannelListener {
                 val member = editText { hint = "Enter user id" }
                 positiveButton(R.string.invite_member) {
                     val memberName = member.text.toString()
-                    Timber.d(memberName)
+                    debug { memberName }
                     channel!!.members.inviteByIdentity(memberName, ToastStatusListener(
                             "Invited user to channel",
                             "Error in inviteByIdentity"))
@@ -285,7 +283,7 @@ class MessageActivity : Activity(), ChannelListener {
                 val member = editText { hint = "Enter user id" }
                 positiveButton(R.string.invite_member) {
                     val memberName = member.text.toString()
-                    Timber.d(memberName)
+                    debug { memberName }
                     channel!!.members.addByIdentity(memberName, ToastStatusListener(
                             "Successful addByIdentity",
                             "Error adding member"))
@@ -330,7 +328,7 @@ class MessageActivity : Activity(), ChannelListener {
                 val messageText = editText { text.append(message.messageBody) }
                 positiveButton(R.string.update) {
                     val text = messageText.text.toString()
-                    Timber.d(text)
+                    debug { text }
                     message.updateMessageBody(text, ToastStatusListener(
                             "Success updating message",
                             "Error updating message") {
@@ -349,7 +347,7 @@ class MessageActivity : Activity(), ChannelListener {
                 val messageAttrText = editText { text.append(message.attributes.toString()) }
                 positiveButton(R.string.update) {
                     val text = messageAttrText.text.toString()
-                    Timber.d(text)
+                    debug { text }
                     try {
                         JSONObject(text).apply {
                             message.setAttributes(this, ToastStatusListener(
@@ -360,7 +358,7 @@ class MessageActivity : Activity(), ChannelListener {
                             })
                         }
                     } catch (e: JSONException) {
-                        Timber.e("Invalid JSON attributes entered, using old value")
+                        error { "Invalid JSON attributes entered, using old value" }
                     }
                 }
                 negativeButton(R.string.cancel) {}
@@ -374,7 +372,7 @@ class MessageActivity : Activity(), ChannelListener {
                 val uniqueNameText = editText { text.append(channel!!.uniqueName) }
                 positiveButton(R.string.update) {
                     val uniqueName = uniqueNameText.text.toString()
-                    Timber.d(uniqueName)
+                    debug { uniqueName }
                     channel!!.setUniqueName(uniqueName, ChatStatusListener());
                 }
                 negativeButton(R.string.cancel) {}
@@ -521,7 +519,7 @@ class MessageActivity : Activity(), ChannelListener {
     /// Send media message
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == FILE_REQUEST && resultCode == Activity.RESULT_OK) {
-            Timber.d("Uri: ${data?.data}")
+            debug { "Uri: ${data?.data}" }
 
             startService<MediaService>(
                 MediaService.EXTRA_ACTION to MediaService.EXTRA_ACTION_UPLOAD,
@@ -543,7 +541,7 @@ class MessageActivity : Activity(), ChannelListener {
         if (message != null) {
             TwilioApplication.instance.showToast("onMessageUpdated for ${message.sid}, changed because of ${reason}")
         } else {
-            Timber.d("Received onMessageUpdated")
+            debug { "Received onMessageUpdated" }
         }
     }
 
@@ -551,7 +549,7 @@ class MessageActivity : Activity(), ChannelListener {
         if (message != null) {
             TwilioApplication.instance.showToast("onMessageDeleted for ${message.sid}")
         } else {
-            Timber.d("Received onMessageDeleted.")
+            debug { "Received onMessageDeleted." }
         }
     }
 
@@ -578,19 +576,19 @@ class MessageActivity : Activity(), ChannelListener {
             val text = "${member.identity} is typing ..."
             typingIndicator.text = text
             typingIndicator.setTextColor(Color.RED)
-            Timber.d(text)
+            debug { text }
         }
     }
 
     override fun onTypingEnded(member: Member?) {
         if (member != null) {
             typingIndicator.text = null
-            Timber.d("${member.identity} has ended typing")
+            debug { "${member.identity} finished typing" }
         }
     }
 
     override fun onSynchronizationChanged(channel: Channel) {
-        Timber.d("Received onSynchronizationChanged callback for ${channel.friendlyName}")
+        debug { "Received onSynchronizationChanged callback for ${channel.friendlyName}" }
     }
 
     data class MessageItem(val message: Message, val members: Members, internal var currentUser: String);

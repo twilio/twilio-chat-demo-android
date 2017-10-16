@@ -6,25 +6,20 @@ import android.os.Looper
 import android.view.Gravity
 import android.widget.Toast
 import com.twilio.chat.ErrorInfo
-import timber.log.Timber
-import timber.log.Timber.DebugTree
+import org.jetbrains.anko.*
 
-class TwilioApplication : Application() {
+class TwilioApplication : Application(), AnkoLogger {
     lateinit var basicClient: BasicChatClient
         private set
 
     override fun onCreate() {
-        if (BuildConfig.DEBUG) {
-            Timber.plant(DebugTree())
-        }
-
         super.onCreate()
         instance = this
         basicClient = BasicChatClient(applicationContext)
     }
 
     @JvmOverloads fun showToast(text: String, duration: Int = Toast.LENGTH_SHORT) {
-        Timber.d(text)
+        debug { text }
         Handler(Looper.getMainLooper()).post {
             val toast = Toast.makeText(applicationContext, text, duration)
             toast.setGravity(Gravity.CENTER_HORIZONTAL, 0, 0)
@@ -42,7 +37,7 @@ class TwilioApplication : Application() {
     }
 
     fun logErrorInfo(message: String, error: ErrorInfo) {
-        Timber.e(formatted(message, error))
+        error { formatted(message, error) }
     }
 
     private fun formatted(message: String, error: ErrorInfo): String {

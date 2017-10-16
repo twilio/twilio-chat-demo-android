@@ -12,9 +12,9 @@ import android.widget.TextView
 import com.twilio.chat.demo.R
 import eu.inloop.simplerecycleradapter.SettableViewHolder
 import kotterknife.bindView
-import timber.log.Timber
+import org.jetbrains.anko.*
 
-class ChannelViewHolder : SettableViewHolder<ChannelModel> {
+class ChannelViewHolder : SettableViewHolder<ChannelModel>, AnkoLogger {
     val friendlyName: TextView by bindView(R.id.channel_friendly_name)
     val channelSid: TextView by bindView(R.id.channel_sid)
     val updatedDate: TextView by bindView(R.id.channel_updated_date)
@@ -28,7 +28,7 @@ class ChannelViewHolder : SettableViewHolder<ChannelModel> {
     {}
 
     override fun setData(channel: ChannelModel) {
-        Timber.w("setData for ${channel.friendlyName} sid|${channel.sid}|")
+        warn { "setData for ${channel.friendlyName} sid|${channel.sid}|" }
         friendlyName.text = channel.friendlyName
         channelSid.text = channel.sid
 

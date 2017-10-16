@@ -8,10 +8,10 @@ import com.twilio.chat.internal.HandlerUtil
 import android.content.Context
 import android.os.AsyncTask
 import android.os.Handler
-import timber.log.Timber
 import ToastStatusListener
+import org.jetbrains.anko.*
 
-class BasicChatClient(private val context: Context) : CallbackListener<ChatClient>(), AccessManager.Listener, AccessManager.TokenUpdateListener {
+class BasicChatClient(private val context: Context) : CallbackListener<ChatClient>(), AccessManager.Listener, AccessManager.TokenUpdateListener, AnkoLogger {
     private var accessToken: String? = null
     private var fcmToken: String? = null
 
@@ -28,7 +28,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
     init {
 
         if (BuildConfig.DEBUG) {
-            Timber.e("Enabling DEBUG logging")
+            warn { "Enabling DEBUG logging" }
             ChatClient.setLogLevel(android.util.Log.DEBUG)
         }
     }
@@ -44,7 +44,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
     }
 
     fun setFCMToken(fcmToken: String) {
-        Timber.e("setFCMToken " + fcmToken)
+        warn { "setFCMToken $fcmToken" }
         this.fcmToken = fcmToken
         if (chatClient != null) {
             setupFcmToken()
@@ -112,7 +112,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
 
     // Client created, remember the reference and set up UI
     override fun onSuccess(client: ChatClient) {
-        Timber.d("Received completely initialized ChatClient")
+        debug { "Received completely initialized ChatClient" }
         chatClient = client
 
         if (fcmToken != null) {

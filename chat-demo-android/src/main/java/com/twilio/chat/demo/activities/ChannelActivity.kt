@@ -25,13 +25,12 @@ import eu.inloop.simplerecycleradapter.SettableViewHolder
 import eu.inloop.simplerecycleradapter.SimpleRecyclerAdapter
 import kotlinx.android.synthetic.main.activity_channel.*
 import org.jetbrains.anko.*
-import timber.log.Timber
 import org.json.JSONObject
 import org.json.JSONException
 import ChatCallbackListener
 import ToastStatusListener
 
-class ChannelActivity : Activity(), ChatClientListener {
+class ChannelActivity : Activity(), ChatClientListener, AnkoLogger {
     private lateinit var basicClient: BasicChatClient
     private val channels = HashMap<String, ChannelModel>()
     private lateinit var adapter: SimpleRecyclerAdapter<ChannelModel>
@@ -80,7 +79,7 @@ class ChannelActivity : Activity(), ChatClientListener {
         try {
             attrs.put("topic", "testing channel creation with options ${value}")
         } catch (xcp: JSONException) {
-            Timber.e("JSON exception", xcp)
+            error { "JSON exception: $xcp" }
         }
 
         val typ = if (type == ChannelType.PRIVATE) "Priv" else "Pub"
@@ -93,13 +92,13 @@ class ChannelActivity : Activity(), ChatClientListener {
                ?.withAttributes(attrs)
                ?.build(object : CallbackListener<Channel>() {
                     override fun onSuccess(newChannel: Channel) {
-                        Timber.d("Successfully created a channel with options.")
+                        debug { "Successfully created a channel with options." }
                         channels.put(newChannel.sid, ChannelModel(newChannel))
                         refreshChannelList()
                     }
 
                     override fun onError(errorInfo: ErrorInfo?) {
-                        Timber.e("Error creating a channel")
+                        error { "Error creating a channel" }
                     }
                 })
     }
@@ -115,9 +114,9 @@ class ChannelActivity : Activity(), ChatClientListener {
                     val channel_name = editText { padding = dip(10) }.lparams(width = matchParent)
                     positiveButton(R.string.create) {
                         val channelName = channel_name.text.toString()
-                        Timber.d("Creating channel with friendly Name|$channelName|")
+                        debug { "Creating channel with friendly Name|$channelName|" }
                         basicClient.chatClient?.channels?.createChannel(channelName, type, ChatCallbackListener<Channel>() {
-                            Timber.d("Channel created with sid|${it.sid}| and type ${it.type}")
+                            debug { "Channel created with sid|${it.sid}| and type ${it.type}" }
                             channels.put(it.sid, ChannelModel(it))
                             refreshChannelList()
                         })
@@ -139,7 +138,7 @@ class ChannelActivity : Activity(), ChatClientListener {
                     val channel_name = editText { padding = dip(10) }.lparams(width = matchParent)
                     positiveButton(R.string.search) {
                         val channelSid = channel_name.text.toString()
-                        Timber.d("Searching for ${channelSid}")
+                        debug { "Searching for ${channelSid}" }
                         basicClient.chatClient?.channels?.getChannel(channelSid, ChatCallbackListener<Channel?>() {
                             if (it != null) {
                                 TwilioApplication.instance.showToast("${it.sid}: ${it.friendlyName}")
@@ -200,7 +199,7 @@ class ChannelActivity : Activity(), ChatClientListener {
 
     private fun getChannelsPage(paginator: Paginator<ChannelDescriptor>) {
         for (cd in paginator.items) {
-            Timber.e("Adding channel descriptor for sid|${cd.sid}| friendlyName ${cd.friendlyName}")
+            error { "Adding channel descriptor for sid|${cd.sid}| friendlyName ${cd.friendlyName}" }
             channels.put(cd.sid, ChannelModel(cd))
         }
         refreshChannelList()
@@ -278,25 +277,25 @@ class ChannelActivity : Activity(), ChatClientListener {
     //=============================================================
 
     override fun onChannelJoined(channel: Channel) {
-        Timber.d("Received onChannelJoined callback for channel |${channel.friendlyName}|")
+        debug { "Received onChannelJoined callback for channel |${channel.friendlyName}|" }
         channels.put(channel.sid, ChannelModel(channel))
         refreshChannelList()
     }
 
     override fun onChannelAdded(channel: Channel) {
-        Timber.d("Received onChannelAdded callback for channel |${channel.friendlyName}|")
+        debug { "Received onChannelAdded callback for channel |${channel.friendlyName}|" }
         channels.put(channel.sid, ChannelModel(channel))
         refreshChannelList()
     }
 
     override fun onChannelUpdated(channel: Channel, reason: Channel.UpdateReason) {
-        Timber.d("Received onChannelUpdated callback for channel |${channel.friendlyName}| with reason ${reason}")
+        debug { "Received onChannelUpdated callback for channel |${channel.friendlyName}| with reason ${reason}" }
         channels.put(channel.sid, ChannelModel(channel))
         refreshChannelList()
     }
 
     override fun onChannelDeleted(channel: Channel) {
-        Timber.d("Received onChannelDeleted callback for channel |${channel.friendlyName} |")
+        debug { "Received onChannelDeleted callback for channel |${channel.friendlyName}|" }
         channels.remove(channel.sid)
         refreshChannelList()
     }
@@ -308,24 +307,24 @@ class ChannelActivity : Activity(), ChatClientListener {
     }
 
     override fun onChannelSynchronizationChange(channel: Channel) {
-        Timber.e("Received onChannelSynchronizationChange callback for channel |${channel.friendlyName}| with new status ${channel.status}")
+        error { "Received onChannelSynchronizationChange callback for channel |${channel.friendlyName}| with new status ${channel.status}" }
         refreshChannelList()
     }
 
     override fun onClientSynchronization(status: ChatClient.SynchronizationStatus) {
-        Timber.e("Received onClientSynchronization callback ${status}")
+        error { "Received onClientSynchronization callback ${status}" }
     }
 
     override fun onUserUpdated(user: User, reason: User.UpdateReason) {
-        Timber.e("Received onUserUpdated callback for ${reason}")
+        error { "Received onUserUpdated callback for ${reason}" }
     }
 
     override fun onUserSubscribed(user: User) {
-        Timber.e("Received onUserSubscribed callback")
+        error { "Received onUserSubscribed callback" }
     }
 
     override fun onUserUnsubscribed(user: User) {
-        Timber.e("Received onUserUnsubscribed callback")
+        error { "Received onUserUnsubscribed callback" }
     }
 
     override fun onNotification(channelId: String, messageId: String) {

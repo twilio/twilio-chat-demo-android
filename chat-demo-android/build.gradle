@@ -13,7 +13,6 @@ dependencies {
     compile 'com.google.firebase:firebase-messaging:11.4.0' // FCM
     compile 'com.google.android.gms:play-services-base:11.4.0'
 
-    compile 'com.jakewharton.timber:timber:4.5.1'
     compile 'com.jakewharton:kotterknife:0.1.0-SNAPSHOT'
     compile 'eu.inloop:simplerecycleradapter:0.3.4'
     // compile 'com.android.support.constraint:constraint-layout:1.0.2'

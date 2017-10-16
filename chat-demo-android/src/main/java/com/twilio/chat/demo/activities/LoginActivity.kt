@@ -19,9 +19,7 @@ import com.twilio.chat.demo.services.RegistrationIntentService
 import kotlinx.android.synthetic.main.activity_login.*
 import org.jetbrains.anko.*
 
-import timber.log.Timber
-
-class LoginActivity : Activity(), LoginListener {
+class LoginActivity : Activity(), LoginListener, AnkoLogger {
     private var progressDialog: ProgressDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,7 +40,7 @@ class LoginActivity : Activity(), LoginListener {
                     .appendQueryParameter("identity", idChosen)
                     .build()
                     .toString()
-            Timber.d("url string : " + url)
+            debug { "url string : $url" }
             TwilioApplication.instance.basicClient.login(idChosen, url, this@LoginActivity)
         }
 
@@ -73,7 +71,7 @@ class LoginActivity : Activity(), LoginListener {
     }
 
     override fun onLoginStarted() {
-        Timber.d("Log in started")
+        debug { "Log in started" }
         progressDialog = ProgressDialog.show(this, "", "Logging in. Please wait...", true)
     }
 
@@ -112,7 +110,7 @@ class LoginActivity : Activity(), LoginListener {
                 apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
                         .show()
             } else {
-                Timber.i("This device is not supported.")
+                info { "This device is not supported." }
                 finish()
             }
             return false

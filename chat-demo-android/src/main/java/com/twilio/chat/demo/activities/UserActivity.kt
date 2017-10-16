@@ -19,15 +19,10 @@ import com.twilio.chat.demo.TwilioApplication
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
-import timber.log.Timber
 import kotlinx.android.synthetic.main.activity_user_info.*
 
 class UserActivity : Activity() {
-
     internal var client: ChatClient? = null
-//    internal @BindView(R.id.user_friendly_name) lateinit var friendlyName: EditText
-//    internal @BindView(R.id.avatar)             lateinit var avatarView: ImageView
-//    internal @BindView(R.id.user_info_save)     lateinit var save: Button
     internal var bitmap: Bitmap? = null
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -52,7 +47,6 @@ class UserActivity : Activity() {
 
         user_friendly_name.setText(user.friendlyName)
 
-        Timber.i("message client initialized")
         user_info_save.setOnClickListener {
             if (user.friendlyName != user_friendly_name.text.toString()) {
                 user.setFriendlyName(

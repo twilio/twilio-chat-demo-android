@@ -15,22 +15,20 @@ import com.twilio.chat.demo.Constants
 import com.twilio.chat.demo.R
 import com.twilio.chat.demo.TwilioApplication
 import com.twilio.chat.demo.activities.MessageActivity
+import org.jetbrains.anko.*
 
-import timber.log.Timber
-
-class FCMListenerService : FirebaseMessagingService() {
+class FCMListenerService : FirebaseMessagingService(), AnkoLogger {
     override fun onMessageReceived(remoteMessage: RemoteMessage?) {
         // If the application is in the foreground handle both data and notification messages here.
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated. See sendNotification method below.
+        if (remoteMessage == null) return;
 
-        Timber.d("onMessageReceived for FCM")
-
-        Timber.d("From: " + remoteMessage!!.from)
+        debug { "onMessageReceived for FCM from: ${remoteMessage.from}" }
 
         // Check if message contains a data payload.
-        if (remoteMessage.data.size > 0) {
-            Timber.d("Data Message Body: " + remoteMessage.data)
+        if (remoteMessage.data.isNotEmpty()) {
+            debug { "Data Message Body: ${remoteMessage.data}" }
 
             val payload = NotificationPayload(remoteMessage.data)
 
@@ -77,10 +75,10 @@ class FCMListenerService : FirebaseMessagingService() {
                 val sound = Uri.parse("android.resource://$packageName/raw/$soundFileName")
                 notification.defaults = notification.defaults and Notification.DEFAULT_SOUND.inv()
                 notification.sound = sound
-                Timber.d("Playing specified sound " + soundFileName)
+                debug { "Playing specified sound $soundFileName" }
             } else {
                 notification.defaults = notification.defaults or Notification.DEFAULT_SOUND
-                Timber.d("Playing default sound")
+                debug { "Playing default sound" }
             }
 
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -90,8 +88,8 @@ class FCMListenerService : FirebaseMessagingService() {
 
         // Check if message contains a notification payload.
         if (remoteMessage.notification != null) {
-            Timber.d("Notification Message Body: " + remoteMessage.notification.body!!)
-            Timber.e("We do not parse notification body - leave it to system")
+            debug { "Notification Message Body: ${remoteMessage.notification.body!!}" }
+            error { "We do not parse notification body - leave it to system" }
         }
     }
 }
