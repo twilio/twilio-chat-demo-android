@@ -17,7 +17,7 @@ dependencies {
     compile 'eu.inloop:simplerecycleradapter:0.3.4'
     // compile 'com.android.support.constraint:constraint-layout:1.0.2'
 
-    compile 'com.twilio:chat-android:2.0.0'
+    compile 'com.twilio:chat-android:3.0.0'
     compile 'com.twilio:accessmanager-android:0.1.0'
 
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
