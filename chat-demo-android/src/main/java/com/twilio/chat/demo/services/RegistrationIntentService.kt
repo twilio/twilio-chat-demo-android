@@ -28,7 +28,7 @@ class RegistrationIntentService : IntentService("RegistrationIntentService"), An
             /**
              * Persist registration to Twilio servers.
              */
-            TwilioApplication.instance.basicClient.setFCMToken(token)
+            TwilioApplication.instance.basicClient.setFCMToken(token!!)
 
             // You should store a boolean that indicates whether the generated token has been
             // sent to your server. If the boolean is false, send the token to your server,
