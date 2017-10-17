@@ -61,7 +61,7 @@ class FCMListenerService : FirebaseMessagingService(), AnkoLogger {
 
             val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT)
 
-            val notification = NotificationCompat.Builder(this)
+            val notification = NotificationCompat.Builder(this, /*NotificationChannel.DEFAULT_CHANNEL_ID*/"miscellaneous")
                     .setSmallIcon(R.drawable.ic_notification)
                     .setContentTitle(title)
                     .setContentText(payload.body)

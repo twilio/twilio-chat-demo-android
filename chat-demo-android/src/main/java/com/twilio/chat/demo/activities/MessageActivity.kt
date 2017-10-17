@@ -44,13 +44,13 @@ import ToastStatusListener
 import android.os.Parcelable
 
 // RecyclerView Anko
-inline fun ViewManager.recyclerView() = recyclerView(theme = 0) {}
+fun ViewManager.recyclerView() = recyclerView(theme = 0) {}
 
 inline fun ViewManager.recyclerView(init: RecyclerView.() -> Unit): RecyclerView {
     return ankoView({ RecyclerView(it) }, theme = 0, init = init)
 }
 
-inline fun ViewManager.recyclerView(theme: Int = 0) = recyclerView(theme) {}
+fun ViewManager.recyclerView(theme: Int = 0) = recyclerView(theme) {}
 
 inline fun ViewManager.recyclerView(theme: Int = 0, init: RecyclerView.() -> Unit): RecyclerView {
     return ankoView({ RecyclerView(it) }, theme, init)
