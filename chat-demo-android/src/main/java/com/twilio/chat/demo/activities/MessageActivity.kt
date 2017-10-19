@@ -203,8 +203,10 @@ class MessageActivity : Activity(), ChannelListener, AnkoLogger {
                         TwilioApplication.instance.showToast("SUCCESS GET MESSAGE BY IDX")
                         error { "MESSAGES ${it.messages.toString()}, CHANNEL ${it.channel.sid}" }
                     })
-                SET_ALL_CONSUMED -> channel!!.messages.setAllMessagesConsumed()
-                SET_NONE_CONSUMED -> channel!!.messages.setNoMessagesConsumed()
+                SET_ALL_CONSUMED -> channel!!.messages.setAllMessagesConsumedWithResult(ChatCallbackListener<Long>()
+                    {unread -> TwilioApplication.instance.showToast("$unread messages still unread")})
+                SET_NONE_CONSUMED -> channel!!.messages.setNoMessagesConsumedWithResult(ChatCallbackListener<Long>()
+                    {unread -> TwilioApplication.instance.showToast("$unread messages still unread")})
             }
         }
     }
