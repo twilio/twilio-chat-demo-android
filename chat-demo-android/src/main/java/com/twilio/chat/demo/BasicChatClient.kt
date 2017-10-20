@@ -68,7 +68,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
         loginListenerHandler = HandlerUtil.setupListenerHandler()
         loginListener = listener
 
-        GetAccessTokenAsyncTask().execute(username, urlString)
+        GetAccessTokenAsyncTask().execute(urlString)
     }
 
     private fun setupFcmToken() {
@@ -141,12 +141,12 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
 
     override fun onTokenWillExpire(accessManager: AccessManager) {
         TwilioApplication.instance.showToast("Token will expire in 3 minutes. Getting new token.")
-        GetAccessTokenAsyncTask().execute(username, urlString)
+        GetAccessTokenAsyncTask().execute(urlString)
     }
 
     override fun onTokenExpired(accessManager: AccessManager) {
         TwilioApplication.instance.showToast("Token expired. Getting new token.")
-        GetAccessTokenAsyncTask().execute(username, urlString)
+        GetAccessTokenAsyncTask().execute(urlString)
     }
 
     override fun onError(accessManager: AccessManager, err: String) {
@@ -166,6 +166,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
     /**
      * Modify this method if you need to provide more information to your Access Token Service.
      */
+    //TODO coroutines
     private inner class GetAccessTokenAsyncTask : AsyncTask<String, Void, String>() {
         override fun onPreExecute() {
             super.onPreExecute()
@@ -178,7 +179,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
 
         override fun doInBackground(vararg params: String): String? {
             try {
-                accessToken = HttpHelper.httpGet(params[0], params[1])
+                accessToken = HttpHelper.httpGet(params[0])
             } catch (e: Exception) {
                 e.printStackTrace()
             }

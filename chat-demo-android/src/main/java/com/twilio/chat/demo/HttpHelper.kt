@@ -7,7 +7,7 @@ import org.json.JSONException
 
 object HttpHelper {
     @Throws(Exception::class)
-    fun httpGet(username: String, url: String): String {
+    fun httpGet(url: String): String {
         val urlObj = URL(url)
 
         val conn = urlObj.openConnection() as HttpURLConnection
