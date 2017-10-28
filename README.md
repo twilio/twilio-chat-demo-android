@@ -7,7 +7,7 @@ Welcome to the Chat Demo application.  This application demonstrates a basic cha
 What you'll minimally need to get started:
 
 - A clone of this repository
-- [A way to create an Chat Service Instance and generate client tokens](https://www.twilio.com/docs/api/chat/guides/identity)
+- [A way to create a Chat Service Instance and generate client tokens](https://www.twilio.com/docs/api/chat/guides/identity)
 - Gradle installation
 - Google Play Services library : [Follow the instructions here](https://developers.google.com/android/guides/setup)
 
