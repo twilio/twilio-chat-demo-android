@@ -327,8 +327,20 @@ class ChannelActivity : Activity(), ChatClientListener, AnkoLogger {
         error { "Received onUserUnsubscribed callback" }
     }
 
-    override fun onNotification(channelId: String, messageId: String) {
-        TwilioApplication.instance.showToast("Received new push notification")
+    override fun onNewMessageNotification(channelSid: String?, messageSid: String?, messageIndex: Long) {
+        TwilioApplication.instance.showToast("Received onNewMessage push notification")
+    }
+
+    override fun onAddedToChannelNotification(channelSid: String?) {
+        TwilioApplication.instance.showToast("Received onAddedToChannel push notification")
+    }
+
+    override fun onInvitedToChannelNotification(channelSid: String?) {
+        TwilioApplication.instance.showToast("Received onInvitedToChannel push notification")
+    }
+
+    override fun onRemovedFromChannelNotification(channelSid: String?) {
+        TwilioApplication.instance.showToast("Received onRemovedFromChannel push notification")
     }
 
     override fun onNotificationSubscribed() {
