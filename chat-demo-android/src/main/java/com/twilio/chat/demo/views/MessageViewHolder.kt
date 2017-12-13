@@ -37,7 +37,7 @@ class MessageViewHolder : SettableViewHolder<MessageActivity.MessageItem> {
 
         author.text = msg.author
         body.text = msg.messageBody
-        date.text = msg.timeStamp
+        date.text = msg.dateCreated
 
         identities.removeAllViews()
         lines.removeAllViews()

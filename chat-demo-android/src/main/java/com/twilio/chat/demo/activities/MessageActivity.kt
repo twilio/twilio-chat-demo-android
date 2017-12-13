@@ -440,7 +440,7 @@ class MessageActivity : Activity(), ChannelListener, AnkoLogger {
             if (rhs == null) {
                 return 1
             }
-            return lhs.timeStamp.compareTo(rhs.timeStamp)
+            return lhs.dateCreated.compareTo(rhs.dateCreated)
         }
     }
 
