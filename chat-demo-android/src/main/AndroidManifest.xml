@@ -48,7 +48,7 @@
             android:launchMode="singleTop" >
         </activity>
 
-        <service android:name=".MediaService" android:exported="false"/>
+        <service android:name=".services.MediaService" android:exported="false"/>
 
         <!-- FCM service -->
 
