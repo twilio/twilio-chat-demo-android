@@ -4,6 +4,8 @@
 
 For the Kotlin version you can look [here](https://github.com/twilio/twilio-chat-demo-android/tree/master).
 
+![](https://img.shields.io/badge/SDK%20version-1.0.9-red.svg)
+
 ## Getting Started
 
 Welcome to the Chat Demo application.  This application demonstrates a basic chat client with the ability to create and join channels, invite other members into the channels and exchange messages.
