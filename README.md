@@ -4,6 +4,8 @@
 
 For the Java version you can look [here](https://github.com/twilio/twilio-chat-demo-android/tree/java).
 
+![](https://img.shields.io/badge/SDK%20version-2.0.7-blue.svg)
+
 ## Getting Started
 
 Welcome to the Chat Demo application.  This application demonstrates a basic chat client with the ability to create and join channels, invite other members into the channels and exchange messages.
