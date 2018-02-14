@@ -153,9 +153,7 @@ class UserActivity : Activity() {
 
             override fun onUserUnsubscribed(user: User) {}
 
-            override fun onClientSynchronization(
-                    synchronizationStatus: ChatClient.SynchronizationStatus) {
-            }
+            override fun onClientSynchronization(synchronizationStatus: ChatClient.SynchronizationStatus) {}
 
             override fun onNewMessageNotification(channelSid: String?, messageSid: String?, messageIndex: Long) {}
             override fun onAddedToChannelNotification(channelSid: String?) {}
