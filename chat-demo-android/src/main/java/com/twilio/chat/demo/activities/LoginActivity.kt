@@ -89,14 +89,6 @@ class LoginActivity : Activity(), LoginListener, AnkoLogger {
         TwilioApplication.instance.showToast("Log out finished")
     }
 
-    override fun onResume() {
-        super.onResume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-    }
-
     /**
      * Check the device to make sure it has the Google Play Services APK. If
      * it doesn't, display a dialog that allows users to download the APK from
