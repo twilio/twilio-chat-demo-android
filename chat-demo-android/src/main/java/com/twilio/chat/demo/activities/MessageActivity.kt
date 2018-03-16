@@ -573,7 +573,7 @@ class MessageActivity : Activity(), ChannelListener, AnkoLogger {
         }
     }
 
-    override fun onTypingStarted(member: Member?) {
+    override fun onTypingStarted(channel: Channel?, member: Member?) {
         if (member != null) {
             val text = "${member.identity} is typing ..."
             typingIndicator.text = text
@@ -582,7 +582,7 @@ class MessageActivity : Activity(), ChannelListener, AnkoLogger {
         }
     }
 
-    override fun onTypingEnded(member: Member?) {
+    override fun onTypingEnded(channel: Channel?, member: Member?) {
         if (member != null) {
             typingIndicator.text = null
             debug { "${member.identity} finished typing" }
