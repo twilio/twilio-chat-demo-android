@@ -86,6 +86,7 @@ class LoginActivity : Activity(), LoginListener, AnkoLogger {
     }
 
     override fun onLogoutFinished() {
+        progressDialog?.dismiss()
         TwilioApplication.instance.showToast("Log out finished")
     }
 
