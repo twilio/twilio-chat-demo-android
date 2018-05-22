@@ -9,6 +9,7 @@ import android.graphics.Color
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.TextView
+import com.twilio.chat.Message
 import com.twilio.chat.demo.R
 import eu.inloop.simplerecycleradapter.SettableViewHolder
 import kotterknife.bindView
@@ -22,6 +23,7 @@ class ChannelViewHolder : SettableViewHolder<ChannelModel>, AnkoLogger {
     val usersCount: TextView by bindView(R.id.channel_users_count)
     val totalMessagesCount: TextView by bindView(R.id.channel_total_messages_count)
     val unconsumedMessagesCount: TextView by bindView(R.id.channel_unconsumed_messages_count)
+    val lastMessageDate: TextView by bindView(R.id.channel_last_message_date)
 
     constructor(context: Context, parent: ViewGroup)
         : super(context, R.layout.channel_item_layout, parent)
@@ -62,6 +64,11 @@ class ChannelViewHolder : SettableViewHolder<ChannelModel>, AnkoLogger {
                 usersCount.text = "Members " + value!!.toString()
             }
         })
+
+        val lastmsg = channel.lastMessageDate;
+        if (lastmsg != null) {
+            lastMessageDate.text = lastmsg.toString()
+        }
 
         itemView.setBackgroundColor(
             if (channel.status == ChannelStatus.JOINED) {

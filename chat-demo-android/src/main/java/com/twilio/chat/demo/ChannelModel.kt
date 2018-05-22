@@ -1,13 +1,9 @@
 package com.twilio.chat.demo
 
+import com.twilio.chat.*
 import java.util.Date
-import com.twilio.chat.Channel
 import com.twilio.chat.Channel.ChannelStatus
 import com.twilio.chat.Channel.ChannelType
-import com.twilio.chat.ChannelDescriptor
-import com.twilio.chat.CallbackListener
-import com.twilio.chat.StatusListener
-import com.twilio.chat.ErrorInfo
 
 class ChannelModel {
     private var channel: Channel? = null
@@ -53,6 +49,20 @@ class ChannelModel {
         get() {
             if (channel != null) return channel!!.status
             if (channelDescriptor != null) return channelDescriptor!!.status
+            throw IllegalStateException("Invalid state")
+        }
+
+    val lastMessageDate: Date?
+        get() {
+            if (channel != null) return channel!!.lastMessageDate
+            if (channelDescriptor != null) return null
+            throw IllegalStateException("Invalid state")
+        }
+
+    val lastMessageIndex: Long?
+        get() {
+            if (channel != null) return channel!!.lastMessageIndex
+            if (channelDescriptor != null) return null
             throw IllegalStateException("Invalid state")
         }
 
