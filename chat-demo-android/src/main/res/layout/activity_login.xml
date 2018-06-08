@@ -42,6 +42,13 @@
 
     </LinearLayout>
 
+    <CheckBox
+        android:id="@+id/certPinning"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="false"
+        android:text="@string/certPin"/>
+
     <Button
         android:id="@+id/logout"
         android:layout_width="100dp"

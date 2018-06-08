@@ -28,6 +28,7 @@
     <string name="Create_private_channel">Create private channel</string>
     <string name="RegId">Reg Id:</string>
     <string name="fcm">FCM</string>
+    <string name="certPin">Pin certificate bundle</string>
     <string name="unregister_fcm">Unregister FCM Token</string>
     <string name="Create_public_channel_withOption">Create Pub Ch with Options</string>
     <string name="Create_private_channel_withOption">Create Pri Ch with Options</string>

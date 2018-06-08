@@ -28,12 +28,17 @@ class LoginActivity : Activity(), LoginListener, AnkoLogger {
 
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val userName = sharedPreferences.getString("userName", DEFAULT_CLIENT_NAME)
+        val certPin = sharedPreferences.getBoolean("pinCerts", true)
 
         clientNameTextBox.setText(userName)
+        certPinning.isChecked = certPin
 
         login.setOnClickListener {
             val idChosen = clientNameTextBox.text.toString()
             sharedPreferences.edit().putString("userName", idChosen).apply()
+
+            val certPinningChosen = certPinning.isChecked
+            sharedPreferences.edit().putBoolean("pinCerts", certPinningChosen).apply()
 
             val url = Uri.parse(BuildConfig.ACCESS_TOKEN_SERVICE_URL)
                     .buildUpon()
@@ -41,7 +46,7 @@ class LoginActivity : Activity(), LoginListener, AnkoLogger {
                     .build()
                     .toString()
             debug { "url string : $url" }
-            TwilioApplication.instance.basicClient.login(idChosen, url, this@LoginActivity)
+            TwilioApplication.instance.basicClient.login(idChosen, certPinningChosen, url, this@LoginActivity)
         }
 
         if (checkPlayServices()) {

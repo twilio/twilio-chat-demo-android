@@ -24,9 +24,9 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
 
     private var urlString: String? = null
     private var username: String? = null
+    private var pinCerts: Boolean = true
 
     init {
-
         if (BuildConfig.DEBUG) {
             warn { "Enabling DEBUG logging" }
             ChatClient.setLogLevel(android.util.Log.DEBUG)
@@ -51,8 +51,9 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
         }
     }
 
-    fun login(username: String, url: String, listener: LoginListener) {
+    fun login(username: String, pinCerts: Boolean, url: String, listener: LoginListener) {
         if (username === this.username
+                && pinCerts == this.pinCerts
                 && urlString === url
                 && loginListener === listener
                 && chatClient != null
@@ -63,6 +64,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
         }
 
         this.username = username
+        this.pinCerts = pinCerts
         urlString = url
 
         loginListenerHandler = HandlerUtil.setupListenerHandler()
@@ -97,6 +99,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
 
         val props = ChatClient.Properties.Builder()
                 .setRegion("us1")
+                .setDeferCertificateTrustToPlatform(!pinCerts)
                 .createProperties()
 
         ChatClient.create(context.applicationContext,
