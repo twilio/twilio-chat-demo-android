@@ -132,6 +132,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
     // Client not created, fail
     override fun onError(errorInfo: ErrorInfo?) {
         TwilioApplication.instance.logErrorInfo("Login error", errorInfo!!)
+        chatClient = null
 
         loginListenerHandler!!.post {
             if (loginListener != null) {
@@ -143,13 +144,18 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
     // AccessManager.Listener
 
     override fun onTokenWillExpire(accessManager: AccessManager) {
-        TwilioApplication.instance.showToast("Token will expire in 3 minutes. Getting new token.")
-        GetAccessTokenAsyncTask().execute(urlString)
+        if (chatClient != null) {
+            TwilioApplication.instance.showToast("Token will expire in 3 minutes. Getting new token.")
+            GetAccessTokenAsyncTask().execute(urlString)
+        }
     }
 
     override fun onTokenExpired(accessManager: AccessManager) {
-        TwilioApplication.instance.showToast("Token expired. Getting new token.")
-        GetAccessTokenAsyncTask().execute(urlString)
+        accessToken = null
+        if (chatClient != null) {
+            TwilioApplication.instance.showToast("Token expired. Getting new token.")
+            GetAccessTokenAsyncTask().execute(urlString)
+        }
     }
 
     override fun onError(accessManager: AccessManager, err: String) {
