@@ -4,8 +4,9 @@ import java.net.HttpURLConnection
 import java.net.URL
 import org.json.JSONObject
 import org.json.JSONException
+import org.jetbrains.anko.*
 
-object HttpHelper {
+object HttpHelper : AnkoLogger {
     @Throws(Exception::class)
     fun httpGet(url: String): String {
         val urlObj = URL(url)
@@ -33,6 +34,8 @@ object HttpHelper {
             } catch (xcp: JSONException) {
                 // Do nothing
             }
+
+            info { "Received Token: ${accessToken}" }
 
             return accessToken
         } else {
