@@ -5,6 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.Gravity
 import android.widget.Toast
+import com.google.firebase.FirebaseApp
 import com.twilio.chat.ErrorInfo
 import org.jetbrains.anko.*
 
@@ -14,6 +15,7 @@ class TwilioApplication : Application(), AnkoLogger {
 
     override fun onCreate() {
         super.onCreate()
+        FirebaseApp.initializeApp(this)
         instance = this
         basicClient = BasicChatClient(applicationContext)
     }
