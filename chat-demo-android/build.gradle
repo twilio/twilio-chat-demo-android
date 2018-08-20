@@ -5,33 +5,47 @@ apply plugin: 'kotlin-android-extensions'
 
 def ACCESS_TOKEN_SERVICE_URL = project.hasProperty('ACCESS_TOKEN_SERVICE_URL') ? "\""+project.getProperty('ACCESS_TOKEN_SERVICE_URL')+"\"" : "\"http://example.com/token\""
 
-dependencies {
-    // implementation 'com.android.support:support-v4:25.3.1'
-    implementation 'com.android.support:appcompat-v7:25.3.1'
-    implementation 'com.android.support:design:25.3.1'
+ext.appcompat_version = "28.0.0"
+ext.play_services_version = "15.0.1"
 
-    implementation 'com.google.firebase:firebase-messaging:11.4.0' // FCM
-    implementation 'com.google.android.gms:play-services-base:11.4.0'
+repositories {
+    google()
+}
+
+dependencies {
+    implementation "com.android.support:appcompat-v7:$appcompat_version"
+    implementation "com.android.support:design:$appcompat_version"
+
+    // FCM
+    // Firebase now requires the app gradle file to explicitly list
+    // `com.google.firebase:firebase-core` as a dependency for Firebase services to work as expected.
+    implementation 'com.google.firebase:firebase-core:16.0.6'
+    implementation 'com.google.firebase:firebase-iid:17.0.4'
+    implementation 'com.google.firebase:firebase-messaging:17.3.4'
+    // implementation "androidx.arch.core:core-runtime:1.1.1" // see https://stackoverflow.com/a/50976776
+
+    // implementation "com.google.android.gms:play-services-base:$play_services_version"
 
     implementation 'com.jakewharton:kotterknife:0.1.0-SNAPSHOT'
     implementation 'eu.inloop:simplerecycleradapter:0.3.4'
     // implementation 'com.android.support.constraint:constraint-layout:1.0.2'
 
-    implementation 'com.twilio:chat-android:3.1.0'
     implementation 'com.twilio:accessmanager-android:0.1.0'
+    implementation 'com.twilio:chat-android:4.0.0'
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.18'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.27.0-eap13'
     implementation "org.jetbrains.anko:anko:$anko_version"
 }
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 28
 
     defaultConfig {
         applicationId "com.twilio.chat.demo"
-        minSdkVersion 19
-        targetSdkVersion 23
+        minSdkVersion 21
+        targetSdkVersion 28
+        versionCode 26
         versionName "1.0"
     }
 
@@ -52,6 +66,11 @@ android {
             buildConfigField "String", "ACCESS_TOKEN_SERVICE_URL", ACCESS_TOKEN_SERVICE_URL
         }
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
 }
 
 kotlin {
@@ -66,7 +85,3 @@ tasks.withType(JavaCompile) {
 }
 
 apply plugin: 'com.google.gms.google-services'
-repositories {
-    mavenCentral()
-    google()
-}

@@ -12,9 +12,9 @@ import com.twilio.chat.Message
 import com.twilio.chat.ProgressListener
 import com.twilio.chat.demo.TwilioApplication
 import com.twilio.chat.demo.models.Media
-import kotlinx.coroutines.experimental.CompletableDeferred
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.newSingleThreadContext
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.newSingleThreadContext
 import org.jetbrains.anko.*
 
 class MediaService : IntentService(MediaService::class.java.simpleName), AnkoLogger {
@@ -112,7 +112,7 @@ class MediaService : IntentService(MediaService::class.java.simpleName), AnkoLog
 
                 } catch (e: Exception) {
                     error { "Failed to download media - error: ${e.message}" }
-                    deferred.completeExceptionally(e)
+                    deferred.cancel(e)
                 }
             })
 
