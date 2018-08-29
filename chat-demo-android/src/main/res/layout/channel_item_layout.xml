@@ -68,4 +68,12 @@
         android:textColor="@android:color/darker_gray"
         android:textSize="11sp" />
 
+    <TextView
+        android:id="@+id/channel_pushes_level"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusable="false"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="11sp" />
+
 </LinearLayout>

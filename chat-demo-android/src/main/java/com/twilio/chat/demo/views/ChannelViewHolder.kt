@@ -4,6 +4,7 @@ import android.content.Context
 import com.twilio.chat.demo.ChannelModel
 import com.twilio.chat.Channel.ChannelStatus
 import com.twilio.chat.Channel.ChannelType
+import com.twilio.chat.Channel.NotificationLevel
 import com.twilio.chat.CallbackListener
 import android.graphics.Color
 import android.util.Log
@@ -24,6 +25,7 @@ class ChannelViewHolder : SettableViewHolder<ChannelModel>, AnkoLogger {
     val totalMessagesCount: TextView by bindView(R.id.channel_total_messages_count)
     val unconsumedMessagesCount: TextView by bindView(R.id.channel_unconsumed_messages_count)
     val lastMessageDate: TextView by bindView(R.id.channel_last_message_date)
+    val pushesLevel: TextView by bindView(R.id.channel_pushes_level)
 
     constructor(context: Context, parent: ViewGroup)
         : super(context, R.layout.channel_item_layout, parent)
@@ -43,6 +45,11 @@ class ChannelViewHolder : SettableViewHolder<ChannelModel>, AnkoLogger {
             channel.dateCreatedAsDate!!.toString()
         else
             "<no created date>"
+
+        pushesLevel.text = if (channel.notificationLevel == NotificationLevel.MUTED)
+            "Pushes: Muted"
+        else
+            "Pushes: Default"
 
         channel.getUnconsumedMessagesCount(object : CallbackListener<Long>() {
             override fun onSuccess(value: Long?) {

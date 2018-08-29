@@ -4,6 +4,7 @@ import com.twilio.chat.*
 import java.util.Date
 import com.twilio.chat.Channel.ChannelStatus
 import com.twilio.chat.Channel.ChannelType
+import com.twilio.chat.Channel.NotificationLevel
 
 class ChannelModel {
     private var channel: Channel? = null
@@ -56,6 +57,13 @@ class ChannelModel {
         get() {
             if (channel != null) return channel!!.lastMessageDate
             if (channelDescriptor != null) return null
+            throw IllegalStateException("Invalid state")
+        }
+
+    val notificationLevel: NotificationLevel
+        get() {
+            if (channel != null) return channel!!.notificationLevel
+            if (channelDescriptor != null) return NotificationLevel.DEFAULT
             throw IllegalStateException("Invalid state")
         }
 
