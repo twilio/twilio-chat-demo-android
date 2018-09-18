@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:focusable="false"
         android:textColor="@android:color/darker_gray"
-        android:textSize="11sp" />
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/channel_updated_date"
@@ -26,7 +26,7 @@
         android:layout_height="wrap_content"
         android:focusable="false"
         android:textColor="@android:color/darker_gray"
-        android:textSize="11sp" />
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/channel_created_date"
@@ -34,7 +34,7 @@
         android:layout_height="wrap_content"
         android:focusable="false"
         android:textColor="@android:color/darker_gray"
-        android:textSize="11sp" />
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/channel_users_count"
@@ -42,7 +42,7 @@
         android:layout_height="wrap_content"
         android:focusable="false"
         android:textColor="@android:color/darker_gray"
-        android:textSize="11sp" />
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/channel_total_messages_count"
@@ -50,7 +50,7 @@
         android:layout_height="wrap_content"
         android:focusable="false"
         android:textColor="@android:color/darker_gray"
-        android:textSize="11sp" />
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/channel_unconsumed_messages_count"
@@ -58,7 +58,7 @@
         android:layout_height="wrap_content"
         android:focusable="false"
         android:textColor="@android:color/darker_gray"
-        android:textSize="11sp" />
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/channel_last_message_date"
@@ -66,7 +66,7 @@
         android:layout_height="wrap_content"
         android:focusable="false"
         android:textColor="@android:color/darker_gray"
-        android:textSize="11sp" />
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/channel_pushes_level"
@@ -74,6 +74,6 @@
         android:layout_height="wrap_content"
         android:focusable="false"
         android:textColor="@android:color/darker_gray"
-        android:textSize="11sp" />
+        android:textSize="12sp" />
 
 </LinearLayout>
