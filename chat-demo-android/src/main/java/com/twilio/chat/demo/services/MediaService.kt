@@ -16,6 +16,8 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import org.jetbrains.anko.*
+import java.io.File
+import java.io.FileOutputStream
 
 class MediaService : IntentService(MediaService::class.java.simpleName), AnkoLogger {
 
@@ -99,7 +101,7 @@ class MediaService : IntentService(MediaService::class.java.simpleName), AnkoLog
                 debug { "Media received - sid: ${media.sid}, name: ${media.fileName}, type: ${media.type}, size: ${media.size}" }
 
                 try {
-                    val outStream = openFileOutput(media.sid, Context.MODE_PRIVATE)
+                    val outStream = FileOutputStream(File(cacheDir, media.sid))
 
                     media.download(outStream, ChatStatusListener { debug { "Download completed" } }, object : ProgressListener() {
                         override fun onStarted() = debug { "Start media download" }

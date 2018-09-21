@@ -7,6 +7,7 @@ import com.twilio.chat.User
 import com.twilio.chat.demo.R
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.net.Uri
 import android.util.Base64
 import android.view.View
 import android.view.ViewGroup
@@ -18,19 +19,17 @@ import kotterknife.bindView
 import com.twilio.chat.demo.TwilioApplication
 import com.twilio.chat.demo.activities.MessageActivity
 import eu.inloop.simplerecycleradapter.SettableViewHolder
+import java.io.File
 
-class MessageViewHolder : SettableViewHolder<MessageActivity.MessageItem> {
-    val imageView: ImageView by bindView(R.id.avatar)
+class MessageViewHolder(val context: Context, parent: ViewGroup) : SettableViewHolder<MessageActivity.MessageItem>(context, R.layout.message_item_layout, parent) {
+    val avatarView: ImageView by bindView(R.id.avatar)
     val reachabilityView: ImageView by bindView(R.id.reachability)
     val body: TextView by bindView(R.id.body)
+    val mediaView: ImageView by bindView(R.id.mediaPreview)
     val author: TextView by bindView(R.id.author)
     val date: TextView by bindView(R.id.date)
     val identities: RelativeLayout by bindView(R.id.consumptionHorizonIdentities)
     val lines: LinearLayout by bindView(R.id.consumptionHorizonLines)
-
-    constructor(context: Context, parent: ViewGroup)
-            : super(context, R.layout.message_item_layout, parent)
-    {}
 
     override fun setData(message: MessageActivity.MessageItem) {
         val msg = message.message
@@ -44,13 +43,19 @@ class MessageViewHolder : SettableViewHolder<MessageActivity.MessageItem> {
 
         for (member in message.members.membersList) {
             if (msg.author.contentEquals(member.identity)) {
-                fillUserAvatar(imageView, member)
+                fillUserAvatar(avatarView, member)
                 fillUserReachability(reachabilityView, member)
             }
 
             if (member.lastConsumedMessageIndex != null && member.lastConsumedMessageIndex == message.message.messageIndex) {
                 drawConsumptionHorizon(member)
             }
+        }
+
+        if (msg.hasMedia()) {
+            body.visibility = View.GONE
+            mediaView.visibility = View.VISIBLE
+            mediaView.setImageURI(Uri.fromFile(File(context.cacheDir, msg.media.sid)))
         }
     }
 
