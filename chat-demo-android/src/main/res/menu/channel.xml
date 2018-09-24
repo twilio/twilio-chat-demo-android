@@ -41,6 +41,12 @@
                 android:showAsAction="never"
                 android:title="@string/Search_channel_by_unique_name" />
             <item
+                android:id="@+id/action_update_token"
+                android:icon="@drawable/ic_action_settings"
+                android:orderInCategory="100"
+                android:showAsAction="never"
+                android:title="@string/update_token" />
+            <item
                 android:id="@+id/action_logout"
                 android:icon="@drawable/ic_action_settings"
                 android:orderInCategory="100"

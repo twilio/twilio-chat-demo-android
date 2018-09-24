@@ -62,6 +62,7 @@ class ChannelActivity : Activity(), ChatClientListener, AnkoLogger {
             R.id.action_create_private_withoptions -> createChannelWithType(ChannelType.PRIVATE)
             R.id.action_search_by_unique_name -> showSearchChannelDialog()
             R.id.action_user_info -> startActivity(Intent(applicationContext, UserActivity::class.java))
+            R.id.action_update_token -> basicClient.updateToken()
             R.id.action_logout -> {
                 basicClient.shutdown()
                 finish()

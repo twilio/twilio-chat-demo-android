@@ -70,6 +70,10 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
         GetAccessTokenAsyncTask().execute(urlString)
     }
 
+    fun updateToken() {
+        GetAccessTokenAsyncTask().execute(urlString)
+    }
+
     private fun setupFcmToken() {
         chatClient!!.registerFCMToken(fcmToken,
                 ToastStatusListener(
