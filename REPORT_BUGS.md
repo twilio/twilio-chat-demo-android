@@ -2,7 +2,7 @@
 
     ```
     // Before creating a new ChatClient with ChatClient.create() add this line:
-    ChatClient.setLogLevel(android.util.Log.DEBUG);
+    ChatClient.setLogLevel(android.util.Log.VERBOSE);
     ...
 
     ChatClient.create(....
