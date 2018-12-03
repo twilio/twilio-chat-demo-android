@@ -34,6 +34,16 @@
             android:entries="@array/realms_list"
             android:spinnerMode="dropdown"/>
 
+        <EditText
+            android:id="@+id/tokenTtlTextBox"
+            android:layout_width="fill_parent"
+            android:gravity="center_horizontal"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:hint="@string/token_ttl"
+            android:singleLine="true"
+            android:textColor="@android:color/black" />
+
         <CheckBox
             android:id="@+id/certPinning"
             android:layout_width="wrap_content"

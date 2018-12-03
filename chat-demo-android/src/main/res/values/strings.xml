@@ -35,6 +35,7 @@
     <string name="Create_private_channel_withOption">Create Pri Ch with Options</string>
     <string name="Search_channel_by_unique_name">Search channel by unique name</string>
     <string name="update_token">Update token</string>
+    <string name="token_ttl">TTL (sec)</string>
     <string name="about">About</string>
     <string name="user_info_activity">User info activity</string>
     <string name="title_update_attributes">Update message attributes</string>

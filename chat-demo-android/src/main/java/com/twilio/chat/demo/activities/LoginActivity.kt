@@ -40,11 +40,13 @@ class LoginActivity : Activity(), LoginListener, AnkoLogger {
             sharedPreferences.edit().putBoolean("pinCerts", certPinningChosen).apply()
 
             val realm = realmSelect.selectedItem as String
+            val ttl = tokenTtlTextBox.text.toString()
 
             val url = Uri.parse(BuildConfig.ACCESS_TOKEN_SERVICE_URL)
                     .buildUpon()
                     .appendQueryParameter("identity", idChosen)
                     .appendQueryParameter("realm", realm)
+                    .appendQueryParameter("ttl", ttl)
                     .build()
                     .toString()
             debug { "url string : $url" }
