@@ -88,7 +88,6 @@ class FCMListenerService : FirebaseMessagingService(), AnkoLogger {
 
         // Check if message contains a notification payload.
         if (remoteMessage.notification != null) {
-            debug { "Notification Message Body: ${remoteMessage.notification.body!!}" }
             error { "We do not parse notification body - leave it to system" }
         }
     }
