@@ -15,6 +15,7 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import android.preference.PreferenceManager
 import android.view.View
+import android.widget.ArrayAdapter
 import com.twilio.chat.demo.TwilioApplication
 import com.twilio.chat.demo.services.RegistrationIntentService
 import kotlinx.android.synthetic.main.activity_login.*
@@ -25,32 +26,30 @@ class LoginActivity : Activity(), LoginListener, AnkoLogger {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val userName = sharedPreferences.getString("userName", DEFAULT_CLIENT_NAME)
-        val certPin = sharedPreferences.getBoolean("pinCerts", true)
-
-        clientNameTextBox.setText(userName)
-        certPinning.isChecked = certPin
-
         login.setOnClickListener {
-            val idChosen = clientNameTextBox.text.toString()
-            sharedPreferences.edit().putString("userName", idChosen).apply()
-
+            val userName = clientNameTextBox.text.toString()
             val certPinningChosen = certPinning.isChecked
-            sharedPreferences.edit().putBoolean("pinCerts", certPinningChosen).apply()
-
             val realm = realmSelect.selectedItem as String
             val ttl = tokenTtlTextBox.text.toString()
 
+            val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+            sharedPreferences.edit()
+                .putString("userName", userName)
+                .putBoolean("pinCerts", certPinningChosen)
+                .putString("realm", realm)
+                .putString("ttl", ttl)
+                .apply()
+
             val url = Uri.parse(BuildConfig.ACCESS_TOKEN_SERVICE_URL)
                     .buildUpon()
-                    .appendQueryParameter("identity", idChosen)
+                    .appendQueryParameter("identity", userName)
                     .appendQueryParameter("realm", realm)
                     .appendQueryParameter("ttl", ttl)
                     .build()
                     .toString()
             debug { "url string : $url" }
-            TwilioApplication.instance.basicClient.login(idChosen, certPinningChosen, realm, url, this@LoginActivity)
+
+            TwilioApplication.instance.basicClient.login(userName, certPinningChosen, realm, url, this@LoginActivity)
         }
 
         if (checkPlayServices()) {
@@ -58,6 +57,22 @@ class LoginActivity : Activity(), LoginListener, AnkoLogger {
             // Start IntentService to register this application with GCM.
             startService<RegistrationIntentService>()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+
+        val userName = sharedPreferences.getString("userName", DEFAULT_CLIENT_NAME)
+        val certPin = sharedPreferences.getBoolean("pinCerts", true)
+        val realm = sharedPreferences.getString("realm", DEFAULT_REALM)
+        val ttl = sharedPreferences.getString("ttl", DEFAULT_TTL)
+
+        clientNameTextBox.setText(userName)
+        certPinning.isChecked = certPin
+        realmSelect.setSelection((realmSelect.adapter as ArrayAdapter<String>).getPosition(realm))
+        tokenTtlTextBox.setText(ttl)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -132,6 +147,8 @@ class LoginActivity : Activity(), LoginListener, AnkoLogger {
 
     companion object {
         private val DEFAULT_CLIENT_NAME = "TestUser"
+        private val DEFAULT_REALM = "us1"
+        private val DEFAULT_TTL = "3000"
         private val PLAY_SERVICES_RESOLUTION_REQUEST = 9000
     }
 }
