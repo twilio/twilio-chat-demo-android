@@ -47,4 +47,8 @@
     <string name="title_add_channel">Create channel</string>
     <string name="title_find_channel">Find channel</string>
     <string name="search">Search</string>
+    <string-array name="realms_list">
+        <item>us1</item>
+        <item>ie1</item>
+    </string-array>
 </resources>

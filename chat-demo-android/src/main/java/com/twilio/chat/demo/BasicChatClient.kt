@@ -21,6 +21,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
     private var urlString: String? = null
     private var username: String? = null
     private var pinCerts: Boolean = true
+    private var realm: String? = null
 
     init {
         if (BuildConfig.DEBUG) {
@@ -47,9 +48,10 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
         }
     }
 
-    fun login(username: String, pinCerts: Boolean, url: String, listener: LoginListener) {
+    fun login(username: String, pinCerts: Boolean, realm: String, url: String, listener: LoginListener) {
         if (username === this.username
                 && pinCerts == this.pinCerts
+                && realm === this.realm
                 && urlString === url
                 && loginListener === listener
                 && chatClient != null) {
@@ -59,6 +61,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
 
         this.username = username
         this.pinCerts = pinCerts
+        this.realm = realm
         urlString = url
 
         loginListenerHandler = HandlerUtil.setupListenerHandler()
@@ -85,7 +88,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
         if (chatClient != null) return
 
         val props = ChatClient.Properties.Builder()
-                .setRegion("us1")
+                .setRegion(realm)
                 .setDeferCertificateTrustToPlatform(!pinCerts)
                 .createProperties()
 

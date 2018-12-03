@@ -39,13 +39,16 @@ class LoginActivity : Activity(), LoginListener, AnkoLogger {
             val certPinningChosen = certPinning.isChecked
             sharedPreferences.edit().putBoolean("pinCerts", certPinningChosen).apply()
 
+            val realm = realmSelect.selectedItem as String
+
             val url = Uri.parse(BuildConfig.ACCESS_TOKEN_SERVICE_URL)
                     .buildUpon()
                     .appendQueryParameter("identity", idChosen)
+                    .appendQueryParameter("realm", realm)
                     .build()
                     .toString()
             debug { "url string : $url" }
-            TwilioApplication.instance.basicClient.login(idChosen, certPinningChosen, url, this@LoginActivity)
+            TwilioApplication.instance.basicClient.login(idChosen, certPinningChosen, realm, url, this@LoginActivity)
         }
 
         if (checkPlayServices()) {
@@ -74,27 +77,33 @@ class LoginActivity : Activity(), LoginListener, AnkoLogger {
         }.show()
     }
 
+    fun setLoginProgressVisible(enable: Boolean) {
+        if (enable) {
+            loginInputsLayout.visibility = View.GONE
+            loginProgressLayout.visibility = View.VISIBLE
+        } else {
+            loginInputsLayout.visibility = View.VISIBLE
+            loginProgressLayout.visibility = View.GONE
+        }
+    }
+
     override fun onLoginStarted() {
         debug { "Log in started" }
-        progressBar.visibility = View.VISIBLE
-        progressText.visibility = View.VISIBLE
+        setLoginProgressVisible(true)
     }
 
     override fun onLoginFinished() {
-        progressBar.visibility = View.GONE
-        progressText.visibility = View.GONE
+        setLoginProgressVisible(false)
         startActivity<ChannelActivity>()
     }
 
     override fun onLoginError(errorMessage: String) {
-        progressBar.visibility = View.GONE
-        progressText.visibility = View.GONE
+        setLoginProgressVisible(false)
         TwilioApplication.instance.showToast("Error logging in : " + errorMessage, Toast.LENGTH_LONG)
     }
 
     override fun onLogoutFinished() {
-        progressBar.visibility = View.GONE
-        progressText.visibility = View.GONE
+        setLoginProgressVisible(false)
         TwilioApplication.instance.showToast("Log out finished")
     }
 

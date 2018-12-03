@@ -8,66 +8,94 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin">
 
-    <EditText
-        android:id="@+id/clientNameTextBox"
-        android:layout_width="fill_parent"
-        android:layout_marginTop="100dp"
-        android:gravity="center_horizontal"
-        android:layout_height="wrap_content"
-        android:hint="@string/client_name"
-        android:singleLine="true"
-        android:textColor="@android:color/black" />
-
     <LinearLayout
+        android:id="@+id/loginInputsLayout"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:gravity="center" >
 
-        <Button
-            android:id="@+id/login"
-            android:layout_width="100dp"
+        <EditText
+            android:id="@+id/clientNameTextBox"
+            android:layout_width="fill_parent"
+            android:layout_marginTop="100dp"
+            android:gravity="center_horizontal"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/login" />
+            android:inputType="text"
+            android:hint="@string/client_name"
+            android:singleLine="true"
+            android:textColor="@android:color/black" />
+
+        <Spinner
+            android:id="@+id/realmSelect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/realms_list"
+            android:spinnerMode="dropdown"/>
 
         <CheckBox
-            android:id="@+id/fcmAvailable"
+            android:id="@+id/certPinning"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="false"
-            android:text="@string/fcm"
-            android:enabled="false"/>
+            android:text="@string/certPin"/>
+
+        <LinearLayout
+            android:id="@+id/loginButtonLayout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            android:gravity="center" >
+
+            <Button
+                android:id="@+id/login"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/login" />
+
+            <CheckBox
+                android:id="@+id/fcmAvailable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="@string/fcm"
+                android:enabled="false"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 
-    <CheckBox
-        android:id="@+id/certPinning"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/loginProgressLayout"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:checked="false"
-        android:text="@string/certPin"/>
-
-    <TextView
-        android:id="@+id/progressText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:focusable="false"
-        android:textColor="@android:color/darker_gray"
-        android:textSize="14sp"
-        android:gravity="center_horizontal"
+        android:layout_marginTop="60dp"
+        android:orientation="vertical"
         android:visibility="invisible"
-        android:text="@string/logging_in"/>
+        android:gravity="center" >
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="@android:style/Widget.ProgressBar.Horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="16dp"
-        android:gravity="center_horizontal"
-        android:indeterminate="true"
-        android:visibility="invisible"/>
+        <TextView
+            android:id="@+id/progressText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="14sp"
+            android:gravity="center_horizontal"
+            android:text="@string/logging_in"/>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="16dp"
+            android:gravity="center_horizontal"
+            android:indeterminate="true"/>
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/logout"
