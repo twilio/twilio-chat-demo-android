@@ -29,7 +29,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
     init {
         if (BuildConfig.DEBUG) {
             warn { "Enabling DEBUG logging" }
-            ChatClient.setLogLevel(android.util.Log.DEBUG)
+            ChatClient.setLogLevel(android.util.Log.VERBOSE)
         }
     }
 
