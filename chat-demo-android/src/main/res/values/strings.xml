@@ -3,6 +3,7 @@
     <string name="client_name">Client Name</string>
     <string name="login">Log In</string>
     <string name="logout">Logout Client</string>
+    <string name="logging_in">Logging in. Please wait...</string>
     <string name="invite_member">Invite Member</string>
     <string name="channel_invite">Channel Invite</string>
     <string name="channel_invite_message">You got a Channel Invite. Join it?</string>

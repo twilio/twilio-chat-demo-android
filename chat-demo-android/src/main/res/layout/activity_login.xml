@@ -49,6 +49,26 @@
         android:checked="false"
         android:text="@string/certPin"/>
 
+    <TextView
+        android:id="@+id/progressText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusable="false"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="14sp"
+        android:gravity="center_horizontal"
+        android:visibility="invisible"
+        android:text="@string/logging_in"/>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="16dp"
+        android:gravity="center_horizontal"
+        android:indeterminate="true"
+        android:visibility="invisible"/>
+
     <Button
         android:id="@+id/logout"
         android:layout_width="100dp"

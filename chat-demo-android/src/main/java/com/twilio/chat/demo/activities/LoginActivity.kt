@@ -8,20 +8,19 @@ import com.twilio.chat.demo.R
 import com.twilio.chat.demo.BuildConfig
 import android.net.Uri
 import android.app.Activity
-import android.app.ProgressDialog
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.ProgressBar
 import android.widget.Toast
 import android.preference.PreferenceManager
+import android.view.View
 import com.twilio.chat.demo.TwilioApplication
 import com.twilio.chat.demo.services.RegistrationIntentService
 import kotlinx.android.synthetic.main.activity_login.*
 import org.jetbrains.anko.*
 
 class LoginActivity : Activity(), LoginListener, AnkoLogger {
-    private var progressDialog: ProgressDialog? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -77,21 +76,25 @@ class LoginActivity : Activity(), LoginListener, AnkoLogger {
 
     override fun onLoginStarted() {
         debug { "Log in started" }
-        progressDialog = ProgressDialog.show(this, "", "Logging in. Please wait...", true)
+        progressBar.visibility = View.VISIBLE
+        progressText.visibility = View.VISIBLE
     }
 
     override fun onLoginFinished() {
-        progressDialog?.dismiss()
+        progressBar.visibility = View.GONE
+        progressText.visibility = View.GONE
         startActivity<ChannelActivity>()
     }
 
     override fun onLoginError(errorMessage: String) {
-        progressDialog?.dismiss()
+        progressBar.visibility = View.GONE
+        progressText.visibility = View.GONE
         TwilioApplication.instance.showToast("Error logging in : " + errorMessage, Toast.LENGTH_LONG)
     }
 
     override fun onLogoutFinished() {
-        progressDialog?.dismiss()
+        progressBar.visibility = View.GONE
+        progressText.visibility = View.GONE
         TwilioApplication.instance.showToast("Log out finished")
     }
 
