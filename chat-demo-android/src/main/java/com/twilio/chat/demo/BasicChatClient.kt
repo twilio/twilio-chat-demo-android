@@ -1,23 +1,19 @@
 package com.twilio.chat.demo
 
-import com.twilio.accessmanager.AccessManager
-import com.twilio.chat.CallbackListener
-import com.twilio.chat.ChatClient
-import com.twilio.chat.ErrorInfo
 import com.twilio.chat.internal.HandlerUtil
 import android.content.Context
 import android.os.AsyncTask
 import android.os.Handler
 import ToastStatusListener
+import com.twilio.chat.*
 import org.jetbrains.anko.*
 
-class BasicChatClient(private val context: Context) : CallbackListener<ChatClient>(), AccessManager.Listener, AccessManager.TokenUpdateListener, AnkoLogger {
+class BasicChatClient(private val context: Context) : CallbackListener<ChatClient>(), ChatClientListener, AnkoLogger {
     private var accessToken: String? = null
     private var fcmToken: String? = null
 
     var chatClient: ChatClient? = null
         private set
-    private var accessManager: AccessManager? = null
 
     private var loginListener: LoginListener? = null
     private var loginListenerHandler: Handler? = null
@@ -56,9 +52,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
                 && pinCerts == this.pinCerts
                 && urlString === url
                 && loginListener === listener
-                && chatClient != null
-                && accessManager != null
-                && !accessManager!!.isTokenExpired) {
+                && chatClient != null) {
             onSuccess(chatClient!!)
             return
         }
@@ -85,13 +79,6 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
                 ToastStatusListener(
                         "Firebase Messaging unregistration successful",
                         "Firebase Messaging unregistration not successful"))
-    }
-
-    private fun createAccessManager() {
-        if (accessManager != null) return
-
-        accessManager = AccessManager(accessToken, this)
-        accessManager!!.addTokenUpdateListener(this)
     }
 
     private fun createClient() {
@@ -141,35 +128,21 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
         }
     }
 
-    // AccessManager.Listener
+    // Token expiration events
 
-    override fun onTokenWillExpire(accessManager: AccessManager) {
+    override fun onTokenAboutToExpire() {
         if (chatClient != null) {
             TwilioApplication.instance.showToast("Token will expire in 3 minutes. Getting new token.")
             GetAccessTokenAsyncTask().execute(urlString)
         }
     }
 
-    override fun onTokenExpired(accessManager: AccessManager) {
+    override fun onTokenExpired() {
         accessToken = null
         if (chatClient != null) {
             TwilioApplication.instance.showToast("Token expired. Getting new token.")
             GetAccessTokenAsyncTask().execute(urlString)
         }
-    }
-
-    override fun onError(accessManager: AccessManager, err: String) {
-        TwilioApplication.instance.showToast("AccessManager error: " + err)
-    }
-
-    // AccessManager.TokenUpdateListener
-
-    override fun onTokenUpdated(token: String) {
-        if (chatClient == null) return
-
-        chatClient!!.updateToken(token, ToastStatusListener(
-                "Client Update Token was successfull",
-                "Client Update Token failed"))
     }
 
     /**
@@ -198,9 +171,31 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
 
         override fun onPostExecute(result: String) {
             super.onPostExecute(result)
-            createAccessManager()
             createClient()
-            accessManager!!.updateToken(accessToken)
+
+            if (chatClient == null) return
+
+            chatClient!!.updateToken(accessToken, ToastStatusListener(
+                    "Client Update Token was successfull",
+                    "Client Update Token failed"))
         }
     }
+
+    override fun onChannelAdded(p0: Channel?) {}
+    override fun onChannelDeleted(p0: Channel?) {}
+    override fun onChannelInvited(p0: Channel?) {}
+    override fun onChannelJoined(p0: Channel?) {}
+    override fun onChannelSynchronizationChange(p0: Channel?) {}
+    override fun onChannelUpdated(p0: Channel?, p1: Channel.UpdateReason?) {}
+    override fun onClientSynchronization(p0: ChatClient.SynchronizationStatus?) {}
+    override fun onConnectionStateChange(p0: ChatClient.ConnectionState?) {}
+    override fun onRemovedFromChannelNotification(p0: String?) {}
+    override fun onUserSubscribed(p0: User?) {}
+    override fun onUserUnsubscribed(p0: User?) {}
+    override fun onUserUpdated(p0: User?, p1: User.UpdateReason?) {}
+    override fun onAddedToChannelNotification(p0: String?) {}
+    override fun onInvitedToChannelNotification(p0: String?) {}
+    override fun onNewMessageNotification(p0: String?, p1: String?, p2: Long) {}
+    override fun onNotificationFailed(p0: ErrorInfo?) {}
+    override fun onNotificationSubscribed() {}
 }

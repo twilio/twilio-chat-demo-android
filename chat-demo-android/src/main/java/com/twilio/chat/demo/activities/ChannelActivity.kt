@@ -359,6 +359,14 @@ class ChannelActivity : Activity(), ChatClientListener, AnkoLogger {
         TwilioApplication.instance.showToast("Transport state changed to ${connectionState}")
     }
 
+    override fun onTokenExpired() {
+        basicClient.onTokenExpired()
+    }
+
+    override fun onTokenAboutToExpire() {
+        basicClient.onTokenAboutToExpire()
+    }
+
     companion object {
         private val CHANNEL_OPTIONS = arrayOf("Join")
         private val JOIN = 0

@@ -165,6 +165,14 @@ class UserActivity : Activity() {
             override fun onNotificationFailed(errorInfo: ErrorInfo) {}
 
             override fun onConnectionStateChange(connectionState: ChatClient.ConnectionState) {}
+
+            override fun onTokenExpired() {
+                TwilioApplication.instance.basicClient.onTokenExpired()
+            }
+
+            override fun onTokenAboutToExpire() {
+                TwilioApplication.instance.basicClient.onTokenAboutToExpire()
+            }
         })
     }
 

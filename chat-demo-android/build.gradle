@@ -30,7 +30,6 @@ dependencies {
     implementation 'eu.inloop:simplerecycleradapter:0.3.4'
     // implementation 'com.android.support.constraint:constraint-layout:1.0.2'
 
-    implementation 'com.twilio:accessmanager-android:0.1.0'
     implementation 'com.twilio:chat-android:4.0.0'
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
