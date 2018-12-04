@@ -4,7 +4,9 @@
 
 For the Java version you can look [here](https://github.com/twilio/twilio-chat-demo-android/tree/java).
 
-![](https://img.shields.io/badge/SDK%20version-3.1.0-blue.svg)
+This demo app SDK version: ![](https://img.shields.io/badge/SDK%20version-3.1.0-blue.svg)
+
+Latest available SDK version: [ ![Latest SDK version](https://api.bintray.com/packages/twilio/releases/chat-android/images/download.svg) ](https://bintray.com/twilio/releases/chat-android/_latestVersion)
 
 ## Getting Started
 
