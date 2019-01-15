@@ -171,12 +171,20 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
                 accessToken = HttpHelper.httpGet(params[0])
             } catch (e: Exception) {
                 e.printStackTrace()
+
+                loginListenerHandler!!.post {
+                    if (loginListener != null) {
+                        loginListener!!.onLoginError(e.message.orEmpty())
+                    }
+                }
             }
 
             return accessToken
         }
 
-        override fun onPostExecute(result: String) {
+        override fun onPostExecute(result: String?) {
+            if (result == null) return
+
             super.onPostExecute(result)
             createClient()
 
