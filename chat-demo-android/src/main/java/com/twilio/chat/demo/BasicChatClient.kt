@@ -7,6 +7,7 @@ import android.os.Handler
 import ToastStatusListener
 import com.twilio.chat.*
 import org.jetbrains.anko.*
+import java.util.Optional
 
 class BasicChatClient(private val context: Context) : CallbackListener<ChatClient>(), ChatClientListener, AnkoLogger {
     private var accessToken: String? = null
@@ -160,7 +161,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
      * Modify this method if you need to provide more information to your Access Token Service.
      */
     //TODO coroutines
-    private inner class GetAccessTokenAsyncTask : AsyncTask<String, Void, String>() {
+    private inner class GetAccessTokenAsyncTask : AsyncTask<String, Void, Optional<String>>() {
         override fun onPreExecute() {
             super.onPreExecute()
             loginListenerHandler!!.post {
@@ -170,7 +171,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
             }
         }
 
-        override fun doInBackground(vararg params: String): String? {
+        override fun doInBackground(vararg params: String): Optional<String> {
             try {
                 accessToken = HttpHelper.httpGet(params[0])
             } catch (e: Exception) {
@@ -184,11 +185,11 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
                 }
             }
 
-            return accessToken
+            return Optional.ofNullable(accessToken)
         }
 
-        override fun onPostExecute(result: String?) {
-            if (result == null) return
+        override fun onPostExecute(result: Optional<String>) {
+            if (!result.isPresent) return
 
             super.onPostExecute(result)
             createClient()
