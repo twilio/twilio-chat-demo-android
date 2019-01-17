@@ -172,8 +172,9 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
         }
 
         override fun doInBackground(vararg params: String): Optional<String> {
+            var result: Optional<String> = Optional.empty();
             try {
-                accessToken = HttpHelper.httpGet(params[0])
+                result = Optional.of(HttpHelper.httpGet(params[0]))
             } catch (e: Exception) {
                 System.err.println("getAccessToken() error:")
                 e.printStackTrace()
@@ -185,11 +186,13 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
                 }
             }
 
-            return Optional.ofNullable(accessToken)
+            return result
         }
 
         override fun onPostExecute(result: Optional<String>) {
             if (!result.isPresent) return
+
+            accessToken = result.get();
 
             super.onPostExecute(result)
             createClient()
