@@ -7,6 +7,7 @@ import android.os.Handler
 import ToastStatusListener
 import com.twilio.chat.*
 import org.jetbrains.anko.*
+import java.util.Optional
 
 class BasicChatClient(private val context: Context) : CallbackListener<ChatClient>(), ChatClientListener, AnkoLogger {
     private var accessToken: String? = null
@@ -67,11 +68,11 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
         loginListenerHandler = HandlerUtil.setupListenerHandler()
         loginListener = listener
 
-        GetAccessTokenAsyncTask().execute(urlString)
+        getAccessToken()
     }
 
     fun updateToken() {
-        GetAccessTokenAsyncTask().execute(urlString)
+        getAccessToken()
     }
 
     private fun setupFcmToken() {
@@ -140,7 +141,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
     override fun onTokenAboutToExpire() {
         if (chatClient != null) {
             TwilioApplication.instance.showToast("Token will expire in 3 minutes. Getting new token.")
-            GetAccessTokenAsyncTask().execute(urlString)
+            getAccessToken()
         }
     }
 
@@ -148,15 +149,19 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
         accessToken = null
         if (chatClient != null) {
             TwilioApplication.instance.showToast("Token expired. Getting new token.")
-            GetAccessTokenAsyncTask().execute(urlString)
+            getAccessToken()
         }
+    }
+
+    private fun getAccessToken() {
+        GetAccessTokenAsyncTask().execute(urlString)
     }
 
     /**
      * Modify this method if you need to provide more information to your Access Token Service.
      */
     //TODO coroutines
-    private inner class GetAccessTokenAsyncTask : AsyncTask<String, Void, String>() {
+    private inner class GetAccessTokenAsyncTask : AsyncTask<String, Void, Optional<String>>() {
         override fun onPreExecute() {
             super.onPreExecute()
             loginListenerHandler!!.post {
@@ -166,17 +171,29 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
             }
         }
 
-        override fun doInBackground(vararg params: String): String? {
+        override fun doInBackground(vararg params: String): Optional<String> {
+            var result: Optional<String> = Optional.empty();
             try {
-                accessToken = HttpHelper.httpGet(params[0])
+                result = Optional.of(HttpHelper.httpGet(params[0]))
             } catch (e: Exception) {
+                System.err.println("getAccessToken() error:")
                 e.printStackTrace()
+
+                loginListenerHandler!!.post {
+                    if (loginListener != null) {
+                        loginListener!!.onLoginError(e.message.orEmpty())
+                    }
+                }
             }
 
-            return accessToken
+            return result
         }
 
-        override fun onPostExecute(result: String) {
+        override fun onPostExecute(result: Optional<String>) {
+            if (!result.isPresent) return
+
+            accessToken = result.get();
+
             super.onPostExecute(result)
             createClient()
 
