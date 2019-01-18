@@ -50,11 +50,11 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
     }
 
     fun login(username: String, pinCerts: Boolean, realm: String, url: String, listener: LoginListener) {
-        if (username === this.username
+        if (username == this.username
                 && pinCerts == this.pinCerts
-                && realm === this.realm
-                && urlString === url
-                && loginListener === listener
+                && realm == this.realm
+                && url == this.urlString
+                && listener === loginListener
                 && chatClient != null) {
             onSuccess(chatClient!!)
             return
