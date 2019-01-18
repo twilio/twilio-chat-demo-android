@@ -33,12 +33,38 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
 
     interface LoginListener {
         fun onLoginStarted()
-
         fun onLoginFinished()
-
         fun onLoginError(errorMessage: String)
-
         fun onLogoutFinished()
+    }
+
+    private fun notifyLoginStarted() {
+        loginListenerHandler!!.post {
+            if (loginListener != null) {
+                loginListener!!.onLoginStarted()
+            }
+        }
+    }
+    private fun notifyLoginFinished() {
+        loginListenerHandler!!.post {
+            if (loginListener != null) {
+                loginListener!!.onLoginFinished()
+            }
+        }
+    }
+    private fun notifyLoginError(errorMessage: String) {
+        loginListenerHandler!!.post {
+            if (loginListener != null) {
+                loginListener!!.onLoginError(errorMessage)
+            }
+        }
+    }
+    private fun notifyLogoutFinished() {
+        loginListenerHandler!!.post {
+            if (loginListener != null) {
+                loginListener!!.onLogoutFinished()
+            }
+        }
     }
 
     fun setFCMToken(fcmToken: String) {
@@ -117,11 +143,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
             setupFcmToken()
         }
 
-        loginListenerHandler!!.post {
-            if (loginListener != null) {
-                loginListener!!.onLoginFinished()
-            }
-        }
+        notifyLoginFinished()
     }
 
     // Client not created, fail
@@ -129,11 +151,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
         TwilioApplication.instance.logErrorInfo("Login error", errorInfo!!)
         chatClient = null
 
-        loginListenerHandler!!.post {
-            if (loginListener != null) {
-                loginListener!!.onLoginError(errorInfo.toString())
-            }
-        }
+        notifyLoginError(errorInfo.toString())
     }
 
     // Token expiration events
@@ -164,11 +182,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
     private inner class GetAccessTokenAsyncTask : AsyncTask<String, Void, Optional<String>>() {
         override fun onPreExecute() {
             super.onPreExecute()
-            loginListenerHandler!!.post {
-                if (loginListener != null) {
-                    loginListener!!.onLoginStarted()
-                }
-            }
+            notifyLoginStarted()
         }
 
         override fun doInBackground(vararg params: String): Optional<String> {
@@ -178,12 +192,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
             } catch (e: Exception) {
                 System.err.println("getAccessToken() error:")
                 e.printStackTrace()
-
-                loginListenerHandler!!.post {
-                    if (loginListener != null) {
-                        loginListener!!.onLoginError(e.message.orEmpty())
-                    }
-                }
+                notifyLoginError(e.message.orEmpty())
             }
 
             return result
