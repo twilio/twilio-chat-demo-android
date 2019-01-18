@@ -73,6 +73,11 @@ class LoginActivity : Activity(), LoginListener, AnkoLogger {
         certPinning.isChecked = certPin
         realmSelect.setSelection((realmSelect.adapter as ArrayAdapter<String>).getPosition(realm))
         tokenTtlTextBox.setText(ttl)
+
+        // Make sure no chatclient is created
+        if (TwilioApplication.instance.basicClient.chatClient != null) {
+            TwilioApplication.instance.basicClient.shutdown()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

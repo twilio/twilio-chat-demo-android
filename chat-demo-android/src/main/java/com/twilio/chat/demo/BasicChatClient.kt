@@ -132,6 +132,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
     fun shutdown() {
         chatClient!!.shutdown()
         chatClient = null // Client no longer usable after shutdown()
+        notifyLogoutFinished()
     }
 
     // Client created, remember the reference and set up UI
