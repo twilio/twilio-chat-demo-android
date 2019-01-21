@@ -33,12 +33,38 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
 
     interface LoginListener {
         fun onLoginStarted()
-
         fun onLoginFinished()
-
         fun onLoginError(errorMessage: String)
-
         fun onLogoutFinished()
+    }
+
+    private fun notifyLoginStarted() { // Called before getting access token
+        loginListenerHandler!!.post {
+            if (loginListener != null) {
+                loginListener!!.onLoginStarted()
+            }
+        }
+    }
+    private fun notifyLoginFinished() { // Called after successful creation of ChatClient
+        loginListenerHandler!!.post {
+            if (loginListener != null) {
+                loginListener!!.onLoginFinished()
+            }
+        }
+    }
+    private fun notifyLoginError(errorMessage: String) {
+        loginListenerHandler!!.post {
+            if (loginListener != null) {
+                loginListener!!.onLoginError(errorMessage)
+            }
+        }
+    }
+    private fun notifyLogoutFinished() {
+        loginListenerHandler!!.post {
+            if (loginListener != null) {
+                loginListener!!.onLogoutFinished()
+            }
+        }
     }
 
     fun setFCMToken(fcmToken: String) {
@@ -50,15 +76,18 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
     }
 
     fun login(username: String, pinCerts: Boolean, realm: String, url: String, listener: LoginListener) {
-        if (username === this.username
+        /*
+        if (username == this.username
                 && pinCerts == this.pinCerts
-                && realm === this.realm
-                && urlString === url
-                && loginListener === listener
+                && realm == this.realm
+                && url == this.urlString
+                && listener === loginListener
                 && chatClient != null) {
             onSuccess(chatClient!!)
             return
         }
+         */
+        assert(chatClient == null) { "ChatClient object is to be created on login, should be null before login" }
 
         this.username = username
         this.pinCerts = pinCerts
@@ -90,7 +119,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
     }
 
     private fun createClient() {
-        if (chatClient != null) return
+        assert(chatClient == null)
 
         val props = ChatClient.Properties.Builder()
                 .setRegion(realm)
@@ -106,6 +135,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
     fun shutdown() {
         chatClient!!.shutdown()
         chatClient = null // Client no longer usable after shutdown()
+        notifyLogoutFinished()
     }
 
     // Client created, remember the reference and set up UI
@@ -117,11 +147,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
             setupFcmToken()
         }
 
-        loginListenerHandler!!.post {
-            if (loginListener != null) {
-                loginListener!!.onLoginFinished()
-            }
-        }
+        notifyLoginFinished()
     }
 
     // Client not created, fail
@@ -129,11 +155,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
         TwilioApplication.instance.logErrorInfo("Login error", errorInfo!!)
         chatClient = null
 
-        loginListenerHandler!!.post {
-            if (loginListener != null) {
-                loginListener!!.onLoginError(errorInfo.toString())
-            }
-        }
+        notifyLoginError(errorInfo.toString())
     }
 
     // Token expiration events
@@ -164,10 +186,8 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
     private inner class GetAccessTokenAsyncTask : AsyncTask<String, Void, Optional<String>>() {
         override fun onPreExecute() {
             super.onPreExecute()
-            loginListenerHandler!!.post {
-                if (loginListener != null) {
-                    loginListener!!.onLoginStarted()
-                }
+            if (chatClient == null) {
+                notifyLoginStarted()
             }
         }
 
@@ -178,12 +198,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
             } catch (e: Exception) {
                 System.err.println("getAccessToken() error:")
                 e.printStackTrace()
-
-                loginListenerHandler!!.post {
-                    if (loginListener != null) {
-                        loginListener!!.onLoginError(e.message.orEmpty())
-                    }
-                }
+                notifyLoginError(e.message.orEmpty())
             }
 
             return result
@@ -195,13 +210,20 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
             accessToken = result.get();
 
             super.onPostExecute(result)
-            createClient()
 
-            if (chatClient == null) return
+            applyAccessToken()
+        }
 
-            chatClient!!.updateToken(accessToken, ToastStatusListener(
-                    "Client Update Token was successfull",
-                    "Client Update Token failed"))
+        private fun applyAccessToken() {
+            if (chatClient == null) {
+                // Create client with accessToken
+                createClient()
+            } else {
+                // Client already exists, so set accessToken to it
+                chatClient!!.updateToken(accessToken, ToastStatusListener(
+                        "Client Update Token was successfull",
+                        "Client Update Token failed"))
+            }
         }
     }
 
