@@ -215,6 +215,8 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
         }
 
         private fun applyAccessToken() {
+            assert(accessToken != null)
+
             if (chatClient == null) {
                 // Create client with accessToken
                 createClient()
