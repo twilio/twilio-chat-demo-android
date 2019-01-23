@@ -20,7 +20,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
     private var loginListenerHandler: Handler? = null
 
     private var urlString: String? = null
-    private var username: String? = null
+    //private var username: String? = null
     private var pinCerts: Boolean = true
     private var realm: String? = null
 
@@ -89,7 +89,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
          */
         assert(chatClient == null) { "ChatClient object is to be created on login, should be null before login" }
 
-        this.username = username
+        //this.username = username
         this.pinCerts = pinCerts
         this.realm = realm
         urlString = url
@@ -215,6 +215,8 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
         }
 
         private fun applyAccessToken() {
+            assert(accessToken != null)
+
             if (chatClient == null) {
                 // Create client with accessToken
                 createClient()
