@@ -21,7 +21,9 @@ import com.twilio.chat.demo.activities.MessageActivity
 import eu.inloop.simplerecycleradapter.SettableViewHolder
 import java.io.File
 
-class MessageViewHolder(val context: Context, parent: ViewGroup) : SettableViewHolder<MessageActivity.MessageItem>(context, R.layout.message_item_layout, parent) {
+class MessageViewHolder(val context: Context, parent: ViewGroup)
+    : SettableViewHolder<MessageActivity.MessageItem>(context, R.layout.message_item_layout, parent)
+{
     val avatarView: ImageView by bindView(R.id.avatar)
     val reachabilityView: ImageView by bindView(R.id.reachability)
     val body: TextView by bindView(R.id.body)

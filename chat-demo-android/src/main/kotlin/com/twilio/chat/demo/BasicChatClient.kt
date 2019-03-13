@@ -1,5 +1,11 @@
 package com.twilio.chat.demo
 
+import com.twilio.chat.CallbackListener
+import com.twilio.chat.ChatClient
+import com.twilio.chat.ChatClientListener
+import com.twilio.chat.ErrorInfo
+import com.twilio.chat.User
+import com.twilio.chat.Channel
 import com.twilio.chat.internal.HandlerUtil
 import android.content.Context
 import android.os.AsyncTask
@@ -9,7 +15,11 @@ import com.twilio.chat.*
 import org.jetbrains.anko.*
 import java.util.Optional
 
-class BasicChatClient(private val context: Context) : CallbackListener<ChatClient>(), ChatClientListener, AnkoLogger {
+class BasicChatClient(private val context: Context)
+    : CallbackListener<ChatClient>()
+    , ChatClientListener
+    , AnkoLogger
+{
     private var accessToken: String? = null
     private var fcmToken: String? = null
 
@@ -20,7 +30,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
     private var loginListenerHandler: Handler? = null
 
     private var urlString: String? = null
-    //private var username: String? = null
+    private var username: String? = null
     private var pinCerts: Boolean = true
     private var realm: String? = null
 
@@ -89,7 +99,7 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
          */
         assert(chatClient == null) { "ChatClient object is to be created on login, should be null before login" }
 
-        //this.username = username
+        this.username = username
         this.pinCerts = pinCerts
         this.realm = realm
         urlString = url
@@ -215,8 +225,6 @@ class BasicChatClient(private val context: Context) : CallbackListener<ChatClien
         }
 
         private fun applyAccessToken() {
-            assert(accessToken != null)
-
             if (chatClient == null) {
                 // Create client with accessToken
                 createClient()

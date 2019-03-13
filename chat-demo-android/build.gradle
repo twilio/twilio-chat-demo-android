@@ -10,6 +10,9 @@ ext.play_services_version = "15.0.1"
 
 repositories {
     google()
+    maven { // For kotterknife
+        url "https://oss.sonatype.org/content/repositories/snapshots/"
+    }
 }
 
 dependencies {
@@ -26,11 +29,11 @@ dependencies {
 
     // implementation "com.google.android.gms:play-services-base:$play_services_version"
 
-    implementation 'com.jakewharton:kotterknife:0.1.0-SNAPSHOT'
-    implementation 'eu.inloop:simplerecycleradapter:0.3.4'
-    // implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation "com.jakewharton:kotterknife:0.1.0-SNAPSHOT"
+    implementation "eu.inloop:simplerecycleradapter:0.3.4"
+    // implementation "com.android.support.constraint:constraint-layout:1.0.2"
 
-    implementation 'com.twilio:chat-android:4.0.0'
+    implementation project(":sdk")
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.27.0-eap13'
@@ -64,12 +67,33 @@ android {
             versionNameSuffix "-debug"
             buildConfigField "String", "ACCESS_TOKEN_SERVICE_URL", ACCESS_TOKEN_SERVICE_URL
         }
+        coordinated.initWith(debug)
     }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
     }
+
+     dexOptions {
+        javaMaxHeapSize "4g"
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    sourceSets.main {
+        jniLibs.srcDirs = [project(':sdk').buildDir.absolutePath + '/intermediates/binaries/debug/lib/']
+    }
+
+    /// Split APKs by ABI:
+    // splits {
+    //     abi {
+    //         enable true
+    //         universalApk true
+    //     }
+    // }
 }
 
 kotlin {
@@ -81,6 +105,17 @@ kotlin {
 // Keep an eye on SDK deprecations
 tasks.withType(JavaCompile) {
     options.compilerArgs << "-Xlint:deprecation" << "-Xdiags:verbose"
+}
+
+project.afterEvaluate {
+    if (project.hasProperty("googleServicesJson")) {
+        preBuild.doFirst {
+            copy {
+                from(googleServicesJson)
+                into(projectDir)
+            }
+        }
+    }
 }
 
 apply plugin: 'com.google.gms.google-services'

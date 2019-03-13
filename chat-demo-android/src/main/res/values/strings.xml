@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">Chat Debug</string>
     <string name="client_name">Client Name</string>
     <string name="login">Log In</string>
     <string name="logout">Logout Client</string>
