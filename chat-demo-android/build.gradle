@@ -12,9 +12,9 @@ dependencies {
     // FCM
     // Firebase now requires the app gradle file to explicitly list
     // `com.google.firebase:firebase-core` as a dependency for Firebase services to work as expected.
-    implementation 'com.google.firebase:firebase-core:16.0.6'
-    implementation 'com.google.firebase:firebase-iid:17.0.4'
-    implementation 'com.google.firebase:firebase-messaging:17.3.4'
+    implementation 'com.google.firebase:firebase-core:16.0.9'
+    implementation 'com.google.firebase:firebase-iid:18.0.0'
+    implementation 'com.google.firebase:firebase-messaging:18.0.0'
 
     implementation "com.jakewharton:kotterknife:0.1.0-SNAPSHOT"
     implementation "eu.inloop:simplerecycleradapter:0.3.4"
