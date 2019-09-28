@@ -65,7 +65,23 @@
                 android:orderInCategory="100"
                 android:showAsAction="never"
                 android:title="@string/user_info_activity" />
-
+            <item
+                android:orderInCategory="100"
+                android:showAsAction="never"
+                android:title="@string/simulate_crash">
+                <menu>
+                    <item
+                        android:id="@+id/action_crash_in_chat_client"
+                        android:orderInCategory="100"
+                        android:showAsAction="never"
+                        android:title="@string/simulate_crash_in_chat_client" />
+                    <item
+                        android:id="@+id/action_crash_in_tm_client"
+                        android:orderInCategory="100"
+                        android:showAsAction="never"
+                        android:title="@string/simulate_crash_in_tm_client" />
+                </menu>
+            </item>
         </menu>
     </item>
 </menu>

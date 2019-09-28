@@ -29,6 +29,8 @@ import org.json.JSONObject
 import org.json.JSONException
 import ChatCallbackListener
 import ToastStatusListener
+import com.twilio.chat.demo.utils.Where.*
+import com.twilio.chat.demo.utils.simulateCrash
 
 class ChannelActivity : Activity(), ChatClientListener, AnkoLogger {
     private lateinit var basicClient: BasicChatClient
@@ -68,6 +70,8 @@ class ChannelActivity : Activity(), ChatClientListener, AnkoLogger {
                 finish()
             }
             R.id.action_unregistercm -> basicClient.unregisterFcmToken()
+            R.id.action_crash_in_chat_client -> basicClient.chatClient!!.simulateCrash(CHAT_CLIENT_CPP)
+            R.id.action_crash_in_tm_client -> basicClient.chatClient!!.simulateCrash(TM_CLIENT_CPP)
         }
         return super.onOptionsItemSelected(item)
     }

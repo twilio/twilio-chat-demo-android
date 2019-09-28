@@ -39,6 +39,9 @@
     <string name="token_ttl">TTL (sec)</string>
     <string name="about">About</string>
     <string name="user_info_activity">User info activity</string>
+    <string name="simulate_crash">Simulate crash</string>
+    <string name="simulate_crash_in_chat_client">in ChatClient.cpp</string>
+    <string name="simulate_crash_in_tm_client">in TMClient.cpp</string>
     <string name="title_update_attributes">Update message attributes</string>
     <string name="userAvatar">User avatar</string>
     <string name="create">Create</string>
