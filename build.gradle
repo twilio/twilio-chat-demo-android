@@ -1,3 +1,8 @@
+wrapper {
+    gradleVersion = '5.5.1'
+    distributionType = Wrapper.DistributionType.ALL
+}
+
 buildscript {
     ext {
         androidMinSdkVersion = 21 // Because of ReLinker use of Build.SUPPORTED_ABIS
