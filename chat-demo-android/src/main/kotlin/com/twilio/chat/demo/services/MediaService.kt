@@ -13,11 +13,14 @@ import com.twilio.chat.ProgressListener
 import com.twilio.chat.demo.TwilioApplication
 import com.twilio.chat.demo.models.Media
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import org.jetbrains.anko.*
 import java.io.File
 import java.io.FileOutputStream
+import java.util.concurrent.CancellationException
 
 class MediaService : IntentService(MediaService::class.java.simpleName), AnkoLogger {
 
@@ -46,7 +49,7 @@ class MediaService : IntentService(MediaService::class.java.simpleName), AnkoLog
         val uriString = intent.getStringExtra(EXTRA_MEDIA_URI) ?: throw NullPointerException("Media URI not provided")
         val channel = intent.getParcelableExtra<Channel>(EXTRA_CHANNEL) ?: throw NullPointerException("Channel is not provided")
 
-        launch(coroutineContext) {
+        GlobalScope.launch(coroutineContext) {
             val deferred = CompletableDeferred<Unit>()
 
             val uri = Uri.parse(uriString)
@@ -92,7 +95,7 @@ class MediaService : IntentService(MediaService::class.java.simpleName), AnkoLog
         val channel = intent.getParcelableExtra<Channel>(EXTRA_CHANNEL) ?: throw NullPointerException("Channel is not provided")
         val messageIndex = intent.getLongExtra(EXTRA_MESSAGE_INDEX, -1L)
 
-        launch(coroutineContext) {
+        GlobalScope.launch(coroutineContext) {
             val deferred = CompletableDeferred<String>()
 
             channel.messages.getMessageByIndex(messageIndex, ChatCallbackListener<Message> { message ->
@@ -114,7 +117,7 @@ class MediaService : IntentService(MediaService::class.java.simpleName), AnkoLog
 
                 } catch (e: Exception) {
                     error { "Failed to download media - error: ${e.message}" }
-                    deferred.cancel(e)
+                    deferred.cancel(CancellationException(e.message))
                 }
             })
 
