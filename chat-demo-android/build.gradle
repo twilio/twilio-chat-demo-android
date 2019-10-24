@@ -20,10 +20,10 @@ dependencies {
     implementation "com.jakewharton:kotterknife:0.1.0-SNAPSHOT"
     implementation "eu.inloop:simplerecycleradapter:0.3.4"
 
-    implementation 'com.twilio:chat-android-with-symbols:4.2.3'
+    implementation 'com.twilio:chat-android-with-symbols:4.2.5'
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.27.0-eap13'
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
     implementation "org.jetbrains.anko:anko:0.10.5"
 
     implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
