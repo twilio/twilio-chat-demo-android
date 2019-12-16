@@ -91,7 +91,7 @@ tasks.withType(JavaCompile) {
     options.compilerArgs << "-Xlint:deprecation" << "-Xdiags:verbose"
 }
 
-if (property("googleServicesJson")) {
+if (hasProperty("googleServicesJson")) {
     copy {
         from(googleServicesJson)
         into(projectDir)
