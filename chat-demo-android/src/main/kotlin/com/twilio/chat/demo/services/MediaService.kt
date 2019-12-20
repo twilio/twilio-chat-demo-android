@@ -53,13 +53,13 @@ class MediaService : IntentService(MediaService::class.java.simpleName), AnkoLog
             val deferred = CompletableDeferred<Unit>()
 
             val uri = Uri.parse(uriString)
-            val cursor = contentResolver.query(uri, null, null, null, null)
+            val cursor = contentResolver.query(uri, null, null, null, null)!!
 
             try {
                 if (cursor.moveToFirst()) {
                     val name = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
-                    val type = contentResolver.getType(uri)
-                    val stream = contentResolver.openInputStream(uri)
+                    val type = contentResolver.getType(uri)!!
+                    val stream = contentResolver.openInputStream(uri)!!
 
                     val media = Media(name, type, stream)
 
