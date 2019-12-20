@@ -76,7 +76,7 @@ class UserActivity : Activity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
-            val extras = data.extras
+            val extras = data.extras!!
             val imageBitmap = extras.get("data") as Bitmap
             bitmap = getResizedBitmap(imageBitmap, 96)
             avatar.setImageBitmap(bitmap)
