@@ -16,8 +16,6 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
@@ -42,6 +40,8 @@ import ChatStatusListener
 import ChatCallbackListener
 import ToastStatusListener
 import android.os.Parcelable
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 // RecyclerView Anko
 fun ViewManager.recyclerView() = recyclerView(theme = 0) {}

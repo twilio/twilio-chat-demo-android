@@ -3,7 +3,7 @@ package com.twilio.chat.demo.services
 import android.app.IntentService
 import android.content.Intent
 import android.preference.PreferenceManager
-import android.support.v4.content.LocalBroadcastManager
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.firebase.iid.FirebaseInstanceId
 import com.twilio.chat.demo.FCMPreferences
 import com.twilio.chat.demo.TwilioApplication
