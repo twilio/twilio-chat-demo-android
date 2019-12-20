@@ -16,7 +16,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
-import android.support.v7.widget.LinearLayoutManager
 import android.view.*
 import com.twilio.chat.demo.*
 import com.twilio.chat.demo.views.ChannelViewHolder
@@ -29,6 +28,7 @@ import org.json.JSONObject
 import org.json.JSONException
 import ChatCallbackListener
 import ToastStatusListener
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.twilio.chat.demo.utils.Where.*
 import com.twilio.chat.demo.utils.simulateCrash
 
