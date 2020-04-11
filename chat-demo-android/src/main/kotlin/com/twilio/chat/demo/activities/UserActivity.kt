@@ -15,6 +15,7 @@ import com.twilio.chat.ChatClient
 import com.twilio.chat.User
 import com.twilio.chat.demo.R
 import ToastStatusListener
+import com.twilio.chat.Attributes
 import com.twilio.chat.demo.TwilioApplication
 import org.json.JSONException
 import org.json.JSONObject
@@ -62,7 +63,7 @@ class UserActivity : Activity() {
                     // whatever?
                 }
 
-                user.setAttributes(attributes, ToastStatusListener(
+                user.setAttributes(Attributes(attributes), ToastStatusListener(
                         "Update successful for user attributes",
                         "Update failed for user attributes") {
                     fillUserAvatar()
@@ -100,7 +101,7 @@ class UserActivity : Activity() {
     private fun fillUserAvatar() {
         val user = client?.users?.myUser
         val attributes = user?.attributes
-        val ava = attributes?.opt("avatar") as String?
+        val ava = attributes?.jsonObject?.opt("avatar") as String?
         if (ava != null) {
             val data = Base64.decode(ava, Base64.NO_WRAP)
             bitmap = BitmapFactory.decodeByteArray(data, 0, data.size)

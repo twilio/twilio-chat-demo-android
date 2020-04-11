@@ -42,6 +42,7 @@ import ToastStatusListener
 import android.os.Parcelable
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.twilio.chat.Attributes
 
 // RecyclerView Anko
 fun ViewManager.recyclerView() = recyclerView(theme = 0) {}
@@ -258,7 +259,7 @@ class MessageActivity : Activity(), ChannelListener, AnkoLogger {
                     try { // @todo Get attributes to update
                         JSONObject().apply {
                             put("Topic", topicText)
-                            channel!!.setAttributes(this, ToastStatusListener(
+                            channel!!.setAttributes(Attributes(this), ToastStatusListener(
                                     "Attributes were set successfullly.",
                                     "Setting attributes failed"))
                         }
@@ -360,7 +361,7 @@ class MessageActivity : Activity(), ChannelListener, AnkoLogger {
                     debug { text }
                     try {
                         JSONObject(text).apply {
-                            message.setAttributes(this, ToastStatusListener(
+                            message.setAttributes(Attributes(this), ToastStatusListener(
                                     "Success updating message attributes",
                                     "Error updating message attributes") {
                                 // @todo only need to update one message

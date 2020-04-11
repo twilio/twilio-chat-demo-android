@@ -29,6 +29,7 @@ import org.json.JSONException
 import ChatCallbackListener
 import ToastStatusListener
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.twilio.chat.Attributes
 import com.twilio.chat.demo.utils.Where.*
 import com.twilio.chat.demo.utils.simulateCrash
 
@@ -94,7 +95,7 @@ class ChannelActivity : Activity(), ChatClientListener, AnkoLogger {
         builder?.withFriendlyName("${typ}_TestChannelF_${value}")
                ?.withUniqueName("${typ}_TestChannelU_${value}")
                ?.withType(type)
-               ?.withAttributes(attrs)
+               ?.withAttributes(Attributes(attrs))
                ?.build(object : CallbackListener<Channel>() {
                     override fun onSuccess(newChannel: Channel) {
                         debug { "Successfully created a channel with options." }
