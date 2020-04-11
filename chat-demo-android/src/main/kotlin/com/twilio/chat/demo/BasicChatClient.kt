@@ -1,19 +1,20 @@
 package com.twilio.chat.demo
 
+import ToastStatusListener
+import android.content.Context
+import android.os.AsyncTask
+import android.os.Handler
 import com.twilio.chat.CallbackListener
+import com.twilio.chat.Channel
 import com.twilio.chat.ChatClient
 import com.twilio.chat.ChatClientListener
 import com.twilio.chat.ErrorInfo
 import com.twilio.chat.User
-import com.twilio.chat.Channel
 import com.twilio.chat.internal.HandlerUtil
-import android.content.Context
-import android.os.AsyncTask
-import android.os.Handler
-import ToastStatusListener
-import com.twilio.chat.*
-import org.jetbrains.anko.*
-import java.util.Optional
+import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.debug
+import org.jetbrains.anko.warn
+import java.util.*
 
 class BasicChatClient(private val context: Context)
     : CallbackListener<ChatClient>()
@@ -37,7 +38,7 @@ class BasicChatClient(private val context: Context)
     init {
         if (BuildConfig.DEBUG) {
             warn { "Enabling DEBUG logging" }
-            ChatClient.setLogLevel(android.util.Log.VERBOSE)
+            ChatClient.setLogLevel(ChatClient.LogLevel.VERBOSE)
         }
     }
 
@@ -115,14 +116,14 @@ class BasicChatClient(private val context: Context)
     }
 
     private fun setupFcmToken() {
-        chatClient!!.registerFCMToken(fcmToken,
+        chatClient!!.registerFCMToken(ChatClient.FCMToken(fcmToken),
                 ToastStatusListener(
                         "Firebase Messaging registration successful",
                         "Firebase Messaging registration not successful"))
     }
 
     fun unregisterFcmToken() {
-        chatClient!!.unregisterFCMToken(fcmToken,
+        chatClient!!.unregisterFCMToken(ChatClient.FCMToken(fcmToken),
                 ToastStatusListener(
                         "Firebase Messaging unregistration successful",
                         "Firebase Messaging unregistration not successful"))

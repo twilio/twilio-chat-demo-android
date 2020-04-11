@@ -94,7 +94,7 @@ class MessageViewHolder(val context: Context, parent: ViewGroup)
         TwilioApplication.instance.basicClient.chatClient?.users?.getAndSubscribeUser(member.identity, object : CallbackListener<User>() {
             override fun onSuccess(user: User) {
                 val attributes = user.attributes
-                val avatar = attributes.opt("avatar") as String?
+                val avatar = attributes.jsonObject?.opt("avatar") as String?
                 if (avatar != null) {
                     val data = Base64.decode(avatar, Base64.NO_WRAP)
                     val bitmap = BitmapFactory.decodeByteArray(data, 0, data.size)
