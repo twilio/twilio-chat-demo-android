@@ -1,8 +1,9 @@
 apply plugin: 'com.android.application'
-apply plugin: 'io.fabric'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
 
 def ACCESS_TOKEN_SERVICE_URL = project.hasProperty('ACCESS_TOKEN_SERVICE_URL') ? "\""+project.getProperty('ACCESS_TOKEN_SERVICE_URL')+"\"" : "\"http://example.com/token\""
 
@@ -13,9 +14,13 @@ dependencies {
     // FCM
     // Firebase now requires the app gradle file to explicitly list
     // `com.google.firebase:firebase-core` as a dependency for Firebase services to work as expected.
-    implementation 'com.google.firebase:firebase-core:16.0.9'
-    implementation 'com.google.firebase:firebase-iid:18.0.0'
-    implementation 'com.google.firebase:firebase-messaging:18.0.0'
+    implementation 'com.google.firebase:firebase-core:17.4.0'
+    implementation 'com.google.firebase:firebase-iid:20.1.6'
+    implementation 'com.google.firebase:firebase-messaging:20.1.6'
+
+    // Crashlytics
+    implementation 'com.google.firebase:firebase-crashlytics:17.0.0'
+    implementation 'com.google.firebase:firebase-crashlytics-ndk:17.0.0'
 
     implementation "com.jakewharton:kotterknife:0.1.0-SNAPSHOT"
     implementation "eu.inloop:simplerecycleradapter:0.3.4"
@@ -26,18 +31,6 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
     implementation "org.jetbrains.anko:anko:0.10.5"
 
-    implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
-    implementation 'com.crashlytics.sdk.android:crashlytics-ndk:2.1.0'
-}
-
-crashlytics {
-    enableNdk true
-
-    println "androidNdkOut \"$projectDir/build/intermediates/merged_native_libs/debug/out/lib\""
-    androidNdkOut "$projectDir/build/intermediates/merged_native_libs/debug/out/lib"
-
-    println "androidNdkLibsOut \"$projectDir/build/intermediates/stripped_native_libs/debug/out/lib\""
-    androidNdkLibsOut "$projectDir/build/intermediates/stripped_native_libs/debug/out/lib"
 }
 
 android {
@@ -53,7 +46,6 @@ android {
         versionName "1.0"
 
         buildConfigField "String", "ACCESS_TOKEN_SERVICE_URL", ACCESS_TOKEN_SERVICE_URL
-        manifestPlaceholders = [fabricApiKey: project.findProperty("fabricApiKey") ?: ""]
     }
 
     lintOptions {
@@ -65,10 +57,30 @@ android {
             shrinkResources true
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            firebaseCrashlytics {
+                nativeSymbolUploadEnabled true
+
+                println "release: unstrippedNativeLibsDir \"build/intermediates/merged_native_libs/release/out/lib\""
+                unstrippedNativeLibsDir "build/intermediates/merged_native_libs/release/out/lib"
+
+                println "release: strippedNativeLibsDir \"build/intermediates/stripped_native_libs/release/out/lib\""
+                strippedNativeLibsDir "build/intermediates/stripped_native_libs/release/out/lib"
+            }
         }
         debug {
             applicationIdSuffix ".debug"
             versionNameSuffix "-debug"
+
+            firebaseCrashlytics {
+                nativeSymbolUploadEnabled true
+
+                println "debug: unstrippedNativeLibsDir \"build/intermediates/merged_native_libs/debug/out/lib\""
+                unstrippedNativeLibsDir "build/intermediates/merged_native_libs/debug/out/lib"
+
+                println "debug: strippedNativeLibsDir \"build/intermediates/stripped_native_libs/debug/out/lib\""
+                strippedNativeLibsDir "build/intermediates/stripped_native_libs/debug/out/lib"
+            }
         }
     }
 
@@ -97,5 +109,3 @@ if (hasProperty("googleServicesJson")) {
         into(projectDir)
     }
 }
-
-apply plugin: 'com.google.gms.google-services'

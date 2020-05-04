@@ -12,7 +12,7 @@ class FCMInstanceIDService : FirebaseMessagingService(), AnkoLogger {
      * the previous token had been compromised. This call is initiated by the
      * InstanceID provider.
      */
-    override fun onNewToken(token: String?) {
+    override fun onNewToken(token: String) {
         debug { "onNewToken" }
 
         // Fetch updated Instance ID token and notify our app's server of any changes.

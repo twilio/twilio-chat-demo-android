@@ -81,17 +81,7 @@
         </service>
 
         <meta-data android:name="com.google.android.gms.version"
-    		android:value="@integer/google_play_services_version" />
-
-        <!-- Disable auto-start crashes reporting. We have to start it manually from 
-        TwilioApplication.onCreate() in order to enable ndk crashes reporting -->
-        <meta-data
-            android:name="firebase_crashlytics_collection_enabled"
-            android:value="false" />
-
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="${fabricApiKey}" />
+            android:value="@integer/google_play_services_version" />
 
     </application>
 </manifest>

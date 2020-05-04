@@ -18,7 +18,7 @@ import com.twilio.chat.demo.activities.MessageActivity
 import org.jetbrains.anko.*
 
 class FCMListenerService : FirebaseMessagingService(), AnkoLogger {
-    override fun onMessageReceived(remoteMessage: RemoteMessage?) {
+    override fun onMessageReceived(remoteMessage: RemoteMessage) {
         // If the application is in the foreground handle both data and notification messages here.
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated. See sendNotification method below.

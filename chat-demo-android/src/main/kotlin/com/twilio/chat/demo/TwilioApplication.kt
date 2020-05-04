@@ -5,11 +5,8 @@ import android.os.Handler
 import android.os.Looper
 import android.view.Gravity
 import android.widget.Toast
-import com.crashlytics.android.Crashlytics
-import com.crashlytics.android.ndk.CrashlyticsNdk
 import com.google.firebase.FirebaseApp
 import com.twilio.chat.ErrorInfo
-import io.fabric.sdk.android.Fabric
 import org.jetbrains.anko.*
 
 class TwilioApplication : Application(), AnkoLogger {
@@ -18,7 +15,6 @@ class TwilioApplication : Application(), AnkoLogger {
 
     override fun onCreate() {
         super.onCreate()
-        Fabric.with(this, Crashlytics(), CrashlyticsNdk())
         FirebaseApp.initializeApp(this)
         instance = this
         basicClient = BasicChatClient(applicationContext)
