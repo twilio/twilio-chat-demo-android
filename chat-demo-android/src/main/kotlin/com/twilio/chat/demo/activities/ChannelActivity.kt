@@ -71,6 +71,7 @@ class ChannelActivity : Activity(), ChatClientListener, AnkoLogger {
                 finish()
             }
             R.id.action_unregistercm -> basicClient.unregisterFcmToken()
+            R.id.action_crash_in_java -> throw RuntimeException("Simulated crash in ChannelActivity.kt")
             R.id.action_crash_in_chat_client -> basicClient.chatClient!!.simulateCrash(CHAT_CLIENT_CPP)
             R.id.action_crash_in_tm_client -> basicClient.chatClient!!.simulateCrash(TM_CLIENT_CPP)
         }
