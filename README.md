@@ -50,25 +50,29 @@ You can also pass this parameter to gradle during build without need to create a
 ./gradlew assembleDebug -PACCESS_TOKEN_SERVICE_URL=http://example.com/get-token/
 ```
 
-### Optionally set the value of fabric API key
-
-If you want to see crashes reported to crashlytics set the value of `fabricApiKey` in chat-demo-android/gradle.properties file to your api key.
-
-example:
-
-```
-fabricApiKey=0123456789abcdef
-```
-
-You can also pass this parameter to gradle during build without need to create a properties file, as follows:
-
-```
-./gradlew assembleDebug -PfabricApiKey=0123456789abcdef
-```
-
 ### Add google-services.json
 
 [Generate google-services.json](https://developers.google.com/mobile/add) file and place it under `chat-demo-android/`.
+
+### Optionally setup Firebase Crashlytics
+
+If you want to see crashes reported to crashlytics:
+1. [Set up Crashlytics in the Firebase console](https://firebase.google.com/docs/crashlytics/get-started-new-sdk?platform=android&authuser=1#set-up-console)
+
+2. In order to see native crashes symbolicated upload symbols into the Firebase console :
+```
+./gradlew chat-demo-android:assembleBUILD_VARIANT
+./gradlew chat-demo-android:uploadCrashlyticsSymbolFileBUILD_VARIANT
+```
+for example to upload symbols for `debug` build type run:
+```
+./gradlew chat-demo-android:assembleDebug
+./gradlew chat-demo-android:uploadCrashlyticsSymbolFileDebug
+```
+
+[Read more](https://firebase.google.cn/docs/crashlytics/ndk-reports-new-sdk) about Android NDK crash reports.
+
+3. Login into `chat-demo-android` application and navigate to `Menu -> Options -> Simulate crash` in order to check that crashes coming into Firebase console.
 
 ### Build
 
