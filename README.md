@@ -16,21 +16,13 @@ What you'll minimally need to get started:
 
 - A clone of this repository
 - [A way to create a Chat Service Instance and generate client tokens](https://www.twilio.com/docs/api/chat/guides/identity)
-- Gradle installation
 - Google Play Services library : [Follow the instructions here](https://developers.google.com/android/guides/setup)
 
 ## Building
 
-### Make sure correct Google packages are installed
+### Add google-services.json
 
-In Android SDK Manager make sure you have installed `Android Support Repository` and `Google Repository` under Extras.
-
-### Set up gradle wrapper to use correct gradle version.
-
-Run
-```
-./gradlew wrapper
-```
+[Generate google-services.json](https://developers.google.com/mobile/add) file and place it under `chat-demo-android/`.
 
 ### Set the value of `ACCESS_TOKEN_SERVICE_URL`
 
@@ -49,10 +41,6 @@ You can also pass this parameter to gradle during build without need to create a
 ```
 ./gradlew assembleDebug -PACCESS_TOKEN_SERVICE_URL=http://example.com/get-token/
 ```
-
-### Add google-services.json
-
-[Generate google-services.json](https://developers.google.com/mobile/add) file and place it under `chat-demo-android/`.
 
 ### Optionally setup Firebase Crashlytics
 
@@ -76,7 +64,7 @@ for example to upload symbols for `debug` build type run:
 
 ### Build
 
-Run `gradle build` to fetch Twilio SDK files and build application.
+Run `./gradlew assembleDebug` to fetch Twilio SDK files and build application.
 
 ### Android Studio
 
