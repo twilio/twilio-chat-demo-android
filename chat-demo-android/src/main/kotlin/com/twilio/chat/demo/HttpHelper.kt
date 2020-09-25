@@ -1,4 +1,4 @@
-package com.twilio.chat.demo
+package com.twilio.conversations.demo
 
 import java.net.HttpURLConnection
 import java.net.URL

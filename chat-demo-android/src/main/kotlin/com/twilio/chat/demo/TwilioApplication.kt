@@ -1,4 +1,4 @@
-package com.twilio.chat.demo
+package com.twilio.conversations.demo
 
 import android.app.Application
 import android.os.Handler
@@ -6,18 +6,18 @@ import android.os.Looper
 import android.view.Gravity
 import android.widget.Toast
 import com.google.firebase.FirebaseApp
-import com.twilio.chat.ErrorInfo
+import com.twilio.conversations.ErrorInfo
 import org.jetbrains.anko.*
 
 class TwilioApplication : Application(), AnkoLogger {
-    lateinit var basicClient: BasicChatClient
+    lateinit var basicClient: BasicConversationsClient
         private set
 
     override fun onCreate() {
         super.onCreate()
         FirebaseApp.initializeApp(this)
         instance = this
-        basicClient = BasicChatClient(applicationContext)
+        basicClient = BasicConversationsClient(applicationContext)
     }
 
     @JvmOverloads fun showToast(text: String, duration: Int = Toast.LENGTH_SHORT) {

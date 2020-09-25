@@ -1,22 +1,22 @@
-package com.twilio.chat.demo
+package com.twilio.conversations.demo
 
 import ToastStatusListener
 import android.content.Context
 import android.os.AsyncTask
 import android.os.Handler
-import com.twilio.chat.CallbackListener
-import com.twilio.chat.Channel
-import com.twilio.chat.ChatClient
-import com.twilio.chat.ChatClientListener
-import com.twilio.chat.ErrorInfo
-import com.twilio.chat.User
-import com.twilio.chat.internal.HandlerUtil
+import com.twilio.conversations.CallbackListener
+import com.twilio.conversations.Conversation
+import com.twilio.conversations.ConversationssClient
+import com.twilio.conversations.ConversationssClientListener
+import com.twilio.conversations.ErrorInfo
+import com.twilio.conversations.User
+import com.twilio.conversations.internal.HandlerUtil
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.debug
 import org.jetbrains.anko.warn
 import java.util.*
 
-class BasicChatClient(private val context: Context)
+class BasicConversationsClient(private val context: Context)
     : CallbackListener<ChatClient>()
     , ChatClientListener
     , AnkoLogger

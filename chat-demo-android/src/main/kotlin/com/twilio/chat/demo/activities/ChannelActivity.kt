@@ -1,4 +1,4 @@
-package com.twilio.chat.demo.activities
+package com.twilio.conversations.demo.activities
 
 import java.util.Comparator
 import java.util.HashMap
@@ -31,12 +31,11 @@ import ToastStatusListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.twilio.chat.Attributes
 import com.twilio.chat.demo.utils.Where.*
-import com.twilio.chat.demo.utils.simulateCrash
 
 class ChannelActivity : Activity(), ChatClientListener, AnkoLogger {
-    private lateinit var basicClient: BasicChatClient
-    private val channels = HashMap<String, ChannelModel>()
-    private lateinit var adapter: SimpleRecyclerAdapter<ChannelModel>
+    private lateinit var basicClient: BasicConversationsClient
+    private val channels = HashMap<String, ConversationModel>()
+    private lateinit var adapter: SimpleRecyclerAdapter<ConversationModel>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -100,7 +99,7 @@ class ChannelActivity : Activity(), ChatClientListener, AnkoLogger {
                ?.build(object : CallbackListener<Channel>() {
                     override fun onSuccess(newChannel: Channel) {
                         debug { "Successfully created a channel with options." }
-                        channels.put(newChannel.sid, ChannelModel(newChannel))
+                        channels.put(newChannel.sid, ConversationModel(newChannel))
                         refreshChannelList()
                     }
 
@@ -124,7 +123,7 @@ class ChannelActivity : Activity(), ChatClientListener, AnkoLogger {
                         debug { "Creating channel with friendly Name|$channelName|" }
                         basicClient.chatClient?.channels?.createChannel(channelName, type, ChatCallbackListener<Channel>() {
                             debug { "Channel created with sid|${it.sid}| and type ${it.type}" }
-                            channels.put(it.sid, ChannelModel(it))
+                            channels.put(it.sid, ConversationModel(it))
                             refreshChannelList()
                         })
                     }
@@ -162,10 +161,10 @@ class ChannelActivity : Activity(), ChatClientListener, AnkoLogger {
 
     private fun setupListView() {
         adapter = SimpleRecyclerAdapter(
-                ItemClickListener { channel: ChannelModel, _, _ ->
-                    if (channel.status == Channel.ChannelStatus.JOINED) {
+                ItemClickListener { conversation: ConversationModel, _, _ ->
+                    if (conversation.status == Channel.ChannelStatus.JOINED) {
                         Handler().postDelayed({
-                            channel.getChannel(ChatCallbackListener<Channel>() {
+                            conversation.getChannel(ChatCallbackListener<Channel>() {
                                 startActivity<MessageActivity>(
                                     Constants.EXTRA_CHANNEL to it,
                                     Constants.EXTRA_CHANNEL_SID to it.sid
@@ -176,7 +175,7 @@ class ChannelActivity : Activity(), ChatClientListener, AnkoLogger {
                     }
                     alert(R.string.select_action) {
                         positiveButton("Join") { dialog ->
-                            channel.join(
+                            conversation.join(
                                     ToastStatusListener("Successfully joined channel",
                                             "Failed to join channel") {
                                         refreshChannelList()
@@ -186,8 +185,8 @@ class ChannelActivity : Activity(), ChatClientListener, AnkoLogger {
                         negativeButton(R.string.cancel) {}
                     }.show()
                 },
-                object : SimpleRecyclerAdapter.CreateViewHolder<ChannelModel>() {
-                    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SettableViewHolder<ChannelModel> {
+                object : SimpleRecyclerAdapter.CreateViewHolder<ConversationModel>() {
+                    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SettableViewHolder<ConversationModel> {
                         return ChannelViewHolder(this@ChannelActivity, parent);
                     }
                 })
@@ -207,7 +206,7 @@ class ChannelActivity : Activity(), ChatClientListener, AnkoLogger {
     private fun getChannelsPage(paginator: Paginator<ChannelDescriptor>) {
         for (cd in paginator.items) {
             error { "Adding channel descriptor for sid|${cd.sid}| friendlyName ${cd.friendlyName}" }
-            channels.put(cd.sid, ChannelModel(cd))
+            channels.put(cd.sid, ConversationModel(cd))
         }
         refreshChannelList()
 
@@ -223,7 +222,7 @@ class ChannelActivity : Activity(), ChatClientListener, AnkoLogger {
             val chans = basicClient.chatClient?.channels?.subscribedChannels
             if (chans != null) {
                 for (channel in chans) {
-                    channels.put(channel.sid, ChannelModel(channel))
+                    channels.put(channel.sid, ConversationModel(channel))
                 }
             }
             refreshChannelList()
@@ -259,7 +258,7 @@ class ChannelActivity : Activity(), ChatClientListener, AnkoLogger {
                         channel.join(ToastStatusListener(
                                 "Successfully joined channel",
                                 "Failed to join channel") {
-                            channels.put(channel.sid, ChannelModel(channel))
+                            channels.put(channel.sid, ConversationModel(channel))
                             refreshChannelList()
                         })
                     }
@@ -273,8 +272,8 @@ class ChannelActivity : Activity(), ChatClientListener, AnkoLogger {
         }.show()
     }
 
-    private inner class CustomChannelComparator : Comparator<ChannelModel> {
-        override fun compare(lhs: ChannelModel, rhs: ChannelModel): Int {
+    private inner class CustomChannelComparator : Comparator<ConversationModel> {
+        override fun compare(lhs: ConversationModel, rhs: ConversationModel): Int {
             return lhs.friendlyName.compareTo(rhs.friendlyName)
         }
     }
@@ -285,19 +284,19 @@ class ChannelActivity : Activity(), ChatClientListener, AnkoLogger {
 
     override fun onChannelJoined(channel: Channel) {
         debug { "Received onChannelJoined callback for channel |${channel.friendlyName}|" }
-        channels.put(channel.sid, ChannelModel(channel))
+        channels.put(channel.sid, ConversationModel(channel))
         refreshChannelList()
     }
 
     override fun onChannelAdded(channel: Channel) {
         debug { "Received onChannelAdded callback for channel |${channel.friendlyName}|" }
-        channels.put(channel.sid, ChannelModel(channel))
+        channels.put(channel.sid, ConversationModel(channel))
         refreshChannelList()
     }
 
     override fun onChannelUpdated(channel: Channel, reason: Channel.UpdateReason) {
         debug { "Received onChannelUpdated callback for channel |${channel.friendlyName}| with reason ${reason}" }
-        channels.put(channel.sid, ChannelModel(channel))
+        channels.put(channel.sid, ConversationModel(channel))
         refreshChannelList()
     }
 
@@ -308,7 +307,7 @@ class ChannelActivity : Activity(), ChatClientListener, AnkoLogger {
     }
 
     override fun onChannelInvited(channel: Channel) {
-        channels.put(channel.sid, ChannelModel(channel))
+        channels.put(channel.sid, ConversationModel(channel))
         refreshChannelList()
         showIncomingInvite(channel)
     }

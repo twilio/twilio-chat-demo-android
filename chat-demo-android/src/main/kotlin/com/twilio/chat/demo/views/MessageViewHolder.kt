@@ -1,4 +1,4 @@
-package com.twilio.chat.demo.views
+package com.twilio.conversations.demo.views
 
 import android.content.Context
 import com.twilio.chat.CallbackListener

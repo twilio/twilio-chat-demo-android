@@ -1,4 +1,4 @@
-package com.twilio.chat.demo.services
+package com.twilio.conversations.demo.services
 
 import com.google.firebase.messaging.FirebaseMessagingService
 import org.jetbrains.anko.AnkoLogger

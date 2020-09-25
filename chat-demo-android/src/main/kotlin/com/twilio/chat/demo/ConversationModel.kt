@@ -1,12 +1,12 @@
-package com.twilio.chat.demo
+package com.twilio.conversations.demo
 
-import com.twilio.chat.*
+import com.twilio.conversations.*
 import java.util.Date
-import com.twilio.chat.Channel.ChannelStatus
-import com.twilio.chat.Channel.ChannelType
-import com.twilio.chat.Channel.NotificationLevel
+import com.twilio.conversations.Conversation.ConversationStatus
+import com.twilio.conversations.Conversation.ConversationType
+import com.twilio.conversations.Conversation.NotificationLevel
 
-class ChannelModel {
+class ConversationModel {
     private var channel: Channel? = null
     private var channelDescriptor: ChannelDescriptor? = null
 

@@ -1,7 +1,7 @@
-import com.twilio.chat.CallbackListener
-import com.twilio.chat.ErrorInfo
-import com.twilio.chat.StatusListener
-import com.twilio.chat.demo.TwilioApplication
+import com.twilio.conversations.CallbackListener
+import com.twilio.conversations.ErrorInfo
+import com.twilio.conversations.StatusListener
+import com.twilio.conversations.demo.TwilioApplication
 
 typealias SuccessStatus = () -> Unit
 typealias SuccessCallback<T> = (T) -> Unit

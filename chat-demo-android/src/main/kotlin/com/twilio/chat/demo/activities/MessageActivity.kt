@@ -1,4 +1,4 @@
-package com.twilio.chat.demo.activities
+package com.twilio.conversations.demo.activities
 
 import java.util.ArrayList
 import java.util.Comparator

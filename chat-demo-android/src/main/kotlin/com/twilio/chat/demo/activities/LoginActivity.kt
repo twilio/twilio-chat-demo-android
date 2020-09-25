@@ -1,9 +1,9 @@
-package com.twilio.chat.demo.activities
+package com.twilio.conversations.demo.activities
 
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.twilio.chat.ChatClient
-import com.twilio.chat.demo.BasicChatClient.LoginListener
+import com.twilio.chat.demo.BasicConversationsClient.LoginListener
 import com.twilio.chat.demo.R
 import com.twilio.chat.demo.BuildConfig
 import android.net.Uri
@@ -11,7 +11,6 @@ import android.app.Activity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.ProgressBar
 import android.widget.Toast
 import android.preference.PreferenceManager
 import android.view.View

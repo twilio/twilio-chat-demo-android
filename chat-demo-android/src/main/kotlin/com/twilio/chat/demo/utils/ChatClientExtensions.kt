@@ -1,9 +1,9 @@
-package com.twilio.chat.demo.utils
+package com.twilio.conversations.demo.utils
 
-import com.twilio.chat.ChatClient
+import com.twilio.conversations.ConversationsClient
 
 /** Extension function to simulate native crash */
-fun ChatClient.simulateCrash(where: Where) {
+fun ConversationsClient.simulateCrash(where: Where) {
     val method = ChatClient::class.java.getDeclaredMethod("simulateCrash", Int::class.java)
     method.isAccessible = true
     method.invoke(this, where.value)

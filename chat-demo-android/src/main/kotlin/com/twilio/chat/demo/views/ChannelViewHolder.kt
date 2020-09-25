@@ -1,7 +1,7 @@
-package com.twilio.chat.demo.views
+package com.twilio.conversations.demo.views
 
 import android.content.Context
-import com.twilio.chat.demo.ChannelModel
+import com.twilio.chat.demo.ConversationModel
 import com.twilio.chat.Channel.ChannelStatus
 import com.twilio.chat.Channel.ChannelType
 import com.twilio.chat.Channel.NotificationLevel
@@ -16,7 +16,7 @@ import eu.inloop.simplerecycleradapter.SettableViewHolder
 import kotterknife.bindView
 import org.jetbrains.anko.*
 
-class ChannelViewHolder : SettableViewHolder<ChannelModel>, AnkoLogger {
+class ChannelViewHolder : SettableViewHolder<ConversationModel>, AnkoLogger {
     val friendlyName: TextView by bindView(R.id.channel_friendly_name)
     val channelSid: TextView by bindView(R.id.channel_sid)
     val updatedDate: TextView by bindView(R.id.channel_updated_date)
@@ -31,60 +31,60 @@ class ChannelViewHolder : SettableViewHolder<ChannelModel>, AnkoLogger {
         : super(context, R.layout.channel_item_layout, parent)
     {}
 
-    override fun setData(channel: ChannelModel) {
-        warn { "setData for ${channel.friendlyName} sid|${channel.sid}|" }
-        friendlyName.text = channel.friendlyName
-        channelSid.text = channel.sid
+    override fun setData(conversation: ConversationModel) {
+        warn { "setData for ${conversation.friendlyName} sid|${conversation.sid}|" }
+        friendlyName.text = conversation.friendlyName
+        channelSid.text = conversation.sid
 
-        updatedDate.text = if (channel.dateUpdatedAsDate != null)
-            channel.dateUpdatedAsDate!!.toString()
+        updatedDate.text = if (conversation.dateUpdatedAsDate != null)
+            conversation.dateUpdatedAsDate!!.toString()
         else
             "<no updated date>"
 
-        createdDate.text = if (channel.dateCreatedAsDate != null)
-            channel.dateCreatedAsDate!!.toString()
+        createdDate.text = if (conversation.dateCreatedAsDate != null)
+            conversation.dateCreatedAsDate!!.toString()
         else
             "<no created date>"
 
-        pushesLevel.text = if (channel.notificationLevel == NotificationLevel.MUTED)
+        pushesLevel.text = if (conversation.notificationLevel == NotificationLevel.MUTED)
             "Pushes: Muted"
         else
             "Pushes: Default"
 
-        channel.getUnconsumedMessagesCount(object : CallbackListener<Long>() {
+        conversation.getUnconsumedMessagesCount(object : CallbackListener<Long>() {
             override fun onSuccess(value: Long?) {
                 Log.d("ChannelViewHolder", "getUnconsumedMessagesCount callback")
                 unconsumedMessagesCount.text = "Unread " + value!!.toString()
             }
         })
 
-        channel.getMessagesCount(object : CallbackListener<Long>() {
+        conversation.getMessagesCount(object : CallbackListener<Long>() {
             override fun onSuccess(value: Long?) {
                 Log.d("ChannelViewHolder", "getMessagesCount callback")
                 totalMessagesCount.text = "Messages " + value!!.toString()
             }
         })
 
-        channel.getMembersCount(object : CallbackListener<Long>() {
+        conversation.getMembersCount(object : CallbackListener<Long>() {
             override fun onSuccess(value: Long?) {
                 Log.d("ChannelViewHolder", "getMembersCount callback")
                 usersCount.text = "Members " + value!!.toString()
             }
         })
 
-        val lastmsg = channel.lastMessageDate;
+        val lastmsg = conversation.lastMessageDate;
         if (lastmsg != null) {
             lastMessageDate.text = lastmsg.toString()
         }
 
         itemView.setBackgroundColor(
-            if (channel.status == ChannelStatus.JOINED) {
-                if (channel.type == ChannelType.PRIVATE)
+            if (conversation.status == ChannelStatus.JOINED) {
+                if (conversation.type == ChannelType.PRIVATE)
                     Color.BLUE
                 else
                     Color.WHITE
             } else {
-                if (channel.status == ChannelStatus.INVITED)
+                if (conversation.status == ChannelStatus.INVITED)
                     Color.YELLOW
                 else
                     Color.GRAY

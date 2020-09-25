@@ -1,4 +1,4 @@
-package com.twilio.chat.demo
+package com.twilio.conversations.demo
 
 object FCMPreferences {
     val SENT_TOKEN_TO_SERVER = "sentTokenToServer"

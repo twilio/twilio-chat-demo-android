@@ -1,4 +1,4 @@
-package com.twilio.chat.demo.models
+package com.twilio.conversations.demo.models
 
 import java.io.InputStream
 

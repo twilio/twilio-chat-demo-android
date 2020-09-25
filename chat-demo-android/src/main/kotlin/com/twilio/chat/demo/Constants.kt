@@ -1,4 +1,4 @@
-package com.twilio.chat.demo
+package com.twilio.conversations.demo
 
 interface Constants {
     companion object {
