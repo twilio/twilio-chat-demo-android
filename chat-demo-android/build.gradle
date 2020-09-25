@@ -37,7 +37,7 @@ android {
     compileSdkVersion androidCompileSdkVersion
 
     defaultConfig {
-        applicationId "com.twilio.chat.demo"
+        applicationId "com.twilio.conversations.demo"
         minSdkVersion androidMinSdkVersion
         targetSdkVersion androidCompileSdkVersion
         buildToolsVersion androidBuildToolsVersion
