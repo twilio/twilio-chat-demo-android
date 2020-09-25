@@ -43,7 +43,7 @@ class ChannelActivity : Activity(), ChatClientListener, AnkoLogger {
         setContentView(R.layout.activity_channel)
 
         basicClient = TwilioApplication.instance.basicClient
-        basicClient.chatClient?.setListener(this@ChannelActivity)
+        basicClient.chatClient?.addListener(this@ChannelActivity)
         setupListView()
     }
 

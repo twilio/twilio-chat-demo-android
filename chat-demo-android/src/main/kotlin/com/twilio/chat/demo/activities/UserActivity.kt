@@ -126,7 +126,7 @@ class UserActivity : Activity() {
     }
 
     private fun setListener() {
-        client?.setListener(object : ChatClientListener {
+        client?.addListener(object : ChatClientListener {
             override fun onChannelAdded(channel: Channel) {}
 
             override fun onChannelUpdated(channel: Channel, reason: Channel.UpdateReason) {}
