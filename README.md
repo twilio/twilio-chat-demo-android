@@ -1,16 +1,16 @@
-# Chat Demo Application Overview
+# Conversations Demo Application Overview
 
 ## This is Kotlin version of the Demo app
 
 For the Java version you can look [here](https://github.com/twilio/twilio-chat-demo-android/tree/java).
 
-This demo app SDK version: ![](https://img.shields.io/badge/SDK%20version-5.0.1-blue.svg)
+This demo app SDK version: ![](https://img.shields.io/badge/SDK%20version-1.0.0-blue.svg)
 
-Latest available SDK version: [ ![Latest SDK version](https://api.bintray.com/packages/twilio/releases/chat-android/images/download.svg) ](https://bintray.com/twilio/releases/chat-android/_latestVersion)
+Latest available SDK version: [ ![Latest SDK version](https://api.bintray.com/packages/twilio/releases/conversations-android/images/download.svg) ](https://bintray.com/twilio/releases/conversations-android/_latestVersion)
 
 ## Getting Started
 
-Welcome to the Chat Demo application.  This application demonstrates a basic chat client with the ability to create and join channels, invite other members into the channels and exchange messages.
+Welcome to the Conversations Demo application.  This application demonstrates a basic conversations client with the ability to create and join conversations, add other participants (chat, SMS, WhatsApp) into the conversations and exchange text and media messages.
 
 What you'll minimally need to get started:
 
