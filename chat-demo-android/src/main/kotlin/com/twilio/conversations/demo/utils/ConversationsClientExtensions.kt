@@ -4,7 +4,7 @@ import com.twilio.conversations.ConversationsClient
 
 /** Extension function to simulate native crash */
 fun ConversationsClient.simulateCrash(where: Where) {
-    val method = ChatClient::class.java.getDeclaredMethod("simulateCrash", Int::class.java)
+    val method = ConversationsClient::class.java.getDeclaredMethod("simulateCrash", Int::class.java)
     method.isAccessible = true
     method.invoke(this, where.value)
 }

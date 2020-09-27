@@ -2,10 +2,10 @@ package com.twilio.conversations.demo.activities
 
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
-import com.twilio.chat.ChatClient
-import com.twilio.chat.demo.BasicConversationsClient.LoginListener
-import com.twilio.chat.demo.R
-import com.twilio.chat.demo.BuildConfig
+import com.twilio.conversations.ConversationsClient
+import com.twilio.conversations.demo.BasicConversationsClient.LoginListener
+import com.twilio.conversations.demo.R
+import com.twilio.conversations.demo.BuildConfig
 import android.net.Uri
 import android.app.Activity
 import android.os.Bundle
@@ -15,8 +15,8 @@ import android.widget.Toast
 import android.preference.PreferenceManager
 import android.view.View
 import android.widget.ArrayAdapter
-import com.twilio.chat.demo.TwilioApplication
-import com.twilio.chat.demo.services.RegistrationIntentService
+import com.twilio.conversations.demo.TwilioApplication
+import com.twilio.conversations.demo.services.RegistrationIntentService
 import kotlinx.android.synthetic.main.activity_login.*
 import org.jetbrains.anko.*
 
@@ -73,8 +73,8 @@ class LoginActivity : Activity(), LoginListener, AnkoLogger {
         realmSelect.setSelection((realmSelect.adapter as ArrayAdapter<String>).getPosition(realm))
         tokenTtlTextBox.setText(ttl)
 
-        // Make sure no chatclient is created
-        if (TwilioApplication.instance.basicClient.chatClient != null) {
+        // Make sure no client is created
+        if (TwilioApplication.instance.basicClient.conversationsClient != null) {
             TwilioApplication.instance.basicClient.shutdown()
         }
     }
@@ -93,7 +93,7 @@ class LoginActivity : Activity(), LoginListener, AnkoLogger {
     }
 
     private fun showAboutDialog() {
-        alert("Version: ${ChatClient.getSdkVersion()}", "About") {
+        alert("Version: ${ConversationsClient.getSdkVersion()}", "About") {
             positiveButton("OK") { dialog -> dialog.cancel() }
         }.show()
     }

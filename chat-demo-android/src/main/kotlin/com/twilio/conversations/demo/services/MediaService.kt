@@ -7,31 +7,34 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
-import com.twilio.chat.Channel
-import com.twilio.chat.Message
-import com.twilio.chat.ProgressListener
-import com.twilio.chat.demo.TwilioApplication
-import com.twilio.chat.demo.models.Media
+import com.twilio.conversations.CallbackListener
+import com.twilio.conversations.Conversation
+import com.twilio.conversations.Message
+import com.twilio.conversations.ProgressListener
+import com.twilio.conversations.demo.TwilioApplication
+import com.twilio.conversations.demo.models.Media
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import org.jetbrains.anko.*
+import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.net.URL
 import java.util.concurrent.CancellationException
 
 class MediaService : IntentService(MediaService::class.java.simpleName), AnkoLogger {
 
     companion object {
-        val EXTRA_MEDIA_URI = "com.twilio.demo.chat.media_uri"
-        val EXTRA_CHANNEL = "com.twilio.demo.chat.media_channel"
-        val EXTRA_MESSAGE_INDEX = "com.twilio.demo.chat.message_index"
+        val EXTRA_MEDIA_URI = "com.twilio.demo.conversations.media_uri"
+        val EXTRA_CHANNEL_SID = "com.twilio.demo.conversations.media_channel"
+        val EXTRA_MESSAGE_INDEX = "com.twilio.demo.conversations.message_index"
 
-        val EXTRA_ACTION = "com.twilio.demo.chat.media.action"
-        val EXTRA_ACTION_UPLOAD = "com.twilio.demo.chat.media.action_upload"
-        val EXTRA_ACTION_DOWNLOAD = "com.twilio.demo.chat.media.action_download"
+        val EXTRA_ACTION = "com.twilio.demo.conversations.media.action"
+        val EXTRA_ACTION_UPLOAD = "com.twilio.demo.conversations.media.action_upload"
+        val EXTRA_ACTION_DOWNLOAD = "com.twilio.demo.conversations.media.action_download"
     }
 
     private val coroutineContext = newSingleThreadContext(MediaService::class.java.simpleName)
@@ -47,7 +50,7 @@ class MediaService : IntentService(MediaService::class.java.simpleName), AnkoLog
 
     private fun upload(intent: Intent) {
         val uriString = intent.getStringExtra(EXTRA_MEDIA_URI) ?: throw NullPointerException("Media URI not provided")
-        val channel = intent.getParcelableExtra<Channel>(EXTRA_CHANNEL) ?: throw NullPointerException("Channel is not provided")
+        val channelSid = intent.getStringExtra(EXTRA_CHANNEL_SID) ?: throw NullPointerException("Channel is not provided")
 
         GlobalScope.launch(coroutineContext) {
             val deferred = CompletableDeferred<Unit>()
@@ -66,14 +69,14 @@ class MediaService : IntentService(MediaService::class.java.simpleName), AnkoLog
                     val options = Message.options()
                             .withMediaFileName(media.name)
                             .withMedia(media.stream, media.type)
-                            .withMediaProgressListener(object : ProgressListener() {
+                            .withMediaProgressListener(object : ProgressListener {
                                 override fun onStarted() = debug { "Start media upload" }
                                 override fun onProgress(bytes: Long) = debug { "Media upload progress - bytes done: ${bytes}" }
                                 override fun onCompleted(mediaSid: String) = debug { "Media upload completed" }
                             })
 
-                    TwilioApplication.instance.basicClient.chatClient?.channels?.getChannel(channel.sid, ChatCallbackListener<Channel> {
-                        it.messages.sendMessage(options, ChatCallbackListener<Message> {
+                    TwilioApplication.instance.basicClient.conversationsClient?.getConversation(channelSid, ChatCallbackListener<Conversation> {
+                        it.sendMessage(options, ChatCallbackListener<Message> {
                             debug { "Media message sent - sid: ${it.sid}, type: ${it.type}" }
                             deferred.complete(Unit)
                         })
@@ -92,33 +95,31 @@ class MediaService : IntentService(MediaService::class.java.simpleName), AnkoLog
     }
 
     private fun download(intent: Intent) {
-        val channel = intent.getParcelableExtra<Channel>(EXTRA_CHANNEL) ?: throw NullPointerException("Channel is not provided")
+        val channelSid = intent.getStringExtra(EXTRA_CHANNEL_SID) ?: throw NullPointerException("Channel is not provided")
         val messageIndex = intent.getLongExtra(EXTRA_MESSAGE_INDEX, -1L)
 
         GlobalScope.launch(coroutineContext) {
             val deferred = CompletableDeferred<String>()
 
-            channel.messages.getMessageByIndex(messageIndex, ChatCallbackListener<Message> { message ->
-                val media = message.media ?: return@ChatCallbackListener
+            TwilioApplication.instance.basicClient.conversationsClient?.getConversation(channelSid, ChatCallbackListener<Conversation> {
+                it.getMessageByIndex(messageIndex, ChatCallbackListener<Message> { message ->
 
-                debug { "Media received - sid: ${media.sid}, name: ${media.fileName}, type: ${media.type}, size: ${media.size}" }
+                    debug { "Media received - sid: ${message.mediaSid}, name: ${message.mediaFileName}, type: ${message.mediaType}, size: ${message.mediaSize}" }
 
-                try {
-                    val outStream = FileOutputStream(File(cacheDir, media.sid))
+                    try {
+                        val outStream = FileOutputStream(File(cacheDir, message.mediaSid))
+                        message.getMediaContentTemporaryUrl { tempUrl ->
+                            val inStream = BufferedInputStream(URL(tempUrl).openStream())
 
-                    media.download(outStream, ChatStatusListener { debug { "Download completed" } }, object : ProgressListener() {
-                        override fun onStarted() = debug { "Start media download" }
-                        override fun onProgress(bytes: Long) = debug { "Media download progress - bytes done: ${bytes}" }
-                        override fun onCompleted(mediaSid: String) {
+                            inStream.copyTo(outStream)
                             debug { "Media download completed" }
-                            deferred.complete(mediaSid)
+                            deferred.complete(message.mediaSid)
                         }
-                    })
-
-                } catch (e: Exception) {
-                    error { "Failed to download media - error: ${e.message}" }
-                    deferred.cancel(CancellationException(e.message))
-                }
+                    } catch (e: Exception) {
+                        error { "Failed to download media - error: ${e.message}" }
+                        deferred.cancel(CancellationException(e.message))
+                    }
+                })
             })
 
             deferred.await()

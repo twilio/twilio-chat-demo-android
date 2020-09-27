@@ -14,14 +14,14 @@
                 android:showAsAction="never"
                 android:title="@string/Create_public_channel" />
             <item
-                android:id="@+id/action_create_private"
+                android:id="@+id/action_create"
                 android:icon="@drawable/ic_action_content_add"
                 android:orderInCategory="100"
                 android:showAsAction="never"
                 android:title="@string/Create_private_channel" />
 
             <item
-                android:id="@+id/action_create_private_withoptions"
+                android:id="@+id/action_create_with_options"
                 android:icon="@drawable/ic_action_content_add"
                 android:orderInCategory="100"
                 android:showAsAction="never"

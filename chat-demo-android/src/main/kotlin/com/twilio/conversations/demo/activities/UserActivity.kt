@@ -8,22 +8,22 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Base64
 import android.view.Menu
-import com.twilio.chat.Channel
-import com.twilio.chat.ErrorInfo
-import com.twilio.chat.ChatClientListener
-import com.twilio.chat.ChatClient
-import com.twilio.chat.User
-import com.twilio.chat.demo.R
+import com.twilio.conversations.Conversation
+import com.twilio.conversations.ErrorInfo
+import com.twilio.conversations.ConversationsClientListener
+import com.twilio.conversations.ConversationsClient
+import com.twilio.conversations.User
+import com.twilio.conversations.demo.R
 import ToastStatusListener
-import com.twilio.chat.Attributes
-import com.twilio.chat.demo.TwilioApplication
+import com.twilio.conversations.Attributes
+import com.twilio.conversations.demo.TwilioApplication
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import kotlinx.android.synthetic.main.activity_user_info.*
 
 class UserActivity : Activity() {
-    internal var client: ChatClient? = null
+    internal var client: ConversationsClient? = null
     internal var bitmap: Bitmap? = null
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -40,9 +40,9 @@ class UserActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_info)
 
-        client = TwilioApplication.instance.basicClient.chatClient
+        client = TwilioApplication.instance.basicClient.conversationsClient
 
-        val user = client?.users?.myUser
+        val user = client?.myUser
 
         if (user == null) return
 
@@ -99,7 +99,7 @@ class UserActivity : Activity() {
     }
 
     private fun fillUserAvatar() {
-        val user = client?.users?.myUser
+        val user = client?.myUser
         val attributes = user?.attributes
         val ava = attributes?.jsonObject?.opt("avatar") as String?
         if (ava != null) {
@@ -126,22 +126,18 @@ class UserActivity : Activity() {
     }
 
     private fun setListener() {
-        client?.addListener(object : ChatClientListener {
-            override fun onChannelAdded(channel: Channel) {}
+        client?.addListener(object : ConversationsClientListener {
+            override fun onConversationAdded(channel: Conversation) {}
 
-            override fun onChannelUpdated(channel: Channel, reason: Channel.UpdateReason) {}
+            override fun onConversationUpdated(channel: Conversation, reason: Conversation.UpdateReason) {}
 
-            override fun onChannelDeleted(channel: Channel) {}
-
-            override fun onChannelInvited(channel: Channel) {}
-
-            override fun onChannelJoined(channel: Channel) {}
+            override fun onConversationDeleted(channel: Conversation) {}
 
             override fun onError(error: ErrorInfo) {
                 TwilioApplication.instance.showError("Error listening for userInfoChange", error)
             }
 
-            override fun onChannelSynchronizationChange(channel: Channel) {}
+            override fun onConversationSynchronizationChange(channel: Conversation) {}
 
             override fun onUserUpdated(user: User, reason: User.UpdateReason) {
                 if (reason == User.UpdateReason.ATTRIBUTES) {
@@ -154,18 +150,17 @@ class UserActivity : Activity() {
 
             override fun onUserUnsubscribed(user: User) {}
 
-            override fun onClientSynchronization(synchronizationStatus: ChatClient.SynchronizationStatus) {}
+            override fun onClientSynchronization(synchronizationStatus: ConversationsClient.SynchronizationStatus) {}
 
             override fun onNewMessageNotification(channelSid: String?, messageSid: String?, messageIndex: Long) {}
-            override fun onAddedToChannelNotification(channelSid: String?) {}
-            override fun onInvitedToChannelNotification(channelSid: String?) {}
-            override fun onRemovedFromChannelNotification(channelSid: String?) {}
+            override fun onAddedToConversationNotification(channelSid: String?) {}
+            override fun onRemovedFromConversationNotification(channelSid: String?) {}
 
             override fun onNotificationSubscribed() {}
 
             override fun onNotificationFailed(errorInfo: ErrorInfo) {}
 
-            override fun onConnectionStateChange(connectionState: ChatClient.ConnectionState) {}
+            override fun onConnectionStateChange(connectionState: ConversationsClient.ConnectionState) {}
 
             override fun onTokenExpired() {
                 TwilioApplication.instance.basicClient.onTokenExpired()

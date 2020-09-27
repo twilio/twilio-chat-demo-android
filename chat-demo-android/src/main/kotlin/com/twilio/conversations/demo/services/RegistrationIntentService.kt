@@ -5,8 +5,8 @@ import android.content.Intent
 import android.preference.PreferenceManager
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.firebase.iid.FirebaseInstanceId
-import com.twilio.chat.demo.FCMPreferences
-import com.twilio.chat.demo.TwilioApplication
+import com.twilio.conversations.demo.FCMPreferences
+import com.twilio.conversations.demo.TwilioApplication
 import org.jetbrains.anko.*
 
 /**

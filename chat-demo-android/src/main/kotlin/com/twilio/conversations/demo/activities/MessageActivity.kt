@@ -2,16 +2,6 @@ package com.twilio.conversations.demo.activities
 
 import java.util.ArrayList
 import java.util.Comparator
-import com.twilio.chat.Channel
-import com.twilio.chat.Channel.ChannelType
-import com.twilio.chat.ChannelListener
-import com.twilio.chat.CallbackListener
-import com.twilio.chat.Member
-import com.twilio.chat.Members
-import com.twilio.chat.Message
-import com.twilio.chat.Paginator
-import com.twilio.chat.User
-import com.twilio.chat.UserDescriptor
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
@@ -21,12 +11,12 @@ import android.text.TextWatcher
 import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.*
-import com.twilio.chat.demo.Constants
-import com.twilio.chat.demo.R
-import com.twilio.chat.demo.TwilioApplication
-import com.twilio.chat.demo.services.MediaService
-import com.twilio.chat.demo.views.MemberViewHolder
-import com.twilio.chat.demo.views.MessageViewHolder
+import com.twilio.conversations.demo.Constants
+import com.twilio.conversations.demo.R
+import com.twilio.conversations.demo.TwilioApplication
+import com.twilio.conversations.demo.services.MediaService
+import com.twilio.conversations.demo.views.MemberViewHolder
+import com.twilio.conversations.demo.views.MessageViewHolder
 import eu.inloop.simplerecycleradapter.ItemClickListener
 import eu.inloop.simplerecycleradapter.ItemLongClickListener
 import eu.inloop.simplerecycleradapter.SettableViewHolder
@@ -42,7 +32,7 @@ import ToastStatusListener
 import android.os.Parcelable
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.twilio.chat.Attributes
+import com.twilio.conversations.*
 
 // RecyclerView Anko
 fun ViewManager.recyclerView() = recyclerView(theme = 0) {}
@@ -58,9 +48,9 @@ inline fun ViewManager.recyclerView(theme: Int = 0, init: RecyclerView.() -> Uni
 }
 // End RecyclerView Anko
 
-class MessageActivity : Activity(), ChannelListener, AnkoLogger {
+class MessageActivity : Activity(), ConversationListener, AnkoLogger {
     private lateinit var adapter: SimpleRecyclerAdapter<MessageItem>
-    private var channel: Channel? = null
+    private var conversation: Conversation? = null
 
     private val messageItemList = ArrayList<MessageItem>()
     private lateinit var identity: String
@@ -72,32 +62,26 @@ class MessageActivity : Activity(), ChannelListener, AnkoLogger {
     }
 
     override fun onDestroy() {
-        channel?.removeListener(this@MessageActivity);
+        conversation?.removeListener(this@MessageActivity);
         super.onDestroy();
     }
 
     override fun onResume() {
         super.onResume()
-        if (intent != null) {
-            channel = intent.getParcelableExtra<Channel>(Constants.EXTRA_CHANNEL)
-            if (channel != null) {
-                setupListView(channel!!)
-            }
-        }
+        createUI()
     }
 
     private fun createUI() {
         if (intent != null) {
             val basicClient = TwilioApplication.instance.basicClient
-            identity = basicClient.chatClient!!.myIdentity
-            val channelSid = intent.getStringExtra(Constants.EXTRA_CHANNEL_SID)
-            val channelsObject = basicClient.chatClient!!.channels
-            channelsObject.getChannel(channelSid, ChatCallbackListener<Channel>() {
-                channel = it
-                channel!!.addListener(this@MessageActivity)
-                this@MessageActivity.title = (if (channel!!.type == ChannelType.PUBLIC) "PUB " else "PRIV ") + channel!!.friendlyName
+            identity = basicClient.conversationsClient!!.myIdentity
+            val conversationSid = intent.getStringExtra(Constants.EXTRA_CHANNEL_SID)
+            basicClient.conversationsClient!!.getConversation(conversationSid, ChatCallbackListener<Conversation>() {
+                conversation = it
+                conversation!!.addListener(this@MessageActivity)
+                this@MessageActivity.title = conversation!!.friendlyName
 
-                setupListView(channel!!)
+                setupListView(conversation!!)
 
 //                    message_list_view.transcriptMode = ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL
 //                    message_list_view.isStackFromBottom = true
@@ -130,25 +114,22 @@ class MessageActivity : Activity(), ChannelListener, AnkoLogger {
                 NAME_CHANGE -> showChangeNameDialog()
                 TOPIC_CHANGE -> showChangeTopicDialog()
                 LIST_MEMBERS -> {
-                    val users = TwilioApplication.instance.basicClient.chatClient!!.users
+                    val client = TwilioApplication.instance.basicClient.conversationsClient!!
                     // Members.getMembersList() way
-                    val members = channel!!.members.membersList
+                    val members = conversation!!.participantsList
                     val name = StringBuffer()
                     for (i in members.indices) {
                         name.append(members[i].identity)
                         if (i + 1 < members.size) {
                             name.append(", ")
                         }
-                        members[i].getUserDescriptor(ChatCallbackListener<UserDescriptor>() {
-                            debug { "Got user descriptor from member: ${it.identity}" }
-                        })
                         members[i].getAndSubscribeUser(ChatCallbackListener<User>() {
                             debug { "Got subscribed user from member: ${it.identity}" }
                         })
                     }
                     TwilioApplication.instance.showToast(name.toString(), Toast.LENGTH_LONG)
                     // Users.getSubscribedUsers() everybody we subscribed to at the moment
-                    val userList = users.subscribedUsers
+                    val userList = client.subscribedUsers
                     val name2 = StringBuffer()
                     for (i in userList.indices) {
                         name2.append(userList[i].identity)
@@ -157,62 +138,37 @@ class MessageActivity : Activity(), ChannelListener, AnkoLogger {
                         }
                     }
                     TwilioApplication.instance.showToast("Subscribed users: ${name2.toString()}", Toast.LENGTH_LONG)
-
-                    // Get user descriptor via identity
-                    users.getUserDescriptor(channel!!.members.membersList[0].identity, ChatCallbackListener<UserDescriptor>() {
-                        TwilioApplication.instance.showToast("Random user descriptor: ${it.friendlyName}/${it.identity}", Toast.LENGTH_SHORT)
-                    })
-
-                    // Users.getChannelUserDescriptors() way - paginated
-                    users.getChannelUserDescriptors(channel!!.sid,
-                            object : CallbackListener<Paginator<UserDescriptor>>() {
-                                override fun onSuccess(userDescriptorPaginator: Paginator<UserDescriptor>) {
-                                    getUsersPage(userDescriptorPaginator)
-                                }
-                            })
-
-                    // Channel.getMemberByIdentity() for finding the user in all channels
-                    val members2 = TwilioApplication.instance.basicClient.chatClient!!.channels.getMembersByIdentity(channel!!.members.membersList[0].identity)
-                    val name3 = StringBuffer()
-                    for (i in members2.indices) {
-                        name3.append(members2[i].identity + " in " + members2[i].channel.friendlyName)
-                        if (i + 1 < members2.size) {
-                            name3.append(", ")
-                        }
-                    }
-                    //TwilioApplication.get().showToast("Random user in all channels: "+name3.toString(), Toast.LENGTH_LONG);
                 }
-                INVITE_MEMBER -> showInviteMemberDialog()
                 ADD_MEMBER -> showAddMemberDialog()
                 REMOVE_MEMBER -> showRemoveMemberDialog()
-                LEAVE -> channel!!.leave(ToastStatusListener(
+                LEAVE -> conversation!!.leave(ToastStatusListener(
                             "Successfully left channel", "Error leaving channel") {
                         finish()
                     })
-                CHANNEL_DESTROY -> channel!!.destroy(ToastStatusListener(
+                CHANNEL_DESTROY -> conversation!!.destroy(ToastStatusListener(
                         "Successfully destroyed channel", "Error destroying channel") {
                         finish()
                     })
                 CHANNEL_ATTRIBUTE -> try {
-                        TwilioApplication.instance.showToast(channel!!.attributes.toString())
+                        TwilioApplication.instance.showToast(conversation!!.attributes.toString())
                     } catch (e: JSONException) {
                         TwilioApplication.instance.showToast("JSON exception in channel attributes")
                     }
                 SET_CHANNEL_UNIQUE_NAME -> showChangeUniqueNameDialog()
-                GET_CHANNEL_UNIQUE_NAME -> TwilioApplication.instance.showToast(channel!!.uniqueName)
-                GET_MESSAGE_BY_INDEX -> channel!!.messages.getMessageByIndex(channel!!.messages.lastConsumedMessageIndex!!, ChatCallbackListener<Message>() {
+                GET_CHANNEL_UNIQUE_NAME -> TwilioApplication.instance.showToast(conversation!!.uniqueName)
+                GET_MESSAGE_BY_INDEX -> conversation!!.getMessageByIndex(conversation!!.lastReadMessageIndex!!, ChatCallbackListener<Message>() {
                         TwilioApplication.instance.showToast("SUCCESS GET MESSAGE BY IDX")
-                        error { "MESSAGES ${it.messages.toString()}, CHANNEL ${it.channel.sid}" }
+                        error { "MESSAGES ${it.messageBody}, CHANNEL ${it.conversation.sid}" }
                     })
-                SET_ALL_CONSUMED -> channel!!.messages.setAllMessagesConsumedWithResult(ChatCallbackListener<Long>()
+                SET_ALL_CONSUMED -> conversation!!.setAllMessagesRead(ChatCallbackListener<Long>()
                     {unread -> TwilioApplication.instance.showToast("$unread messages still unread")})
-                SET_NONE_CONSUMED -> channel!!.messages.setNoMessagesConsumedWithResult(ChatCallbackListener<Long>()
+                SET_NONE_CONSUMED -> conversation!!.setAllMessagesUnread(ChatCallbackListener<Long>()
                     {unread -> TwilioApplication.instance.showToast("$unread messages still unread")})
-                DISABLE_PUSHES -> channel!!.setNotificationLevel(Channel.NotificationLevel.MUTED, ToastStatusListener(
+                DISABLE_PUSHES -> conversation!!.setNotificationLevel(Conversation.NotificationLevel.MUTED, ToastStatusListener(
                         "Successfully disabled pushes", "Error disabling pushes") {
                         finish()
                     })
-                ENABLE_PUSHES -> channel!!.setNotificationLevel(Channel.NotificationLevel.DEFAULT, ToastStatusListener(
+                ENABLE_PUSHES -> conversation!!.setNotificationLevel(Conversation.NotificationLevel.DEFAULT, ToastStatusListener(
                         "Successfully enabled pushes", "Error enabling pushes") {
                         finish()
                     })
@@ -220,27 +176,14 @@ class MessageActivity : Activity(), ChannelListener, AnkoLogger {
         }
     }
 
-    private fun getUsersPage(userDescriptorPaginator: Paginator<UserDescriptor>) {
-        for (u in userDescriptorPaginator.items) {
-            u.subscribe(ChatCallbackListener<User>() {
-                debug { "${it.identity} is a subscribed user now" }
-            })
-        }
-        if (userDescriptorPaginator.hasNextPage()) {
-            userDescriptorPaginator.requestNextPage(ChatCallbackListener<Paginator<UserDescriptor>>() {
-                getUsersPage(it)
-            })
-        }
-    }
-
     private fun showChangeNameDialog() {
         alert(R.string.title_update_friendly_name) {
             customView {
-                val friendly_name = editText { text.append(channel!!.friendlyName) }
+                val friendly_name = editText { text.append(conversation!!.friendlyName) }
                 positiveButton(R.string.update) {
                     val friendlyName = friendly_name.text.toString()
                     debug { friendlyName }
-                    channel!!.setFriendlyName(friendlyName, ToastStatusListener(
+                    conversation!!.setFriendlyName(friendlyName, ToastStatusListener(
                             "Successfully changed name", "Error changing name"))
                 }
                 negativeButton(R.string.cancel) {}
@@ -251,7 +194,7 @@ class MessageActivity : Activity(), ChannelListener, AnkoLogger {
     private fun showChangeTopicDialog() {
         alert(R.string.title_update_topic) {
             customView {
-                val topic = editText { text.append(channel!!.attributes.toString()) }
+                val topic = editText { text.append(conversation!!.attributes.toString()) }
                 positiveButton(R.string.change_topic) {
                     val topicText = topic.text.toString()
                     debug { topicText }
@@ -259,29 +202,13 @@ class MessageActivity : Activity(), ChannelListener, AnkoLogger {
                     try { // @todo Get attributes to update
                         JSONObject().apply {
                             put("Topic", topicText)
-                            channel!!.setAttributes(Attributes(this), ToastStatusListener(
+                            conversation!!.setAttributes(Attributes(this), ToastStatusListener(
                                     "Attributes were set successfullly.",
                                     "Setting attributes failed"))
                         }
                     } catch (ignored: JSONException) {
                         // whatever
                     }
-                }
-                negativeButton(R.string.cancel) {}
-            }
-        }.show()
-    }
-
-    private fun showInviteMemberDialog() {
-        alert(R.string.title_invite_member) {
-            customView {
-                val member = editText { hint = "Enter user id" }
-                positiveButton(R.string.invite_member) {
-                    val memberName = member.text.toString()
-                    debug { memberName }
-                    channel!!.members.inviteByIdentity(memberName, ToastStatusListener(
-                            "Invited user to channel",
-                            "Error in inviteByIdentity"))
                 }
                 negativeButton(R.string.cancel) {}
             }
@@ -295,7 +222,7 @@ class MessageActivity : Activity(), ChannelListener, AnkoLogger {
                 positiveButton(R.string.invite_member) {
                     val memberName = member.text.toString()
                     debug { memberName }
-                    channel!!.members.addByIdentity(memberName, ToastStatusListener(
+                    conversation!!.addParticipantByIdentity(memberName, Attributes(), ToastStatusListener(
                             "Successful addByIdentity",
                             "Error adding member"))
                 }
@@ -311,19 +238,19 @@ class MessageActivity : Activity(), ChannelListener, AnkoLogger {
                     val view = recyclerView {}.lparams(width = dip(250), height = matchParent)
                     negativeButton(R.string.cancel) {}
 
-                    view.adapter = SimpleRecyclerAdapter<Member>(
-                            ItemClickListener { member: Member, _, _ ->
-                                channel!!.members.remove(member, ToastStatusListener(
+                    view.adapter = SimpleRecyclerAdapter<Participant>(
+                            ItemClickListener { participant: Participant, _, _ ->
+                                conversation!!.removeParticipant(participant, ToastStatusListener(
                                         "Successful removeMember operation",
                                         "Error in removeMember operation"))
                                 // @todo update memberList here
                             },
-                            object : SimpleRecyclerAdapter.CreateViewHolder<Member>() {
-                                override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SettableViewHolder<Member> {
+                            object : SimpleRecyclerAdapter.CreateViewHolder<Participant>() {
+                                override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SettableViewHolder<Participant> {
                                     return MemberViewHolder(this@MessageActivity, parent)
                                 }
                             },
-                            channel!!.members.membersList)
+                            conversation!!.participantsList)
 
                     view.layoutManager = LinearLayoutManager(this@MessageActivity).apply {
                         orientation = LinearLayoutManager.VERTICAL
@@ -380,11 +307,11 @@ class MessageActivity : Activity(), ChannelListener, AnkoLogger {
     private fun showChangeUniqueNameDialog() {
         alert("Update channel unique name") {
             customView {
-                val uniqueNameText = editText { text.append(channel!!.uniqueName) }
+                val uniqueNameText = editText { text.append(conversation!!.uniqueName) }
                 positiveButton(R.string.update) {
                     val uniqueName = uniqueNameText.text.toString()
                     debug { uniqueName }
-                    channel!!.setUniqueName(uniqueName, ChatStatusListener());
+                    conversation!!.setUniqueName(uniqueName, ChatStatusListener());
                 }
                 negativeButton(R.string.cancel) {}
             }
@@ -392,12 +319,11 @@ class MessageActivity : Activity(), ChannelListener, AnkoLogger {
     }
 
     private fun loadAndShowMessages() {
-        channel!!.messages?.getLastMessages(50, ChatCallbackListener<List<Message>>() {
+        conversation!!.getLastMessages(50, ChatCallbackListener<List<Message>>() {
             messageItemList.clear()
-            val members = channel!!.members
             if (it.isNotEmpty()) {
                 for (i in it.indices) {
-                    messageItemList.add(MessageItem(it[i], members, identity))
+                    messageItemList.add(MessageItem(it[i], identity))
                 }
             }
             adapter.clear()
@@ -413,8 +339,8 @@ class MessageActivity : Activity(), ChannelListener, AnkoLogger {
                 override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
                 override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
                 override fun afterTextChanged(s: Editable) {
-                    if (channel != null) {
-                        channel!!.typing()
+                    if (conversation != null) {
+                        conversation!!.typing()
                     }
                 }
             })
@@ -453,7 +379,7 @@ class MessageActivity : Activity(), ChannelListener, AnkoLogger {
         }
     }
 
-    private fun setupListView(channel: Channel) {
+    private fun setupListView(conversation: Conversation) {
 //        message_list_view.viewTreeObserver.addOnScrollChangedListener {
 //            if (message_list_view.lastVisiblePosition >= 0 && message_list_view.lastVisiblePosition < adapter.itemCount) {
 //                val item = adapter.getItem(message_list_view.lastVisiblePosition)
@@ -479,7 +405,7 @@ class MessageActivity : Activity(), ChannelListener, AnkoLogger {
                         when (which) {
                             REMOVE -> {
                                 dialog.cancel()
-                                channel.messages.removeMessage(
+                                conversation.removeMessage(
                                         message.message, ToastStatusListener(
                                         "Successfully removed message. It should be GONE!!",
                                         "Error removing message") {
@@ -511,7 +437,7 @@ class MessageActivity : Activity(), ChannelListener, AnkoLogger {
     }
 
     private fun sendMessage(text: String) {
-        channel!!.messages.sendMessage(Message.options().withBody(text), ChatCallbackListener<Message>() {
+        conversation!!.sendMessage(Message.options().withBody(text), ChatCallbackListener<Message>() {
             TwilioApplication.instance.showToast("Successfully sent message");
             adapter.notifyDataSetChanged()
             messageInput.setText("")
@@ -534,17 +460,17 @@ class MessageActivity : Activity(), ChannelListener, AnkoLogger {
 
             startService<MediaService>(
                 MediaService.EXTRA_ACTION to MediaService.EXTRA_ACTION_UPLOAD,
-                MediaService.EXTRA_CHANNEL to channel as Parcelable,
+                MediaService.EXTRA_CHANNEL_SID to conversation!!.sid,
                 MediaService.EXTRA_MEDIA_URI to data?.data.toString())
         }
     }
 
     override fun onMessageAdded(message: Message) {
-        setupListView(channel!!)
+        setupListView(conversation!!)
 
         startService<MediaService>(
             MediaService.EXTRA_ACTION to MediaService.EXTRA_ACTION_DOWNLOAD,
-            MediaService.EXTRA_CHANNEL to channel as Parcelable,
+            MediaService.EXTRA_CHANNEL_SID to conversation!!.sid,
             MediaService.EXTRA_MESSAGE_INDEX to message.messageIndex)
     }
 
@@ -564,25 +490,25 @@ class MessageActivity : Activity(), ChannelListener, AnkoLogger {
         }
     }
 
-    override fun onMemberAdded(member: Member?) {
-        if (member != null) {
-            TwilioApplication.instance.showToast("${member.identity} joined")
+    override fun onParticipantAdded(participant: Participant?) {
+        if (participant != null) {
+            TwilioApplication.instance.showToast("${participant.identity} joined")
         }
     }
 
-    override fun onMemberUpdated(member: Member?, reason: Member.UpdateReason) {
+    override fun onParticipantUpdated(member: Participant?, reason: Participant.UpdateReason) {
         if (member != null) {
             TwilioApplication.instance.showToast("${member.identity} changed because of ${reason}")
         }
     }
 
-    override fun onMemberDeleted(member: Member?) {
+    override fun onParticipantDeleted(member: Participant?) {
         if (member != null) {
             TwilioApplication.instance.showToast("${member.identity} deleted")
         }
     }
 
-    override fun onTypingStarted(channel: Channel?, member: Member?) {
+    override fun onTypingStarted(channel: Conversation?, member: Participant?) {
         if (member != null) {
             val text = "${member.identity} is typing ..."
             typingIndicator.text = text
@@ -591,18 +517,18 @@ class MessageActivity : Activity(), ChannelListener, AnkoLogger {
         }
     }
 
-    override fun onTypingEnded(channel: Channel?, member: Member?) {
+    override fun onTypingEnded(channel: Conversation?, member: Participant?) {
         if (member != null) {
             typingIndicator.text = null
             debug { "${member.identity} finished typing" }
         }
     }
 
-    override fun onSynchronizationChanged(channel: Channel) {
+    override fun onSynchronizationChanged(channel: Conversation) {
         debug { "Received onSynchronizationChanged callback for ${channel.friendlyName}" }
     }
 
-    data class MessageItem(val message: Message, val members: Members, internal var currentUser: String);
+    data class MessageItem(val message: Message, /*val members: Members,*/ internal var currentUser: String);
 
     companion object {
         private val MESSAGE_OPTIONS = listOf("Remove", "Edit", "Get Attributes", "Edit Attributes")

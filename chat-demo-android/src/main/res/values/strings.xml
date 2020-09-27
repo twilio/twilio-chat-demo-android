@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Chat Debug</string>
+    <string name="app_name">Conversations Debug</string>
     <string name="client_name">Client Name</string>
     <string name="login">Log In</string>
     <string name="logout">Logout Client</string>
-    <string name="logging_in">Logging in. Please wait...</string>
-    <string name="invite_member">Invite Member</string>
-    <string name="channel_invite">Channel Invite</string>
-    <string name="channel_invite_message">You got a Channel Invite. Join it?</string>
+    <string name="logging_in">Logging in. Please wait…</string>
+    <string name="invite_member">REMOVE ME</string>
+    <string name="channel_invite">REMOVE ME</string>
+    <string name="channel_invite_message">REMOVE ME</string>
     <string name="join">Join</string>
     <string name="decline">Decline</string>
     <string name="conversation">Conversation</string>

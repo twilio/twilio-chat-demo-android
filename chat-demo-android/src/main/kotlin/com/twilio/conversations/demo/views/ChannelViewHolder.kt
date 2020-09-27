@@ -1,17 +1,16 @@
 package com.twilio.conversations.demo.views
 
 import android.content.Context
-import com.twilio.chat.demo.ConversationModel
-import com.twilio.chat.Channel.ChannelStatus
-import com.twilio.chat.Channel.ChannelType
-import com.twilio.chat.Channel.NotificationLevel
-import com.twilio.chat.CallbackListener
+import com.twilio.conversations.demo.ConversationModel
+import com.twilio.conversations.Conversation.ConversationStatus
+import com.twilio.conversations.Conversation.NotificationLevel
+import com.twilio.conversations.CallbackListener
+import com.twilio.conversations.Message
 import android.graphics.Color
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.TextView
-import com.twilio.chat.Message
-import com.twilio.chat.demo.R
+import com.twilio.conversations.demo.R
 import eu.inloop.simplerecycleradapter.SettableViewHolder
 import kotterknife.bindView
 import org.jetbrains.anko.*
@@ -51,21 +50,21 @@ class ChannelViewHolder : SettableViewHolder<ConversationModel>, AnkoLogger {
         else
             "Pushes: Default"
 
-        conversation.getUnconsumedMessagesCount(object : CallbackListener<Long>() {
+        conversation.getUnconsumedMessagesCount(object : CallbackListener<Long> {
             override fun onSuccess(value: Long?) {
                 Log.d("ChannelViewHolder", "getUnconsumedMessagesCount callback")
                 unconsumedMessagesCount.text = "Unread " + value!!.toString()
             }
         })
 
-        conversation.getMessagesCount(object : CallbackListener<Long>() {
+        conversation.getMessagesCount(object : CallbackListener<Long> {
             override fun onSuccess(value: Long?) {
                 Log.d("ChannelViewHolder", "getMessagesCount callback")
                 totalMessagesCount.text = "Messages " + value!!.toString()
             }
         })
 
-        conversation.getMembersCount(object : CallbackListener<Long>() {
+        conversation.getParticipantsCount(object : CallbackListener<Long> {
             override fun onSuccess(value: Long?) {
                 Log.d("ChannelViewHolder", "getMembersCount callback")
                 usersCount.text = "Members " + value!!.toString()
@@ -78,16 +77,10 @@ class ChannelViewHolder : SettableViewHolder<ConversationModel>, AnkoLogger {
         }
 
         itemView.setBackgroundColor(
-            if (conversation.status == ChannelStatus.JOINED) {
-                if (conversation.type == ChannelType.PRIVATE)
-                    Color.BLUE
-                else
-                    Color.WHITE
+            if (conversation.status == ConversationStatus.JOINED) {
+                Color.WHITE
             } else {
-                if (conversation.status == ChannelStatus.INVITED)
-                    Color.YELLOW
-                else
-                    Color.GRAY
+                Color.GRAY
             }
         )
     }

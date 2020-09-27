@@ -132,7 +132,7 @@ class BasicConversationsClient(private val context: Context)
     private fun createClient() {
         assert(conversationsClient == null)
 
-        val props = ConversationsClient.Properties.Builder()
+        val props = ConversationsClient.Properties.newBuilder()
                 .setRegion(realm)
                 .setDeferCertificateTrustToPlatform(!pinCerts)
                 .createProperties()

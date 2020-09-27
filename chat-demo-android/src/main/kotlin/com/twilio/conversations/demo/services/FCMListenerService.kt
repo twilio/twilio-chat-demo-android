@@ -10,11 +10,11 @@ import android.net.Uri
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.twilio.chat.NotificationPayload
-import com.twilio.chat.demo.Constants
-import com.twilio.chat.demo.R
-import com.twilio.chat.demo.TwilioApplication
-import com.twilio.chat.demo.activities.MessageActivity
+import com.twilio.conversations.NotificationPayload
+import com.twilio.conversations.demo.Constants
+import com.twilio.conversations.demo.R
+import com.twilio.conversations.demo.TwilioApplication
+import com.twilio.conversations.demo.activities.MessageActivity
 import org.jetbrains.anko.*
 
 class FCMListenerService : FirebaseMessagingService(), AnkoLogger {
@@ -32,7 +32,7 @@ class FCMListenerService : FirebaseMessagingService(), AnkoLogger {
 
             val payload = NotificationPayload(remoteMessage.data)
 
-            val client = TwilioApplication.instance.basicClient.chatClient
+            val client = TwilioApplication.instance.basicClient.conversationsClient
             client?.handleNotification(payload)
 
             val type = payload.type
@@ -43,18 +43,16 @@ class FCMListenerService : FirebaseMessagingService(), AnkoLogger {
 
             if (type == NotificationPayload.Type.NEW_MESSAGE)
                 title = "Twilio: New Message"
-            if (type == NotificationPayload.Type.ADDED_TO_CHANNEL)
+            if (type == NotificationPayload.Type.ADDED_TO_CONVERSATION)
                 title = "Twilio: Added to Channel"
-            if (type == NotificationPayload.Type.INVITED_TO_CHANNEL)
-                title = "Twilio: Invited to Channel"
-            if (type == NotificationPayload.Type.REMOVED_FROM_CHANNEL)
+            if (type == NotificationPayload.Type.REMOVED_FROM_CONVERSATION)
                 title = "Twilio: Removed from Channel"
 
             // Set up action Intent
             val intent = Intent(this, MessageActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
 
-            val cSid = payload.channelSid
+            val cSid = payload.conversationSid
             if (!"".contentEquals(cSid)) {
                 intent.putExtra(Constants.EXTRA_CHANNEL_SID, cSid)
             }

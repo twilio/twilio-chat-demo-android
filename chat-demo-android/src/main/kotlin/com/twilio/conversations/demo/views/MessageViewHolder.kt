@@ -1,10 +1,12 @@
 package com.twilio.conversations.demo.views
 
 import android.content.Context
-import com.twilio.chat.CallbackListener
-import com.twilio.chat.Member
-import com.twilio.chat.User
-import com.twilio.chat.demo.R
+import com.twilio.conversations.CallbackListener
+import com.twilio.conversations.Participant
+import com.twilio.conversations.User
+import com.twilio.conversations.demo.R
+import com.twilio.conversations.demo.TwilioApplication
+import com.twilio.conversations.demo.activities.MessageActivity
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.net.Uri
@@ -16,8 +18,6 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import kotterknife.bindView
-import com.twilio.chat.demo.TwilioApplication
-import com.twilio.chat.demo.activities.MessageActivity
 import eu.inloop.simplerecycleradapter.SettableViewHolder
 import java.io.File
 
@@ -43,21 +43,21 @@ class MessageViewHolder(val context: Context, parent: ViewGroup)
         identities.removeAllViews()
         lines.removeAllViews()
 
-        for (member in message.members.membersList) {
-            if (msg.author.contentEquals(member.identity)) {
-                fillUserAvatar(avatarView, member)
-                fillUserReachability(reachabilityView, member)
-            }
-
-            if (member.lastConsumedMessageIndex != null && member.lastConsumedMessageIndex == message.message.messageIndex) {
-                drawConsumptionHorizon(member)
-            }
-        }
+//        for (member in message.membersList) {
+//            if (msg.author.contentEquals(member.identity)) {
+//                fillUserAvatar(avatarView, member)
+//                fillUserReachability(reachabilityView, member)
+//            }
+//
+//            if (member.lastConsumedMessageIndex != null && member.lastConsumedMessageIndex == message.message.messageIndex) {
+//                drawConsumptionHorizon(member)
+//            }
+//        }
 
         if (msg.hasMedia()) {
             body.visibility = View.GONE
             mediaView.visibility = View.VISIBLE
-            mediaView.setImageURI(Uri.fromFile(File(context.cacheDir, msg.media.sid)))
+            mediaView.setImageURI(Uri.fromFile(File(context.cacheDir, msg.mediaSid)))
         }
     }
 
@@ -65,7 +65,7 @@ class MessageViewHolder(val context: Context, parent: ViewGroup)
         date.visibility = if (date.visibility == View.GONE) View.VISIBLE else View.GONE
     }
 
-    private fun drawConsumptionHorizon(member: Member) {
+    private fun drawConsumptionHorizon(member: Participant) {
         val ident = member.identity
         val color = getMemberRgb(ident)
 
@@ -90,8 +90,8 @@ class MessageViewHolder(val context: Context, parent: ViewGroup)
         lines.addView(line)
     }
 
-    private fun fillUserAvatar(avatarView: ImageView, member: Member) {
-        TwilioApplication.instance.basicClient.chatClient?.users?.getAndSubscribeUser(member.identity, object : CallbackListener<User>() {
+    private fun fillUserAvatar(avatarView: ImageView, member: Participant) {
+        TwilioApplication.instance.basicClient.conversationsClient?.getAndSubscribeUser(member.identity, object : CallbackListener<User> {
             override fun onSuccess(user: User) {
                 val attributes = user.attributes
                 val avatar = attributes.jsonObject?.opt("avatar") as String?
@@ -106,11 +106,11 @@ class MessageViewHolder(val context: Context, parent: ViewGroup)
         })
     }
 
-    private fun fillUserReachability(reachabilityView: ImageView, member: Member) {
-        if (!TwilioApplication.instance.basicClient.chatClient?.isReachabilityEnabled!!) {
+    private fun fillUserReachability(reachabilityView: ImageView, member: Participant) {
+        if (!TwilioApplication.instance.basicClient.conversationsClient?.isReachabilityEnabled!!) {
             reachabilityView.setImageResource(R.drawable.reachability_disabled)
         } else {
-            member.getAndSubscribeUser(object : CallbackListener<User>() {
+            member.getAndSubscribeUser(object : CallbackListener<User> {
                 override fun onSuccess(user: User) {
                     if (user.isOnline) {
                         reachabilityView.setImageResource(R.drawable.reachability_online)

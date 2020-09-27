@@ -1,14 +1,14 @@
 package com.twilio.conversations.demo.views
 
 import android.content.Context
-import com.twilio.chat.demo.R
-import com.twilio.chat.Member
+import com.twilio.conversations.demo.R
+import com.twilio.conversations.Participant
 import android.view.ViewGroup
 import android.widget.TextView
 import kotterknife.bindView
 import eu.inloop.simplerecycleradapter.SettableViewHolder
 
-class MemberViewHolder : SettableViewHolder<Member> {
+class MemberViewHolder : SettableViewHolder<Participant> {
     private val memberIdentity: TextView by bindView(R.id.identity)
 //    private val memberSid: TextView by bindView(R.id.member_sid)
 
@@ -16,8 +16,7 @@ class MemberViewHolder : SettableViewHolder<Member> {
         : super(context, R.layout.member_item_layout, parent)
     {}
 
-    override fun setData(member: Member) {
+    override fun setData(member: Participant) {
         memberIdentity.text = member.identity
-//        memberSid.text = member.sid
     }
 }
