@@ -22,11 +22,11 @@ What you'll minimally need to get started:
 
 ### Add google-services.json
 
-[Generate google-services.json](https://firebase.google.com/docs/crashlytics/upgrade-sdk?platform=android#add-config-file) file and place it under `chat-demo-android/`.
+[Generate google-services.json](https://support.google.com/firebase/answer/7015592?hl=en) file and place it under `chat-demo-android/`.
 
 ### Set the value of `ACCESS_TOKEN_SERVICE_URL`
 
-Set the value of `ACCESS_TOKEN_SERVICE_URL` in chat-demo-android/gradle.properties file to point to a valid Access-Token server.
+Set the value of `ACCESS_TOKEN_SERVICE_URL` in `gradle.properties` file to point to a valid Access-Token server.
 
 Create that file if it doesn't exist with the following contents:
 
