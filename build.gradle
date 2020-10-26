@@ -8,9 +8,9 @@ buildscript {
         androidMinSdkVersion = 21
         androidCompileSdkVersion = 30
         androidBuildToolsVersion = "30.0.2"
-        androidXVersion = "1.1.0"
+        androidXVersion = "1.2.0"
         kotlinVersion = "1.4.10"
-        kotlinCoroutinesVersion = "1.3.2"
+        kotlinCoroutinesVersion = "1.3.8"
     }
     repositories {
         google()
