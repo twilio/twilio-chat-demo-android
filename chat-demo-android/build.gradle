@@ -25,7 +25,7 @@ dependencies {
     implementation "com.jakewharton:kotterknife:0.1.0-SNAPSHOT"
     implementation "eu.inloop:simplerecycleradapter:0.3.4"
 
-    implementation 'com.twilio:chat-android-with-symbols:5.0.1'
+    implementation 'com.twilio:chat-android-with-symbols:6.1.0'
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
