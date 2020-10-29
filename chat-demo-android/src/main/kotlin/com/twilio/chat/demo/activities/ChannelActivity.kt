@@ -52,9 +52,9 @@ class ChannelActivity : Activity(), ChatClientListener, AnkoLogger {
         getChannels()
     }
 
-    override fun onCreateDescription(): CharSequence? {
+    override fun onDestroy() {
         basicClient.chatClient?.removeListener(this@ChannelActivity)
-        return super.onCreateDescription()
+        super.onDestroy()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
