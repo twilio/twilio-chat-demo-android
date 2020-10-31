@@ -54,21 +54,21 @@ class ChannelViewHolder : SettableViewHolder<ChannelModel>, AnkoLogger {
         channel.getUnconsumedMessagesCount(object : CallbackListener<Long>() {
             override fun onSuccess(value: Long?) {
                 Log.d("ChannelViewHolder", "getUnconsumedMessagesCount callback")
-                unconsumedMessagesCount.text = "Unread " + value!!.toString()
+                unconsumedMessagesCount.text = "Unread " + (value?.toString() ?: 0)
             }
         })
 
         channel.getMessagesCount(object : CallbackListener<Long>() {
             override fun onSuccess(value: Long?) {
                 Log.d("ChannelViewHolder", "getMessagesCount callback")
-                totalMessagesCount.text = "Messages " + value!!.toString()
+                totalMessagesCount.text = "Messages " + (value?.toString() ?: 0)
             }
         })
 
         channel.getMembersCount(object : CallbackListener<Long>() {
             override fun onSuccess(value: Long?) {
                 Log.d("ChannelViewHolder", "getMembersCount callback")
-                usersCount.text = "Members " + value!!.toString()
+                usersCount.text = "Members " + (value?.toString() ?: 0)
             }
         })
 
