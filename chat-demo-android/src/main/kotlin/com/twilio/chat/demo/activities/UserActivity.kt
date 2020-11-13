@@ -26,6 +26,56 @@ class UserActivity : Activity() {
     internal var client: ChatClient? = null
     internal var bitmap: Bitmap? = null
 
+    private val chatClientListener = object : ChatClientListener {
+        override fun onChannelAdded(channel: Channel) {}
+
+        override fun onChannelUpdated(channel: Channel, reason: Channel.UpdateReason) {}
+
+        override fun onChannelDeleted(channel: Channel) {}
+
+        override fun onChannelInvited(channel: Channel) {}
+
+        override fun onChannelJoined(channel: Channel) {}
+
+        override fun onError(error: ErrorInfo) {
+            TwilioApplication.instance.showError("Error listening for userInfoChange", error)
+        }
+
+        override fun onChannelSynchronizationChange(channel: Channel) {}
+
+        override fun onUserUpdated(user: User, reason: User.UpdateReason) {
+            if (reason == User.UpdateReason.ATTRIBUTES) {
+                fillUserAvatar()
+            }
+            TwilioApplication.instance.showToast("Update successful for user attributes")
+        }
+
+        override fun onUserSubscribed(user: User) {}
+
+        override fun onUserUnsubscribed(user: User) {}
+
+        override fun onClientSynchronization(synchronizationStatus: ChatClient.SynchronizationStatus) {}
+
+        override fun onNewMessageNotification(channelSid: String?, messageSid: String?, messageIndex: Long) {}
+        override fun onAddedToChannelNotification(channelSid: String?) {}
+        override fun onInvitedToChannelNotification(channelSid: String?) {}
+        override fun onRemovedFromChannelNotification(channelSid: String?) {}
+
+        override fun onNotificationSubscribed() {}
+
+        override fun onNotificationFailed(errorInfo: ErrorInfo) {}
+
+        override fun onConnectionStateChange(connectionState: ChatClient.ConnectionState) {}
+
+        override fun onTokenExpired() {
+            TwilioApplication.instance.basicClient.onTokenExpired()
+        }
+
+        override fun onTokenAboutToExpire() {
+            TwilioApplication.instance.basicClient.onTokenAboutToExpire()
+        }
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.channel, menu)
         return true
@@ -33,7 +83,12 @@ class UserActivity : Activity() {
 
     public override fun onResume() {
         super.onResume()
-        setListener()
+        client?.addListener(chatClientListener)
+    }
+
+    override fun onPause() {
+        client?.removeListener(chatClientListener)
+        super.onPause()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -123,58 +178,6 @@ class UserActivity : Activity() {
         }
 
         return Bitmap.createScaledBitmap(image, width, height, true)
-    }
-
-    private fun setListener() {
-        client?.setListener(object : ChatClientListener {
-            override fun onChannelAdded(channel: Channel) {}
-
-            override fun onChannelUpdated(channel: Channel, reason: Channel.UpdateReason) {}
-
-            override fun onChannelDeleted(channel: Channel) {}
-
-            override fun onChannelInvited(channel: Channel) {}
-
-            override fun onChannelJoined(channel: Channel) {}
-
-            override fun onError(error: ErrorInfo) {
-                TwilioApplication.instance.showError("Error listening for userInfoChange", error)
-            }
-
-            override fun onChannelSynchronizationChange(channel: Channel) {}
-
-            override fun onUserUpdated(user: User, reason: User.UpdateReason) {
-                if (reason == User.UpdateReason.ATTRIBUTES) {
-                    fillUserAvatar()
-                }
-                TwilioApplication.instance.showToast("Update successful for user attributes")
-            }
-
-            override fun onUserSubscribed(user: User) {}
-
-            override fun onUserUnsubscribed(user: User) {}
-
-            override fun onClientSynchronization(synchronizationStatus: ChatClient.SynchronizationStatus) {}
-
-            override fun onNewMessageNotification(channelSid: String?, messageSid: String?, messageIndex: Long) {}
-            override fun onAddedToChannelNotification(channelSid: String?) {}
-            override fun onInvitedToChannelNotification(channelSid: String?) {}
-            override fun onRemovedFromChannelNotification(channelSid: String?) {}
-
-            override fun onNotificationSubscribed() {}
-
-            override fun onNotificationFailed(errorInfo: ErrorInfo) {}
-
-            override fun onConnectionStateChange(connectionState: ChatClient.ConnectionState) {}
-
-            override fun onTokenExpired() {
-                TwilioApplication.instance.basicClient.onTokenExpired()
-            }
-
-            override fun onTokenAboutToExpire() {
-                TwilioApplication.instance.basicClient.onTokenAboutToExpire()
-            }
-        })
     }
 
     companion object {

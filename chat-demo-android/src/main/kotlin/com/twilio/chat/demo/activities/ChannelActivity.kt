@@ -43,13 +43,18 @@ class ChannelActivity : Activity(), ChatClientListener, AnkoLogger {
         setContentView(R.layout.activity_channel)
 
         basicClient = TwilioApplication.instance.basicClient
-        basicClient.chatClient?.setListener(this@ChannelActivity)
+        basicClient.chatClient?.addListener(this@ChannelActivity)
         setupListView()
     }
 
     override fun onResume() {
         super.onResume()
         getChannels()
+    }
+
+    override fun onDestroy() {
+        basicClient.chatClient?.removeListener(this@ChannelActivity)
+        super.onDestroy()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
