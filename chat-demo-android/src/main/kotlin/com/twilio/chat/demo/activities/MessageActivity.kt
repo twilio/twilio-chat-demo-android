@@ -204,10 +204,10 @@ class MessageActivity : Activity(), ChannelListener, AnkoLogger {
                         TwilioApplication.instance.showToast("SUCCESS GET MESSAGE BY IDX")
                         error { "MESSAGES ${it.messages.toString()}, CHANNEL ${it.channel.sid}" }
                     })
-                SET_ALL_CONSUMED -> channel!!.messages.setAllMessagesConsumedWithResult(ChatCallbackListener<Long?>()
-                    {unread -> TwilioApplication.instance.showToast("${unread ?: 0} messages still unread")})
+                SET_ALL_CONSUMED -> channel!!.messages.setAllMessagesConsumedWithResult(ChatCallbackListener<Long>()
+                    {unread -> TwilioApplication.instance.showToast("$unread messages still unread")})
                 SET_NONE_CONSUMED -> channel!!.messages.setNoMessagesConsumedWithResult(ChatCallbackListener<Long?>()
-                    {unread -> TwilioApplication.instance.showToast("${unread ?: 0} messages still unread")})
+                    {unread -> TwilioApplication.instance.showToast("${unread ?: "All"} messages still unread")})
                 DISABLE_PUSHES -> channel!!.setNotificationLevel(Channel.NotificationLevel.MUTED, ToastStatusListener(
                         "Successfully disabled pushes", "Error disabling pushes") {
                         finish()
