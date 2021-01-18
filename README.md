@@ -22,7 +22,7 @@ What you'll minimally need to get started:
 
 ### Add google-services.json
 
-[Generate google-services.json](https://developers.google.com/mobile/add) file and place it under `chat-demo-android/`.
+[Generate google-services.json](https://firebase.google.com/docs/crashlytics/upgrade-sdk?platform=android#add-config-file) file and place it under `chat-demo-android/`.
 
 ### Set the value of `ACCESS_TOKEN_SERVICE_URL`
 
@@ -45,9 +45,9 @@ You can also pass this parameter to gradle during build without need to create a
 ### Optionally setup Firebase Crashlytics
 
 If you want to see crashes reported to crashlytics:
-1. [Set up Crashlytics in the Firebase console](https://firebase.google.com/docs/crashlytics/get-started-new-sdk?platform=android&authuser=1#set-up-console)
+1. [Set up Crashlytics in the Firebase console](https://firebase.google.com/docs/crashlytics/get-started?platform=android#setup-console)
 
-2. In order to see native crashes symbolicated upload symbols into the Firebase console :
+2. In order to see native crashes symbolicated upload symbols into the Firebase console:
 ```
 ./gradlew chat-demo-android:assembleBUILD_VARIANT
 ./gradlew chat-demo-android:uploadCrashlyticsSymbolFileBUILD_VARIANT
@@ -58,7 +58,7 @@ for example to upload symbols for `debug` build type run:
 ./gradlew chat-demo-android:uploadCrashlyticsSymbolFileDebug
 ```
 
-[Read more](https://firebase.google.cn/docs/crashlytics/ndk-reports-new-sdk) about Android NDK crash reports.
+[Read more](https://firebase.google.com/docs/crashlytics/upgrade-sdk?platform=android#optional_step_set_up_ndk_crash_reporting) about Android NDK crash reports.
 
 3. Login into `chat-demo-android` application and navigate to `Menu -> Options -> Simulate crash` in order to check that crashes coming into Firebase console.
 
@@ -68,7 +68,7 @@ Run `./gradlew assembleDebug` to fetch Twilio SDK files and build application.
 
 ### Android Studio
 
-You can import this project into Android Studio if you so desire by selecting `Import Project (Eclipse ADT, Gradle, etc)` from the menu and then build using Studio's Build menu.
+You can import this project into Android Studio and then build as you would ordinarily. The token server setup is still important.
 
 ### Debug
 
