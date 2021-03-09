@@ -27,7 +27,7 @@ dependencies {
 
     implementation 'com.twilio:chat-android-with-symbols:6.1.1'
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
     implementation "org.jetbrains.anko:anko:0.10.5"
 
@@ -89,7 +89,12 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-     dexOptions {
+    kotlinOptions {
+        jvmTarget = "1.8"
+        useIR = true
+    }
+
+    dexOptions {
         javaMaxHeapSize "4g"
     }
 
