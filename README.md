@@ -1,3 +1,7 @@
+# This repository is deprecated
+
+The new version of the Chat Demo Application is available in [twilio-chat-demo-kotlin](https://github.com/twilio/twilio-chat-demo-kotlin). It is an example of better app architecture and demonstrates best practices in implementing Twilio-based Chat.
+
 # Chat Demo Application Overview
 
 ## This is Kotlin version of the Demo app
